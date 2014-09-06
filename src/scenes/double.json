@@ -1,0 +1,84 @@
+{
+  "camera": {
+    "position": [0.0, 0.0, 4.0],
+    "reference": [0.0, 0.0, 0.0],
+    "upDirection": [0.0, 1.0, 0.0],
+    "frame": {
+      "bottom": -5.0,
+      "top": 5.0,
+      "left": -5.0,
+      "right": 5.0,
+      "near": -2.0
+    }
+  },
+  "scene": { 
+    "lights": [
+        {
+          "position" : [-11.0, 11.0, 1.0],
+          "color": [0.8, 0.8, 0.8]
+        }
+    ],
+    "surfaces": [
+      {
+        "type": "sphere", 
+        "material": "red",
+        "center": [0.0, 2.3, 0.0],
+        "radius": 1.0
+      },
+      {
+        "type": "sphere", 
+        "material": "green",
+        "center": [0.0, 0.5, 0.0],
+        "radius": 1.5
+      },
+      {
+        "type": "sphere", 
+        "material": "blue",
+        "center": [0.0, -2.0, 0.0],
+        "radius": 2.0 
+      }
+    ],
+    "materials": [
+      {
+        "name": "red",
+        "ambient": {
+          "color": [0.2, 0.0, 0.0]
+        },
+        "diffuse": {
+          "color": [1.0, 0.2, 0.2]
+        },
+        "specular": {
+          "color": [1.0, 1.0, 1.0],
+          "exponent": 32.0
+        }
+      },
+      {
+        "name": "green",
+        "ambient": {
+          "color": [0.0, 0.2, 0.0]
+        },
+        "diffuse": {
+          "color": [0.2, 1.0, 0.2]
+        },
+        "specular": {
+          "color": [0.8, 0.8, 0.8],
+          "exponent": 24.0
+        }
+      },
+      {
+        "name": "blue",
+        "ambient": {
+          "color": [0.0, 0.0, 0.2]
+        },
+        "diffuse": {
+          "color": [0.2, 0.2, 1.0]
+        },
+        "specular": {
+          "color": [0.8, 0.8, 0.8],
+          "exponent": 32.0
+        }
+      }
+
+    ]
+  }
+}
