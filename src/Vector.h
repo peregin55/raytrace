@@ -8,7 +8,6 @@
 class Vector : public AbstractPosition {
   public:
     Vector(double x, double y, double z) : AbstractPosition(x, y, z) { }
-    Vector(const Vector& other) : AbstractPosition(other[X], other[Y], other[Z]) { }
     virtual ~Vector();
     Vector operator*(double scalar) const;
     Vector operator/(double scalar) const;

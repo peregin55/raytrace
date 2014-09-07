@@ -22,3 +22,6 @@
 
 # OS X
 .DS_Store
+
+# binary
+raytrace

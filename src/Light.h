@@ -6,7 +6,7 @@
 
 class Light {
   public:
-    Light(Point position, Color color) : position(position), color(color) { }
+    Light(const Point &position, const Color &color) : position(position), color(color) { }
     const Point& getPosition() const { return position; }
     const Color& getColor() const { return color; }
   private:

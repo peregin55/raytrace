@@ -7,15 +7,15 @@ using namespace std;
 class Material {
   public:
     Material() { }
-    Material(string name, 
-      Color ambientColor,
-      Color diffuseColor,
-      Color specularColor,
-      double specularExponent) :
+    Material(const string& name,
+             const Color& ambientColor,
+             const Color& diffuseColor,
+             const Color& specularColor,
+             double specularExponent) :
         name(name),
         ambientColor(ambientColor),
         diffuseColor(diffuseColor),
-        specularColor(specularColor), 
+        specularColor(specularColor),
         specularExponent(specularExponent) {}
 
     const string& getName() const { return name; }
