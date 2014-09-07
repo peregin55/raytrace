@@ -10,6 +10,7 @@
 #include "Material.h"
 #include "Scene.h"
 #include "Sphere.h"
+#include "Plane.h"
 #include "Vector.h"
 using namespace std;
 
@@ -65,6 +66,11 @@ vector<shared_ptr<Surface>> FileParser::parseSurfaces(Json::Value surfacesNode) 
       Point center = parsePoint(surfacesNode[i]["center"], "sphere center");
       double radius = parseDouble(surfacesNode[i]["radius"], "sphere radius");
       surfaces.push_back(shared_ptr<Surface>(new Sphere(materialName, center, radius)));
+    }
+    if (type == "plane") {
+      Point point = parsePoint(surfacesNode[i]["point"], "point on plane");
+      Vector normal = parseVector(surfacesNode[i]["normal"], "surface normal");
+      surfaces.push_back(shared_ptr<Surface>(new Plane(materialName, point, normal)));
     }
   }
   return surfaces;
