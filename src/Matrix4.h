@@ -10,7 +10,6 @@ class Matrix4 {
             double yx, double yy, double yz, double yw,
             double zx, double zy, double zz, double zw,
             double wx, double wy, double wz, double ww);
-
     double operator()(int row, int col) const;
     Matrix4 operator*(const Matrix4& other) const;
     Point operator*(const Point& other) const;

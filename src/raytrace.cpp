@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include <math.h>
+#include <cmath>
 #include <GL/glut.h>
 #include "json/json.h"
 #include "Camera.h"
@@ -16,15 +16,7 @@
 #include "Vector.h"
 using namespace std;
 
-// projections from point of view of camera
-// far plane has to be negative (ie in front of camera)
-// note that projF and camera[Z] are related:
-// the image plane is at Z=0, which is against the far side
-// of the canonical-view-volume (aligned with pos-x,pos-y).
-// when this is translated to camera-space, the far side 
-// becomes the far plane
-//static const double projL(-5.0),projB(-5.0),projF(5.0);
-//static const double projR(5.0),projT(5.0),projN(6.0);
+// size of image plane, number of pixels
 static GLsizei width = 300;
 static GLsizei height = 300;
 // contiguous 1D array of dimensions image[height][width][3]
@@ -37,22 +29,22 @@ bool shouldDebug = false;
 // do inverse orthographic projection, ignoring z since this is a plane
 // as last step, translate plane to correct z-value
 static Point pixel2world(int x, int y) {
-  Point pixel = Point(x, y, 0);
-  Matrix4 inverseViewport = translate(-1.0, -1.0, 0.0) * scale(2.0/width, 2.0/height, 1.0) * translate(0.5, 0.5, 0.0);
-  Matrix4 inverseProj = translate(camera->getFrameLeft(), camera->getFrameBottom(), 0.0) *
-                        scale((camera->getFrameRight() - camera->getFrameLeft())/2.0, 
-                              (camera->getFrameTop() - camera->getFrameBottom())/2.0, 1.0) * translate(1.0, 1.0, 0.0);
-  Vector w = -(camera->getReference() - camera->getPosition()).normalized();
+  // screen coordinates (x,y) -> camera coordinates (aka pixel)
+  double frameWidth = camera->getFrameRight() - camera->getFrameLeft();
+  double frameHeight = camera->getFrameTop() - camera->getFrameBottom();
+  double xcamera = ((double)x)/width * frameWidth + camera->getFrameLeft();
+  double ycamera = ((double)y)/height * frameHeight + camera->getFrameBottom();
+  Point pixel = Point(xcamera, ycamera, camera->getFrameNear());
+  // camera coordinates to world coordinates
+  Vector w = (camera->getPosition() - camera->getReference()).normalized();
   Vector u = (camera->getUp().cross(w)).normalized();
-  Vector v = w.cross(u);
-  Matrix4 inverseCam = translate(camera->getPosition()[X], camera->getPosition()[Y], camera->getPosition()[Z]) *
-     Matrix4(u[X], v[X], w[X], 0,
-            u[Y], v[Y], w[Y], 0,
-            u[Z], v[Z], w[Z], 0, 
-            0,    0,    0,    1);
-  // treated inverseViewport, inverseProj as 2-dimensions, now take near(Z) into account
-  Matrix4 translateToNear = translate(0.0, 0.0, camera->getFrameNear());
-  return translateToNear * inverseCam * inverseProj * inverseViewport * pixel;
+  Vector v = w.cross(u).normalized();
+  const Point& o = camera->getPosition();
+  Matrix4 cam2world = Matrix4(u[X], v[X], w[X], o[X],
+                              u[Y], v[Y], w[Y], o[Y],
+                              u[Z], v[Z], w[Z], o[Z],
+                              0,    0,    0,    1);
+  return cam2world * pixel;
 }
                      
 /*
@@ -75,29 +67,24 @@ static Point pixel2world(int x, int y, const Point& camera, const Point& gaze, c
 static void render() {
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
+      /*
       if (x == 150 && y == 150) {
         shouldDebug = true;
       }
       else {
         shouldDebug = false;
       }
+      */
       Point p = pixel2world(x, y);
-
       if (shouldDebug) {
         cerr << "camera point is " << camera->getPosition() << "\n";
         cerr << "screen (0, 150)  in world is " << pixel2world(0, 150) << "\n";
-        cerr << "screen (" << width << ", " << "150) in world is " << pixel2world(width, 150) << "\n";
         cerr << "screen (" << x << ", " << y << ") in world is " << p << "\n";
+        cerr << "screen (" << width << ", " << "150) in world is " << pixel2world(width, 150) << "\n";
       }
-
       Vector d = (p - camera->getPosition()).normalized();
       Ray ray(p, d);
       Color color = scene->render(ray);
-      /*
-      if (color.getRed() == 0.4 && color.getGreen() == 0.4 && color.getBlue() == 0.4) {
-        cerr << x << ", " << y << "\n";
-      }
-      */
       if (shouldDebug) {
         color = Color(0.0, 0.0, 0.0);
       }
@@ -107,28 +94,6 @@ static void render() {
       *pixel = fmin(255, 255 * color.getBlue());
     }
   }
- 
-  /*
-  for (int y = 0; y < height; y++) {
-    for (int x = 0; x < width; x++) {
-      Point p(x, y, 0.0);
-      Vector d = p - camera;
-      Ray ray(p, d);
-      Hit h = sphere.intersect(ray, 0, 1000.0);
-      GLubyte* pixel = image + (y*width + x) * 3;
-      if (h.getT() > 0) {
-        *pixel++ = 255;
-        *pixel++ = 255;
-        *pixel = 255;
-      }
-      else {
-        *pixel++ = 0;
-        *pixel++ = 0;
-        *pixel = 0;
-      }
-    }
-  }
-  */
 }
 
 static void display() {
