@@ -2,12 +2,12 @@
 #define VECTOR_H
 #include <iostream>
 #include <string>
-#include "AbstractPosition.h"
+#include "Cartesian.h"
 #include "Point.h"
 
-class Vector : public AbstractPosition {
+class Vector : public Cartesian {
   public:
-    Vector(double x, double y, double z) : AbstractPosition(x, y, z) { }
+    Vector(double x, double y, double z) : Cartesian(x, y, z) { }
     virtual ~Vector();
     Vector operator*(double scalar) const;
     Vector operator/(double scalar) const;

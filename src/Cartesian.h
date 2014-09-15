@@ -1,18 +1,18 @@
-#ifndef ABSTRACTPOSITION_H
-#define  ABSTRACTPOSITION_H
+#ifndef CARTESIAN_H
+#define CARTESIAN_H 
 
 #include <string>
 using namespace std;
 
 enum Coordinate {X,Y,Z};
 
-class AbstractPosition {
+class Cartesian {
   public:
-    virtual ~AbstractPosition();
+    virtual ~Cartesian();
     double operator[](Coordinate c) const;
     virtual string toString() const;
   protected:
-    AbstractPosition(double x, double y, double z);
+    Cartesian(double x, double y, double z);
     double coord[3];
 };
 #endif

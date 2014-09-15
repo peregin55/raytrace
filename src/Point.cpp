@@ -6,7 +6,7 @@ Point::~Point() {
 
 string Point::toString() const {
   ostringstream s;
-  s << "Point" << AbstractPosition::toString();
+  s << "Point" << Cartesian::toString();
   return s.str();
 }
 

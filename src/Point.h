@@ -2,11 +2,11 @@
 #define POINT_H
 
 #include <string>
-#include "AbstractPosition.h"
+#include "Cartesian.h"
 
-class Point : public AbstractPosition {
+class Point : public Cartesian {
   public:
-    Point(double x, double y, double z) : AbstractPosition(x, y, z) { }
+    Point(double x, double y, double z) : Cartesian(x, y, z) { }
     virtual ~Point();
     virtual string toString() const;
 };

@@ -62,7 +62,7 @@ Vector Vector::normalized() const {
 
 string Vector::toString() const {
   ostringstream s;
-  s << "Vector" << AbstractPosition::toString();
+  s << "Vector" << Cartesian::toString();
   return s.str();
 }
 
