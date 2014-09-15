@@ -15,7 +15,7 @@ class Sphere : public Surface {
     virtual unique_ptr<Hit> intersect(const Ray& ray, double t0, double t1) const;
     virtual Vector calculateNormal(const Point& surfacePoint) const;
   private:
-    const Point center;
-    const double radius;
+    Point center;
+    double radius;
 };
 #endif

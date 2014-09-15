@@ -75,20 +75,21 @@ static Point pixel2world(int x, int y, const Point& camera, const Point& gaze, c
 static void render() {
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
-      /*
       if (x == 150 && y == 150) {
         shouldDebug = true;
       }
       else {
         shouldDebug = false;
       }
-      */ 
       Point p = pixel2world(x, y);
 
       if (shouldDebug) {
         cerr << "camera point is " << camera->getPosition() << "\n";
-        cerr << "point is " << p << "\n";
+        cerr << "screen (0, 150)  in world is " << pixel2world(0, 150) << "\n";
+        cerr << "screen (" << width << ", " << "150) in world is " << pixel2world(width, 150) << "\n";
+        cerr << "screen (" << x << ", " << y << ") in world is " << p << "\n";
       }
+
       Vector d = (p - camera->getPosition()).normalized();
       Ray ray(p, d);
       Color color = scene->render(ray);
