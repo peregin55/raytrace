@@ -26,44 +26,28 @@ static unique_ptr<Camera> camera;
 
 bool shouldDebug = false;
 
-// do inverse orthographic projection, ignoring z since this is a plane
-// as last step, translate plane to correct z-value
+// convert pixel coordinates to world coordinates.
+// conceptually similar to walking backwards through graphics pipeline,
+// but no canonical view volume/projection needed
 static Point pixel2world(int x, int y) {
   // screen coordinates (x,y) -> camera coordinates (aka pixel)
   double frameWidth = camera->getFrameRight() - camera->getFrameLeft();
   double frameHeight = camera->getFrameTop() - camera->getFrameBottom();
   double xcamera = ((double)x)/width * frameWidth + camera->getFrameLeft();
   double ycamera = ((double)y)/height * frameHeight + camera->getFrameBottom();
-  Point pixel = Point(xcamera, ycamera, camera->getFrameNear());
+  Point pixel(xcamera, ycamera, camera->getFrameNear());
   // camera coordinates to world coordinates
   Vector w = (camera->getPosition() - camera->getReference()).normalized();
   Vector u = (camera->getUp().cross(w)).normalized();
   Vector v = w.cross(u).normalized();
   const Point& o = camera->getPosition();
-  Matrix4 cam2world = Matrix4(u[X], v[X], w[X], o[X],
-                              u[Y], v[Y], w[Y], o[Y],
-                              u[Z], v[Z], w[Z], o[Z],
-                              0,    0,    0,    1);
+  Matrix4 cam2world(u[X], v[X], w[X], o[X],
+                    u[Y], v[Y], w[Y], o[Y],
+                    u[Z], v[Z], w[Z], o[Z],
+                    0,    0,    0,    1);
   return cam2world * pixel;
 }
                      
-/*
-static Point pixel2world(int x, int y, const Point& camera, const Point& gaze, const Vector& camUp) {
-  Point pixel = Point(x, y, 0.0);
-  Matrix4 inverseViewport = translate(-1.0, -1.0, 0.0) * scale(2.0/width, 2.0/height, 1.0) * translate(0.5, 0.5, 0.0);
-  Matrix4 inverseProj = translate(projL, projB, projF) * scale((projR-projL)/2.0, (projT-projB)/2.0, (projN-projF)/2.0) * translate(1.0, 1.0, 1.0);
-  Vector w = -(gaze-camera).normalized();
-  Vector u = (camUp.cross(w)).normalized();
-  Vector v = w.cross(u);
-  Matrix4 inverseCam = translate(camera[X], camera[Y], camera[Z]) *
-    Matrix4(u[X], v[X], w[X], 0,
-            u[Y], v[Y], w[Y], 0,
-            u[Z], v[Z], w[Z], 0, 
-            0,    0,    0,    1);
-  return inverseCam * inverseProj * inverseViewport * pixel;
-}
-*/
-
 static void render() {
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
