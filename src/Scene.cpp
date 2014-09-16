@@ -50,7 +50,7 @@ Color Scene::renderColor(const Hit& hit, const Ray& ray, const Light& light) con
   Vector v = -ray.getDirection();
   Vector l = (light.getPosition() - hitpoint).normalized();
   Vector h = (v+l).normalized();
-  bool isShadow = intersect(Ray(hitpoint, l), 0.1, 10000.0) != nullptr;
+  bool isShadow = intersect(Ray(hitpoint, l), 1e-4, INFINITY) != nullptr;
 
   if (shouldDebug) {
     cerr << "Scene: hitpoint: " << hitpoint << "\n";
@@ -62,7 +62,6 @@ Color Scene::renderColor(const Hit& hit, const Ray& ray, const Light& light) con
   }
   try {
     const Color& i = light.getColor();
-
     const Material &m = materialMap.at(hit.getSurface().getMaterialName());
     const Color& ka = m.getAmbientColor();
     const Color& kd = m.getDiffuseColor();
