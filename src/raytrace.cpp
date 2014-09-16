@@ -30,7 +30,7 @@ bool shouldDebug = false;
 // conceptually similar to walking backwards through graphics pipeline,
 // but no canonical view volume/projection needed
 static Point pixel2world(int x, int y) {
-  // screen coordinates (x,y) -> camera coordinates (aka pixel)
+  // screen coordinates (x,y) to camera coordinates
   double frameWidth = camera->getFrameRight() - camera->getFrameLeft();
   double frameHeight = camera->getFrameTop() - camera->getFrameBottom();
   double xcamera = ((double)x)/width * frameWidth + camera->getFrameLeft();

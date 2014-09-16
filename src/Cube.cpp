@@ -28,9 +28,9 @@ bool Cube::isBounded(const Ray& ray, double& t0, double& t1) const {
   vector<double> tMaxCoord(3);
   double dirReciprocal = 0.0;
   for (int i = X; i <= Z; i++) {
-    // use reciprocal, since avoids 0.0 == -0.0 issue
     // if ray positive, min and max bounds match t bounds
     // otherwise, ray is going other way, so swap cube bounds
+    // use reciprocal dir, since will force -0.0 case into else-block.
     Coordinate coord = (Coordinate) i;
     dirReciprocal = 1.0/dir[coord];
     if (dirReciprocal >= 0.0) {
@@ -43,7 +43,7 @@ bool Cube::isBounded(const Ray& ray, double& t0, double& t1) const {
     }
   }
 
-  // tmin,tmax = [tmin[X], tmax[X]] intersect [tmin[Y], tmax[Y]]
+  // tmin,tmax = [tMinCoord[X], tMaxCoord[X]] intersect [tMinCoord[Y], tMaxCoord[Y]]
   if (tMinCoord[X] > tMaxCoord[Y] ||
       tMaxCoord[X] < tMinCoord[Y]) {
     return false;
@@ -51,7 +51,7 @@ bool Cube::isBounded(const Ray& ray, double& t0, double& t1) const {
   double tmin = fmax(tMinCoord[X], tMinCoord[Y]);
   double tmax = fmin(tMaxCoord[X], tMaxCoord[Y]);
 
-  // extend to z => tmin, tmax = [tmin[Z], tmax[Z]] intersect [tmin, tmax]
+  // extend to z: tmin, tmax = [tMinCoord[Z], tMaxCoord[Z]] intersect [tMinCoord, tMaxCoord]
   if (tMinCoord[Z] > tmax || tMaxCoord[Z] < tmin) {
     return false;
   }
