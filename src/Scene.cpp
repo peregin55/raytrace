@@ -1,5 +1,5 @@
 #include <iostream>
-#include <math.h>
+#include <cmath>
 #include "Scene.h"
 #include "Color.h"
 #include "Hit.h"
@@ -14,9 +14,9 @@ extern bool shouldDebug;
 static const Color backgroundColor(0,0,0);
 
 Color Scene::render(const Ray& ray) const {
-  unique_ptr<Hit> closest = intersect(ray, 0.0, 10000.0);
+  unique_ptr<Hit> closest = intersect(ray, 0.0, INFINITY);
   if (closest) {
-    return renderColor(closest.get(), ray);
+    return renderColor(*closest, ray);
   }
   else {
     return backgroundColor;
@@ -36,7 +36,7 @@ unique_ptr<Hit> Scene::intersect(const Ray& ray, double t0, double t1) const {
   return closest;
 }
 
-Color Scene::renderColor(const Hit* hit, const Ray& ray) const {
+Color Scene::renderColor(const Hit& hit, const Ray& ray) const {
   Color color;
   for (Light light : lights) {
     color = color + renderColor(hit, ray, light);
@@ -44,9 +44,9 @@ Color Scene::renderColor(const Hit* hit, const Ray& ray) const {
   return color;
 }
 
-Color Scene::renderColor(const Hit* hit, const Ray& ray, const Light& light) const {
-  Point hitpoint = ray.getPoint() + hit->getT() * ray.getDirection();
-  Vector n = hit->getSurface().calculateNormal(hitpoint);
+Color Scene::renderColor(const Hit& hit, const Ray& ray, const Light& light) const {
+  Point hitpoint = ray.getPoint() + hit.getT() * ray.getDirection();
+  Vector n = hit.getSurface().calculateNormal(hitpoint);
   Vector v = -ray.getDirection();
   Vector l = (light.getPosition() - hitpoint).normalized();
   Vector h = (v+l).normalized();
@@ -63,7 +63,7 @@ Color Scene::renderColor(const Hit* hit, const Ray& ray, const Light& light) con
   try {
     const Color& i = light.getColor();
 
-    const Material &m = materialMap.at(hit->getSurface().getMaterialName());
+    const Material &m = materialMap.at(hit.getSurface().getMaterialName());
     const Color& ka = m.getAmbientColor();
     const Color& kd = m.getDiffuseColor();
     const Color& ks = m.getSpecularColor();
@@ -82,6 +82,6 @@ Color Scene::renderColor(const Hit* hit, const Ray& ray, const Light& light) con
     }
     return Color(r,g,b);
   } catch (const out_of_range& e) {
-    throw RenderException("Unable to find surface material: " + hit->getSurface().getMaterialName());
+    throw RenderException("Unable to find surface material: " + hit.getSurface().getMaterialName());
   }
 }

@@ -1,4 +1,4 @@
-#include <math.h>
+#include <cmath>
 #include "Matrix4.h"
 #include "Point.h"
 #include "RenderException.h"

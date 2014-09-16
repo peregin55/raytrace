@@ -10,6 +10,7 @@
 #include "Material.h"
 #include "Scene.h"
 #include "Sphere.h"
+#include "Triangle.h"
 #include "Plane.h"
 #include "Cube.h"
 #include "Vector.h"
@@ -72,6 +73,12 @@ vector<shared_ptr<Surface>> FileParser::parseSurfaces(Json::Value surfacesNode) 
       Point point = parsePoint(surfacesNode[i]["point"], "point on plane");
       Vector normal = parseVector(surfacesNode[i]["normal"], "surface normal");
       surfaces.push_back(shared_ptr<Surface>(new Plane(materialName, point, normal)));
+    }
+    else if (type == "triangle") {
+      Point p0 = parsePoint(surfacesNode[i]["vertex1"], "vertex 1");
+      Point p1 = parsePoint(surfacesNode[i]["vertex2"], "vertex 2");
+      Point p2 = parsePoint(surfacesNode[i]["vertex3"], "vertex 3");
+      surfaces.push_back(shared_ptr<Surface>(new Triangle(materialName, p0, p1, p2)));
     }
     else if (type == "cube") {
       double xmin = parseDouble(surfacesNode[i]["xmin"], "x min");

@@ -7,6 +7,7 @@
 #include "Surface.h"
 using namespace std;
 
+class Hit;
 class Ray;
 
 class Sphere : public Surface {

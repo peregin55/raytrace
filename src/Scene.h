@@ -24,8 +24,8 @@ class Scene {
 
   private:
     unique_ptr<Hit> intersect(const Ray& ray, double t0, double t1) const;
-    Color renderColor(const Hit* h, const Ray& r) const;
-    Color renderColor(const Hit* h, const Ray& r, const Light& l) const;
+    Color renderColor(const Hit& h, const Ray& r) const;
+    Color renderColor(const Hit& h, const Ray& r, const Light& l) const;
 
     vector<Light> lights;
     vector<shared_ptr<Surface>> surfaces;

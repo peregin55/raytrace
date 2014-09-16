@@ -1,5 +1,5 @@
 #include "Vector.h"
-#include <math.h>
+#include <cmath>
 #include <sstream>
 
 Vector::~Vector() {

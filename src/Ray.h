@@ -1,5 +1,5 @@
 #ifndef RAY_H
-#define  RAY_H
+#define RAY_H
 
 #include <iostream>
 #include "Point.h"
@@ -11,6 +11,7 @@ class Ray {
     Ray(const Point& p, const Vector& v) : point(p), direction(v.normalized()) { }
     const Point& getPoint() const { return point; }
     const Vector& getDirection() const { return direction; }
+    Point getPoint(double t) const { return point + direction*t; }
   private:
     Point point;
     Vector direction;
