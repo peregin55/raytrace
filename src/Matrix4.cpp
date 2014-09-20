@@ -78,6 +78,20 @@ Matrix4 Matrix4::transpose(void) const {
   return Matrix4(m);
 }
 
+bool Matrix4::operator==(const Matrix4& other) const {
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 4; j++) {
+      if (elem[i][j] != other.elem[i][j]) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+bool Matrix4::operator!=(const Matrix4& other) const {
+  return !(*this == other);
+}
 Matrix4 identity(void) {
   return Matrix4(1.0, 0.0, 0.0, 0.0,
                  0.0, 1.0, 0.0, 0.0,
@@ -104,4 +118,15 @@ Matrix4 scale(double x, double y, double z) {
                  0.0, y, 0.0, 0.0,
                  0.0, 0.0, z, 0.0,
                  0.0, 0.0, 0.0, 1.0);
+}
+
+ostream& operator<<(ostream& cout, const Matrix4& m) {
+  cout << '[';
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 4; j++) {
+      cout << m(i,j) << " ";
+    }
+    cout << "\n";
+  }
+  return cout;
 }

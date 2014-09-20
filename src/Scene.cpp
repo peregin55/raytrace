@@ -10,7 +10,6 @@
 #include "Surface.h"
 #include "Vector.h"
 
-extern bool shouldDebug;
 static const Color backgroundColor(0,0,0);
 
 Color Scene::render(const Ray& ray) const {
@@ -52,14 +51,6 @@ Color Scene::renderColor(const Hit& hit, const Ray& ray, const Light& light) con
   Vector h = (v+l).normalized();
   bool isShadow = intersect(Ray(hitpoint, l), 1e-2, INFINITY) != nullptr;
 
-  if (shouldDebug) {
-    cerr << "Scene: hitpoint: " << hitpoint << "\n";
-    cerr << "Scene: lightpoint: " << light << "\n";
-    cerr << "Scene: normal: " << n << "\n";
-    cerr << "Scene: light: " << l << "\n";
-    cerr << "Scene: specV: " << v << "\n";
-    cerr << "Scene: sepcH: " << h << "\n";
-  }
   try {
     const Color& i = light.getColor();
     const Material &m = materialMap.at(hit.getSurface().getMaterialName());

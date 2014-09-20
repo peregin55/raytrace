@@ -39,6 +39,16 @@ Vector Vector::operator-() const {
   return Vector(-coord[X], -coord[Y], -coord[Z]);
 }
 
+bool Vector::operator==(const Vector& other) const {
+  return coord[X] == other[X] &&
+         coord[Y] == other[Y] &&
+         coord[Z] == other[Z];
+}
+
+bool Vector::operator!=(const Vector& other ) const {
+  return !(*this == other);
+}
+
 double Vector::dot(const Vector& other) const {
   return coord[X] * other[X] +
          coord[Y] * other[Y] +

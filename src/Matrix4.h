@@ -1,6 +1,9 @@
 #ifndef MATRIX4_H
 #define MATRIX4_H
 
+#include <iostream>
+using namespace std;
+
 class Point;
 
 class Matrix4 {
@@ -14,10 +17,12 @@ class Matrix4 {
     Matrix4 operator*(const Matrix4& other) const;
     Point operator*(const Point& other) const;
     Matrix4 transpose(void) const;
+    bool operator==(const Matrix4& other) const;
+    bool operator!=(const Matrix4& other) const;
   private:
     double elem[4][4];
 };
-
+ostream& operator<<(ostream& cout, const Matrix4& m);
 Matrix4 identity(void);
 Matrix4 rotateZ(double radians);
 Matrix4 translate(double x, double y, double z);

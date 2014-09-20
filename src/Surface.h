@@ -1,5 +1,6 @@
 #ifndef SURFACE_H
 #define SURFACE_H
+#include <memory>
 #include <string>
 using namespace std;
 class Ray;

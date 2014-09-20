@@ -2,6 +2,7 @@
 #define  SPHERE_H
 
 #include <iostream>
+#include <memory>
 #include <string>
 #include "Point.h"
 #include "Surface.h"

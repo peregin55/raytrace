@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <memory>
 #include <cmath>
 #include <GL/glut.h>
 #include "json/json.h"

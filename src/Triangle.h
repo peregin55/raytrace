@@ -1,6 +1,7 @@
 #ifndef TRIANGLE_H
 #define TRIANGLE_H
 
+#include <memory>
 #include <string>
 #include "Point.h"
 #include "Surface.h"

@@ -7,6 +7,8 @@
 class Point : public Cartesian {
   public:
     Point(double x, double y, double z) : Cartesian(x, y, z) { }
+    bool operator==(const Point& other) const;
+    bool operator!=(const Point& other) const;
     virtual ~Point();
     virtual string toString() const;
 };

@@ -15,6 +15,8 @@ class Vector : public Cartesian {
     Vector operator+(const Point& other) const;
     Vector operator-(const Vector& other) const;
     Vector operator-() const;
+    bool operator==(const Vector& other) const;
+    bool operator!=(const Vector& other) const;
     double dot(const Vector& other) const;
     Vector cross(const Vector& other) const;
     double length() const;

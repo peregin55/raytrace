@@ -1,6 +1,7 @@
 #ifndef CUBE_H
 #define CUBE_H
 
+#include <memory>
 #include <string>
 #include <vector>
 #include "Surface.h"

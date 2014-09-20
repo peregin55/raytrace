@@ -2,6 +2,7 @@
 #define  PLANE_H
 
 #include <iostream>
+#include <memory>
 #include <string>
 #include "Point.h"
 #include "Vector.h"

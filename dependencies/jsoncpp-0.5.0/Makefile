@@ -18,4 +18,4 @@ jsoncpp: ${OBJECTS}
 	$(AR) $(ARFLAGS) libjsoncpp.a ${OBJECTS}
 
 clean:
-	rm *.o libjsoncpp.a 
+	rm -f *.o libjsoncpp.a
