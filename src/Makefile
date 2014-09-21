@@ -5,19 +5,17 @@ CPPFLAGS      = -I/opt/X11/include -I../dependencies/jsoncpp-0.5.0
 # linker flags
 LDFLAGS       = -L/opt/X11/lib -L../dependencies/jsoncpp-0.5.0
 # linker libraries
-LDLIBS        = $(GL_LIBS) $(XLIBS) -lm
 GL_LIBS       = -lglut -lGLU -lGL
-XLIBS         = -lXmu -lXext -lX11 -lXi -ljsoncpp
+LDLIBS        = $(GL_LIBS) -ljsoncpp -lm
 # source and build paths
 SOURCES = $(wildcard *.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 
 all:	raytrace
 
-
 $(BUILDDIR)/%.o : $(SRCDIR)/%.cpp
-  # $@ is the name of this target (the location of the object file)
-  # @< is the first prereq (the name of the cpp file to compile)
+	# $@ is the name of this target (the location of the object file)
+	# @< is the first prereq (the name of the cpp file to compile)
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o $@ $<
 
 raytrace: ${OBJECTS}

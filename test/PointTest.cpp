@@ -1,20 +1,21 @@
-#include "easyunit/test.h" 
+#include "catch/catch.hpp" 
 #include "Point.h"
-using namespace easyunit; 
 
-TEST(Point,constructors_test) {
-  Point p(1,2,3);
-  ASSERT_EQUALS(1, p[X]);
-  ASSERT_EQUALS(2, p[Y]);
-  ASSERT_EQUALS(3, p[Z]);
-}
+TEST_CASE("Point") {
+  SECTION("constructors_test") {
+    Point p(1,2,3);
+    CHECK(1 == p[X]);
+    CHECK(2 == p[Y]);
+    CHECK(3 == p[Z]);
+  }
 
-TEST(Point,equality) {
-  Point p1(1,2,3);
-  Point p2(1,2,3);
-  Point p3(1,2,1);
-  ASSERT_EQUALS(p1, p2);
-  ASSERT_EQUALS(p2, p1);
-  ASSERT_TRUE(p1 != p3);
-  ASSERT_TRUE(p3 != p1);
+  SECTION("equality") {
+    Point p1(1,2,3);
+    Point p2(1,2,3);
+    Point p3(1,2,1);
+    CHECK(p1 ==p2);
+    CHECK(p2== p1);
+    CHECK(p1 != p3);
+    CHECK(p3 != p1);
+  }
 }

@@ -1,7 +1,6 @@
-#include "easyunit/testharness.h"
-using namespace easyunit;
+#define CATCH_CONFIG_RUNNER
+#include "catch/catch.hpp"
 
 int main(int argc, char** argv) {
-  const TestResult* result = TestRegistry::runAndPrint();
-  return result->getTotalErrors() + result->getTotalFailures();
+  return Catch::Session().run(argc, argv);
 }

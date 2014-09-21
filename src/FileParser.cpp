@@ -37,7 +37,7 @@ unique_ptr<Scene> FileParser::parseScene(Json::Value root) {
 
 unordered_map<string, Material> FileParser::parseMaterials(Json::Value materialsNode) {
   unordered_map<string, Material> map;
-  for (int i=0; i < materialsNode.size(); i++) {
+  for (unsigned int i=0; i < materialsNode.size(); i++) {
     string name = parseString(materialsNode[i]["name"], "material name");
     Color ambientColor = parseColor(materialsNode[i]["ambient"]["color"], "ambient color");
     Color diffuseColor = parseColor(materialsNode[i]["diffuse"]["color"], "diffuse color");
@@ -51,7 +51,7 @@ unordered_map<string, Material> FileParser::parseMaterials(Json::Value materials
 
 vector<Light> FileParser::parseLights(Json::Value lightNodes) {
   vector<Light> v;
-  for (int i=0; i < lightNodes.size(); i++) {
+  for (unsigned int i=0; i < lightNodes.size(); i++) {
     Point p = parsePoint(lightNodes[i]["position"], "light position");
     Color c = parseColor(lightNodes[i]["color"], "light color");
     v.push_back(Light(p,c));
@@ -61,7 +61,7 @@ vector<Light> FileParser::parseLights(Json::Value lightNodes) {
 
 vector<shared_ptr<Surface>> FileParser::parseSurfaces(Json::Value surfacesNode) {
   vector<shared_ptr<Surface>> surfaces;
-  for (int i=0; i< surfacesNode.size(); i++) {
+  for (unsigned int i=0; i < surfacesNode.size(); i++) {
     string type = parseString(surfacesNode[i]["type"], "surface type");
     string materialName = parseString(surfacesNode[i]["material"], type + " surface material");
     if (type == "sphere") {
@@ -96,36 +96,36 @@ vector<shared_ptr<Surface>> FileParser::parseSurfaces(Json::Value surfacesNode) 
 
 Point FileParser::parsePoint(const Json::Value& node, const string& nodeName) {
   if (node == Json::nullValue ||
-    node[(int)0] == Json::nullValue ||
+    node[(Json::Value::UInt)0] == Json::nullValue ||
     node[1] == Json::nullValue ||
     node[2] == Json::nullValue) {
      throw RenderException("unable to parse Point for " + nodeName);
    }
-  return Point(node[(int)0].asDouble(),
+  return Point(node[(Json::Value::UInt)0].asDouble(),
                node[1].asDouble(),
                node[2].asDouble());
 }
 
 Vector FileParser::parseVector(const Json::Value& node, const string& nodeName) {
   if (node == Json::nullValue ||
-    node[(int)0] == Json::nullValue ||
+    node[(Json::Value::UInt)0] == Json::nullValue ||
     node[1] == Json::nullValue ||
     node[2] == Json::nullValue) {
      throw RenderException("unable to parse Vector for " + nodeName);
    }
-  return Vector(node[(int)0].asDouble(),
+  return Vector(node[(Json::Value::UInt)0].asDouble(),
                 node[1].asDouble(),
                 node[2].asDouble());
 }
  
 Color FileParser::parseColor(const Json::Value& node, const string& nodeName) {
   if (node == Json::nullValue ||
-    node[(int)0] == Json::nullValue ||
+    node[(Json::Value::UInt)0] == Json::nullValue ||
     node[1] == Json::nullValue ||
     node[2] == Json::nullValue) {
      throw RenderException("unable to parse Color for " + nodeName);
    }
-  return Color(node[(int)0].asDouble(),
+  return Color(node[(Json::Value::UInt)0].asDouble(),
                node[1].asDouble(),
                node[2].asDouble());
 }

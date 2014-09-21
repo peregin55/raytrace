@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+#include <stdexcept>
 #include "Scene.h"
 #include "Color.h"
 #include "Hit.h"
@@ -9,6 +10,7 @@
 #include "Ray.h"
 #include "Surface.h"
 #include "Vector.h"
+using namespace std;
 
 static const Color backgroundColor(0,0,0);
 

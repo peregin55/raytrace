@@ -1,19 +1,15 @@
-all:	test
+all: test
 
-raytrace: raytrace_dependencies
+raytrace: raytrace_deps
 	$(MAKE) -C src
 
-raytrace_dependencies:
+raytrace_deps:
 	$(MAKE) -C dependencies/jsoncpp-0.5.0
 
-test: raytrace test_dependencies
+test: raytrace
 	$(MAKE) -C test
 
-test_dependencies:
-	$(MAKE) -C dependencies/easyunit-1.0-unix/easyunit-src
-
 clean:
-	$(MAKE) -C src clean
 	$(MAKE) -C dependencies/jsoncpp-0.5.0 clean
+	$(MAKE) -C src clean
 	$(MAKE) -C test clean
-	$(MAKE) -C dependencies/easyunit-1.0-unix/easyunit-src clean

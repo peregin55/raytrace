@@ -8,10 +8,10 @@
 #include "Surface.h"
 #include "Light.h"
 #include "Point.h"
+#include "Material.h"
 
 class Color;
 class Hit;
-class Material;
 class Ray;
 
 class Scene {
