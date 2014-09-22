@@ -6,6 +6,7 @@
 
 class Point : public Cartesian {
   public:
+    Point() {}
     Point(double x, double y, double z) : Cartesian(x, y, z) { }
     bool operator==(const Point& other) const;
     bool operator!=(const Point& other) const;

@@ -52,14 +52,14 @@ static Point pixel2world(int x, int y) {
 static void render() {
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
-      /*
+/* 
       if (x == 150 && y == 150) {
         shouldDebug = true;
       }
       else {
         shouldDebug = false;
       }
-      */
+*/ 
       Point p = pixel2world(x, y);
       if (shouldDebug) {
         cerr << "camera point is " << camera->getPosition() << "\n";
@@ -71,6 +71,7 @@ static void render() {
       Ray ray(p, d);
       Color color = scene->render(ray);
       if (shouldDebug) {
+        cerr << "Color came back as : " << color << "\n";
         color = Color(0.0, 0.0, 0.0);
       }
       GLubyte* pixel = image + (y*width + x) * 3;

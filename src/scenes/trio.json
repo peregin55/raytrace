@@ -1,6 +1,6 @@
 {
   "camera": {
-    "position": [0.0, 1.0, 4.0],
+    "position": [0.0, 1.8, 8.0],
     "reference": [0.0, 0.0, 0.0],
     "up_direction": [0.0, 1.0, 0.0],
     "frame": {
@@ -8,12 +8,12 @@
       "top": 1.0,
       "left": -1.0,
       "right": 1.0,
-      "near": -2.0
+      "near": -3.0
     }
   },
   "scene": { 
-    "max_rays": 3,
-    "background_material": "black",
+    "max_trace": 3,
+    "background_color": [0.0, 0.0, 0.0],
     "lights": [
       {
         "position": [10.0, 10.0, 10.0],
@@ -48,12 +48,35 @@
         "vertex1": [-1.0, 0.0, 0.0],
         "vertex2": [1.0, 0.0, 0.0],
         "vertex3": [0.0, 1.0, 0.5]
+      },
+      {
+        "type": "sphere",
+        "material": "red",
+        "center": [1.5, 0.7, 0.2],
+        "radius": 0.7
+      },
+      {
+        "type": "cube",
+        "material": "green",
+        "xmin": -2.0,
+        "xmax": -1.0,
+        "ymin": 0.0,
+        "ymax": 1.0,
+        "zmin": -0.2,
+        "zmax": 0.8
+      },
+      {
+        "type": "plane",
+        "material": "grey",
+        "point": [0.0, -1e-10, 0.0],
+        "normal": [0.0, 1.0, 0.0]
       }
+
     ],
     "materials": [
       {
         "name": "red",
-        "refractive_index": 1.0,
+        "reflective_fraction": [0.4, 0.2, 0.3],
         "ambient": {
           "color": [0.2, 0.0, 0.0]
         },
@@ -67,21 +90,21 @@
       },
       {
         "name": "green",
-        "refractive_index": 1.0,
+        "refractive_index": 1.2,
+        "refractive_attenuation": [0.3, 0.3, 0.3],
         "ambient": {
-          "color": [0.0, 0.2, 0.0]
+          "color": [0.0, 0.1, 0.0]
         },
         "diffuse": {
-          "color": [0.2, 1.0, 0.2]
+          "color": [0.2, 0.8, 0.2]
         },
         "specular": {
           "color": [0.8, 0.8, 0.8],
-          "exponent": 24.0
+          "exponent": 4.0
         }
       },
       {
         "name": "blue",
-        "refractive_index": 1.0,
         "ambient": {
           "color": [0.0, 0.0, 0.2]
         },
@@ -95,33 +118,33 @@
       },
       {
         "name": "yellow",
-        "refractive_index": 1.0,
+        "refractive_index": 1.33,
+        "refractive_attenuation": [0.1, 0.1, 0.1],
         "ambient": {
-          "color": [0.5, 0.5, 0.0]
+          "color": [0.3, 0.3, 0.0]
         },
         "diffuse": {
-          "color": [0.5, 0.5, 0.3]
+          "color": [0.3, 0.3, 0.3]
+        },
+        "specular": {
+          "color": [0.8, 0.8, 0.8],
+          "exponent": 32.0
+        }
+      },
+      {
+        "name": "grey",
+        "reflective_fraction": [0.2, 0.2, 0.1],
+        "ambient": {
+          "color": [0.25, 0.25, 0.25]
+        },
+        "diffuse": {
+          "color": [0.2, 0.2, 0.3]
         },
         "specular": {
           "color": [0.8, 0.8, 0.8],
           "exponent": 24.0
         }
-      },
-      {
-        "name": "black",
-        "refractive_index": 1.0,
-        "ambient": {
-          "color": [0.0, 0.0, 0.0]
-        },
-        "diffuse": {
-          "color": [0.0, 0.0, 0.0]
-        },
-        "specular": {
-          "color": [0.0, 0.0, 0.0],
-          "exponent": 0.0
-        }
       }
-
     ]
   }
 }

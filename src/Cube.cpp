@@ -5,7 +5,7 @@
 #include "RenderException.h"
 #include "Vector.h"
 
-const double Cube::EPSILON = 1.0e-4;
+const double Cube::EPSILON = 1.0e-10;
 
 unique_ptr<Hit> Cube::intersect(const Ray& ray, double t0, double t1) const {
   double tmin = 0.0, tmax = 0.0;

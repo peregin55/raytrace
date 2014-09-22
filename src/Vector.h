@@ -7,6 +7,7 @@
 
 class Vector : public Cartesian {
   public:
+    Vector() {} 
     Vector(double x, double y, double z) : Cartesian(x, y, z) { }
     virtual ~Vector();
     Vector operator*(double scalar) const;

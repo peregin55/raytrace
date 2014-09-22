@@ -8,6 +8,7 @@ using namespace std;
 
 class Ray {
   public:
+    Ray() { }
     Ray(const Point& p, const Vector& v) : point(p), direction(v.normalized()) { }
     const Point& getPoint() const { return point; }
     const Vector& getDirection() const { return direction; }

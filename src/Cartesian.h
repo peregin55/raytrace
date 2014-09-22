@@ -12,6 +12,7 @@ class Cartesian {
     double operator[](Coordinate c) const;
     virtual string toString() const;
   protected:
+    Cartesian() {}
     Cartesian(double x, double y, double z);
     double coord[3];
 };

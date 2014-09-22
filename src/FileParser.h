@@ -29,5 +29,8 @@ class FileParser {
     Color parseColor(const Json::Value& node, const string& nodeName);
     double parseDouble(const Json::Value& node, const string& nodeName);
     string parseString(const Json::Value& node, const string& nodeName);
+    unsigned int parseUnsignedInt(const Json::Value& node, const string& nodeName);
+    Color parseOptionalColor(const Json::Value& node, const string& nodeName, double defaultValue);
+    double parseOptionalDouble(const Json::Value& node, double defaultValue);
 };
 #endif

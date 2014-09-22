@@ -2,7 +2,7 @@
   "camera": {
     "position": [0.0, 0.0, 5.0],
     "reference": [0.0, 0.0, 0.0],
-    "upDirection": [0.0, 1.0, 0.0],
+    "up_direction": [0.0, 1.0, 0.0],
     "frame": {
       "bottom": -2.0,
       "top": 2.0,
@@ -12,6 +12,8 @@
     }
   },
   "scene": { 
+    "max_rays": 3,
+    "background_material": "black",
     "lights": [
       {
         "position": [-11.0, 11.0, 11.0],
@@ -29,6 +31,7 @@
     "materials": [
       {
         "name": "red",
+        "refractive_index": 1.0,
         "ambient": {
           "color": [0.2, 0.0, 0.0]
         },
@@ -42,6 +45,7 @@
       },
       {
         "name": "green",
+        "refractive_index": 1.0,
         "ambient": {
           "color": [0.0, 0.2, 0.0]
         },
@@ -51,6 +55,20 @@
         "specular": {
           "color": [0.8, 0.8, 0.8],
           "exponent": 24.0
+        }
+      },
+      {
+        "name": "black",
+        "refractive_index": 1.0,
+        "ambient": {
+          "color": [0.0, 0.0, 0.0]
+        },
+        "diffuse": {
+          "color": [0.0, 0.0, 0.0]
+        },
+        "specular": {
+          "color": [0.0, 0.0, 0.0],
+          "exponent": 0.0
         }
       }
     ]

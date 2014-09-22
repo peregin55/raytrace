@@ -1,4 +1,6 @@
 #include "FileParser.h"
+#include <cmath>
+#include <limits>
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -19,7 +21,7 @@ using namespace std;
 unique_ptr<Camera> FileParser::parseCamera(Json::Value root) {
   Point position = parsePoint(root["position"], "camera position");
   Point reference = parsePoint(root["reference"], "camera reference");
-  Vector up = parseVector(root["upDirection"], "camera upDirection");
+  Vector up = parseVector(root["up_direction"], "camera up direction");
   double bottom = parseDouble(root["frame"]["bottom"], "camera frame bottom");
   double top = parseDouble(root["frame"]["top"], "camera frame top");
   double left = parseDouble(root["frame"]["left"], "camera frame left");
@@ -32,7 +34,9 @@ unique_ptr<Scene> FileParser::parseScene(Json::Value root) {
   vector<Light> lights = parseLights(root["lights"]);
   vector<shared_ptr<Surface>> surfaces = parseSurfaces(root["surfaces"]);
   unordered_map<string, Material> materialMap = parseMaterials(root["materials"]);
-  return unique_ptr<Scene>(new Scene(lights, surfaces, materialMap));
+  Color backgroundColor = parseColor(root["background_color"], "background color");
+  unsigned int maxTraces = parseUnsignedInt(root["max_trace"], "max trace");
+  return unique_ptr<Scene>(new Scene(lights, surfaces, materialMap, backgroundColor, maxTraces));
 }
 
 unordered_map<string, Material> FileParser::parseMaterials(Json::Value materialsNode) {
@@ -43,7 +47,11 @@ unordered_map<string, Material> FileParser::parseMaterials(Json::Value materials
     Color diffuseColor = parseColor(materialsNode[i]["diffuse"]["color"], "diffuse color");
     Color specularColor = parseColor(materialsNode[i]["specular"]["color"], "specular color");
     double specularExponent = parseDouble(materialsNode[i]["specular"]["exponent"], "specular exponent");
-    Material m(name, ambientColor, diffuseColor, specularColor, specularExponent);
+    double refractiveIndex = parseOptionalDouble(materialsNode[i]["refractive_index"], 1.0);
+    Color refractiveAttenuation = parseOptionalColor(materialsNode[i]["refractive_attenuation"], "refractive attenuation", numeric_limits<double>::infinity());
+    Color reflectiveFraction = parseOptionalColor(materialsNode[i]["reflective_fraction"], "reflective fraction", 0.0);
+    Material m(name, ambientColor, diffuseColor, specularColor, specularExponent,
+      reflectiveFraction, refractiveIndex, refractiveAttenuation);
     map[name] = m;
   }
   return map;
@@ -130,6 +138,30 @@ Color FileParser::parseColor(const Json::Value& node, const string& nodeName) {
                node[2].asDouble());
 }
 
+Color FileParser::parseOptionalColor(const Json::Value& node, const string& nodeName, double defaultValue) {
+  if (node == Json::nullValue) {
+    return Color(defaultValue, defaultValue, defaultValue);
+  }
+  else if (node[(Json::Value::UInt)0] == Json::nullValue ||
+           node[1] == Json::nullValue ||
+           node[2] == Json::nullValue) {
+    throw RenderException("unable to parse Color for " + nodeName);
+  }
+  else {
+    return Color(node[(Json::Value::UInt)0].asDouble(),
+      node[1].asDouble(), node[2].asDouble());
+  }
+}
+
+double FileParser::parseOptionalDouble(const Json::Value& node, double defaultValue) {
+  if (node == Json::nullValue) {
+    return defaultValue;
+  }
+  else {
+    return node.asDouble();
+  }
+}
+    
 double FileParser::parseDouble(const Json::Value& node, const string& nodeName) {
   if (node == Json::nullValue) {
     throw RenderException("unable to parse double for " + nodeName);
@@ -142,4 +174,11 @@ string FileParser:: parseString(const Json::Value& node, const string& nodeName)
     throw RenderException("unable to parse string for " + nodeName);
   }
   return node.asString();
+}
+
+unsigned int FileParser::parseUnsignedInt(const Json::Value& node, const string& nodeName) {
+  if (node == Json::nullValue) {
+    throw RenderException("unable to parse string for " + nodeName);
+  }
+  return node.asUInt();
 }
