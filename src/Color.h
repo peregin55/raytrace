@@ -18,6 +18,9 @@ class Color {
     Color operator*(double d) const {
       return Color(red*d, green*d, blue*d);
     }
+    Color operator/(double d) const {
+      return Color(red/d, green/d, blue/d);
+    }
     Color operator*(Color c) const {
       return Color(red*c.red, green*c.green, blue*c.blue);
     }

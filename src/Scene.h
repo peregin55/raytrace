@@ -1,6 +1,5 @@
 #ifndef SCENE_H
 #define SCENE_H
-#include <memory.h>
 #include <vector>
 #include <string>
 #include <unordered_map>
@@ -17,18 +16,18 @@ class Ray;
 class Scene {
   public:
     Scene(vector<Light> lights,
-          vector<shared_ptr<Surface>> surfaces,
+          vector<unique_ptr<Surface>> surfaces,
           unordered_map<string, Material> materialMap,
           const Color& backgroundColor,
           unsigned int maxTrace):
-          lights(lights), surfaces(surfaces), materialMap(materialMap),
+          lights(lights), surfaces(std::move(surfaces)), materialMap(materialMap),
           backgroundColor(backgroundColor), maxTrace(maxTrace) { }
-    Color render(const Ray& ray) const;
+    Color calculateColor(const Ray& ray) const;
 
   private:
-    Color render(const Ray& ray, unsigned int traceCount) const;
+    Color calculateColor(const Ray& ray, unsigned int traceCount) const;
     unique_ptr<Hit> intersect(const Ray& ray, double t0, double t1) const;
-    Color renderColor(const Ray& r, const Hit& h, unsigned int traceCount) const;
+    Color colorFromHit(const Ray& r, const Hit& h, unsigned int traceCount) const;
     Color calculateLocalColor(const Vector& incident, const Vector& normal, const Point& hitpoint,
         const Material& material, const Light& light) const;
     Color calculateReflectedColor(const Vector& incident, const Vector& normal,
@@ -42,7 +41,7 @@ class Scene {
     const Material& getMaterial(const string& name) const;
 
     vector<Light> lights;
-    vector<shared_ptr<Surface>> surfaces;
+    vector<unique_ptr<Surface>> surfaces;
     unordered_map<string, Material> materialMap;
     Color backgroundColor;
     unsigned int maxTrace;

@@ -58,8 +58,8 @@
       {
         "type": "cube",
         "material": "green",
-        "xmin": -2.0,
-        "xmax": -1.0,
+        "xmin": -2.1,
+        "xmax": -1.1,
         "ymin": 0.0,
         "ymax": 1.0,
         "zmin": -0.2,

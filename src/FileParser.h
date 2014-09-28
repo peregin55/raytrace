@@ -22,7 +22,7 @@ class FileParser {
     unique_ptr<Camera> parseCamera(Json::Value cameraRoot);
   private:
     vector<Light> parseLights(Json::Value lightNodes);
-    vector<shared_ptr<Surface>> parseSurfaces(Json::Value surfacesNode);
+    vector<unique_ptr<Surface>> parseSurfaces(Json::Value surfacesNode);
     unordered_map<string, Material> parseMaterials(Json::Value materialNode);
     Point parsePoint(const Json::Value& node, const string& nodeName);
     Vector parseVector(const Json::Value& node, const string& nodeName);

@@ -32,11 +32,11 @@ unique_ptr<Camera> FileParser::parseCamera(Json::Value root) {
 
 unique_ptr<Scene> FileParser::parseScene(Json::Value root) {
   vector<Light> lights = parseLights(root["lights"]);
-  vector<shared_ptr<Surface>> surfaces = parseSurfaces(root["surfaces"]);
+  vector<unique_ptr<Surface>> surfaces = parseSurfaces(root["surfaces"]);
   unordered_map<string, Material> materialMap = parseMaterials(root["materials"]);
   Color backgroundColor = parseColor(root["background_color"], "background color");
   unsigned int maxTraces = parseUnsignedInt(root["max_trace"], "max trace");
-  return unique_ptr<Scene>(new Scene(lights, surfaces, materialMap, backgroundColor, maxTraces));
+  return unique_ptr<Scene>(new Scene(lights, std::move(surfaces), materialMap, backgroundColor, maxTraces));
 }
 
 unordered_map<string, Material> FileParser::parseMaterials(Json::Value materialsNode) {
@@ -67,26 +67,26 @@ vector<Light> FileParser::parseLights(Json::Value lightNodes) {
   return v;
 }
 
-vector<shared_ptr<Surface>> FileParser::parseSurfaces(Json::Value surfacesNode) {
-  vector<shared_ptr<Surface>> surfaces;
+vector<unique_ptr<Surface>> FileParser::parseSurfaces(Json::Value surfacesNode) {
+  vector<unique_ptr<Surface>> surfaces;
   for (unsigned int i=0; i < surfacesNode.size(); i++) {
     string type = parseString(surfacesNode[i]["type"], "surface type");
     string materialName = parseString(surfacesNode[i]["material"], type + " surface material");
     if (type == "sphere") {
       Point center = parsePoint(surfacesNode[i]["center"], "sphere center");
       double radius = parseDouble(surfacesNode[i]["radius"], "sphere radius");
-      surfaces.push_back(shared_ptr<Surface>(new Sphere(materialName, center, radius)));
+      surfaces.push_back(unique_ptr<Surface>(new Sphere(materialName, center, radius)));
     }
     else if (type == "plane") {
       Point point = parsePoint(surfacesNode[i]["point"], "point on plane");
       Vector normal = parseVector(surfacesNode[i]["normal"], "surface normal");
-      surfaces.push_back(shared_ptr<Surface>(new Plane(materialName, point, normal)));
+      surfaces.push_back(unique_ptr<Surface>(new Plane(materialName, point, normal)));
     }
     else if (type == "triangle") {
       Point p0 = parsePoint(surfacesNode[i]["vertex1"], "vertex 1");
       Point p1 = parsePoint(surfacesNode[i]["vertex2"], "vertex 2");
       Point p2 = parsePoint(surfacesNode[i]["vertex3"], "vertex 3");
-      surfaces.push_back(shared_ptr<Surface>(new Triangle(materialName, p0, p1, p2)));
+      surfaces.push_back(unique_ptr<Surface>(new Triangle(materialName, p0, p1, p2)));
     }
     else if (type == "cube") {
       double xmin = parseDouble(surfacesNode[i]["xmin"], "x min");
@@ -95,7 +95,7 @@ vector<shared_ptr<Surface>> FileParser::parseSurfaces(Json::Value surfacesNode) 
       double ymax = parseDouble(surfacesNode[i]["ymax"], "y max");
       double zmin = parseDouble(surfacesNode[i]["zmin"], "z min");
       double zmax = parseDouble(surfacesNode[i]["zmax"], "z max");
-      surfaces.push_back(shared_ptr<Surface>(new Cube(materialName, 
+      surfaces.push_back(unique_ptr<Surface>(new Cube(materialName,
         {xmin, ymin, zmin}, {xmax, ymax, zmax})));
     }
   }

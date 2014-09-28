@@ -13,18 +13,17 @@
 #include "Vector.h"
 using namespace std;
 
-extern bool shouldDebug;
 static const double DELTA = 1e-10;
 static const Color ZERO_COLOR(0.0, 0.0, 0.0);
 
-Color Scene::render(const Ray& ray) const {
-  return render(ray, 0);
+Color Scene::calculateColor(const Ray& ray) const {
+  return calculateColor(ray, 0);
 }
 
-Color Scene::render(const Ray& ray, unsigned int traceCount) const {
+Color Scene::calculateColor(const Ray& ray, unsigned int traceCount) const {
   unique_ptr<Hit> closest = intersect(ray, 0.0, numeric_limits<double>::infinity());
   if (closest) {
-    return renderColor(ray, *closest, traceCount);
+    return colorFromHit(ray, *closest, traceCount);
   }
   else {
     return Color(backgroundColor);
@@ -34,17 +33,17 @@ Color Scene::render(const Ray& ray, unsigned int traceCount) const {
 unique_ptr<Hit> Scene::intersect(const Ray& ray, double t0, double t1) const {
   unique_ptr<Hit> closest;
   unique_ptr<Hit> h;
-   for (shared_ptr<Surface> s : surfaces) {
+   for (const unique_ptr<Surface>& s : surfaces) {
     h = s->intersect(ray, t0, t1);
     if (h) {
       t1 = h->getT();
-      closest = move(h);
+      closest = std::move(h);
     }
   }
   return closest;
 }
 
-Color Scene::renderColor(const Ray& ray, const Hit& hit, unsigned int traceCount) const {
+Color Scene::colorFromHit(const Ray& ray, const Hit& hit, unsigned int traceCount) const {
   Point hitpoint = ray.getPoint() + hit.getT() * ray.getDirection();
   Vector normal = hit.getSurface().calculateNormal(hitpoint);
   const Vector& incident = ray.getDirection().normalized();
@@ -99,7 +98,7 @@ Color Scene::calculateLocalColor(const Vector& incident, const Vector& normal, c
 Color Scene::calculateReflectedColor(const Vector& incident, const Vector& normal,
     const Point& hitpoint, const Material& material, unsigned int traceCount) const {
   Ray reflected = calculateReflectedRay(incident, normal, hitpoint);
-  return material.getReflectiveFraction() * render(reflected, traceCount+1);
+  return material.getReflectiveFraction() * calculateColor(reflected, traceCount+1);
 }
 
 Color Scene::calculateTransmittedColor(const Vector& incident, const Vector& normal,
@@ -135,13 +134,13 @@ Color Scene::calculateTransmittedColor(const Vector& incident, const Vector& nor
       c = transmitted->getDirection().dot(normal);
     }
     else {
-      return k * render(reflected, traceCount+1);
+      return k * calculateColor(reflected, traceCount+1);
     }
   }
   // Schlick's approximation of Fresnel equations, ignoring polarization of light
   double r0 = ((n-1) * (n-1)) / ((n+1) * (n+1));
   double r = r0 + (1-r0)*(1-c)*(1-c)*(1-c)*(1-c)*(1-c);
-  return k*(render(reflected, traceCount+1) * r + render(*transmitted, traceCount+1) * (1-r));
+  return k*(calculateColor(reflected, traceCount+1) * r + calculateColor(*transmitted, traceCount+1) * (1-r));
 }
 
 Ray Scene::calculateReflectedRay(const Vector& incident, const Vector& normal,
