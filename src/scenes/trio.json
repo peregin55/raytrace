@@ -52,7 +52,7 @@
       {
         "type": "sphere",
         "material": "red",
-        "center": [1.5, 0.7, 0.2],
+        "center": [1.6, 0.7, 0.2],
         "radius": 0.7
       },
       {
