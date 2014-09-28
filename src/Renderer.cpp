@@ -2,6 +2,7 @@
 #include "Color.h"
 #include "Ray.h"
 #include "Matrix4.h"
+#include <cmath>
 
 
 unique_ptr<GLubyte[]> Renderer::render(GLsizei height, GLsizei width) const {
