@@ -1,12 +1,14 @@
 #include <cmath>
+#include <cstring>
+#include <iomanip>
 #include "Matrix4.h"
 #include "Point.h"
 #include "RenderException.h"
 
-Matrix4::Matrix4(double xx, double xy, double xz, double xw,
-                 double yx, double yy, double yz, double yw,
-                 double zx, double zy, double zz, double zw,
-                 double wx, double wy, double wz, double ww) {
+Matrix4::Matrix4(const double xx, const double xy, const double xz, const double xw,
+                 const double yx, const double yy, const double yz, const double yw,
+                 const double zx, const double zy, const double zz, const double zw,
+                 const double wx, const double wy, const double wz, const double ww) {
   elem[0][0] = xx;
   elem[0][1] = xy;
   elem[0][2] = xz;
@@ -25,7 +27,7 @@ Matrix4::Matrix4(double xx, double xy, double xz, double xw,
   elem[3][3] = ww;
 }
 
-Matrix4::Matrix4(double m[4][4]) {
+Matrix4::Matrix4(const double m[4][4]) {
   for (int i = 0; i < 4; i++) {
     for (int j = 0; j < 4; j++) {
       elem[i][j] = m[i][j];
@@ -33,7 +35,7 @@ Matrix4::Matrix4(double m[4][4]) {
   }
 }
 
-double Matrix4::operator()(int row, int col) const {
+double Matrix4::operator()(const int row, const int col) const {
   return elem[row][col];
 }
 
@@ -78,6 +80,92 @@ Matrix4 Matrix4::transpose(void) const {
   return Matrix4(m);
 }
 
+// based on LUP algorithm from Cormen et al "Introduction to Algorithms"
+Matrix4 Matrix4::inverse(void) const {
+  double lu[4][4];
+  int perm[4];
+  decomposeLUP(lu, perm);
+  double result[4][4];
+  for (int i = 0; i < 4; i++) {
+    double x[4];
+    double b[4] = {0};
+    b[i] = 1.0;
+    solveLUP(x, lu, perm, b);
+    for (int j=0; j < 4; j++) {
+      result[j][i] = x[j];
+    }
+  }
+  return Matrix4(result);
+}
+
+/* Determines the PA = LU decomposition of this matrix (A).
+ * Writes into lu, where L is lu[i][j] for i > j
+ * and U is lu[i][j] for i <= j
+ * Writes into perm, representing the row-index permutations
+ * from the decomposistion (analogous to the P permutation matrix)
+ */
+void Matrix4::decomposeLUP(double lu[4][4], int perm[4]) const {
+  // copy this matrix into lu
+  memcpy(lu, elem, sizeof(double)*16);
+  // initial identity permutation
+  for (int i = 0; i < 4; i++) {
+    perm[i] = i;
+  }
+  // move down/in the row/columns of the matrix A to calc PA = LU
+  for (int k = 0; k < 4; k++) {
+    // find largest pivot and its index
+    double pivot = 0.0;
+    int k_prime = -1;
+    for (int i = k; i < 4; i++) {
+      double next  = fabs(lu[i][k]);
+      if (next > pivot) {
+        pivot = next;
+        k_prime = i;
+      }
+    }
+    if (pivot < smallDouble || k_prime < 0) {
+      throw RenderException("Unable to calculate inverse of singular matrix");
+    }
+    // adjust perm bookkeeping and matrix for new pivot-row
+    swap(perm[k], perm[k_prime]);
+    for (int i = 0; i < 4; i++) {
+      swap(lu[k][i], lu[k_prime][i]);
+    }
+    // with pivot-row in place, do LU decomposition
+    for (int i = k+1; i < 4; i++) {
+      // U[k][i] = lu[k][i], so just need to calculate L[i][k]
+      lu[i][k] = lu[i][k] / lu[k][k];
+    }
+    // and calculate Schur complement of submatrix
+    for (int i = k+1; i < 4; i++) {
+      for (int j = k+1; j < 4; j++) {
+        lu[i][j] = lu[i][j] - lu[i][k] * lu[k][j];
+      }
+    }
+  }
+}
+
+// Generic method to solve Ax = b for x, given LUP dcomposition of A and b
+void Matrix4::solveLUP(double x[4], const double lu[4][4], const int perm[4], const double b[4]) const {
+  double y[4];
+  // forward-substitute over L to solve y
+  for (int i = 0; i < 4; i++) {
+    double res = 0.0;
+    for (int j = 0; j < i; j++) {
+      res += lu[i][j] * y[j];
+    }
+    y[i] = b[perm[i]] - res;
+  }
+  // back-subsitute over U to solve x
+  for (int i = 3; i >=0; i--) {
+    double res = 0.0;
+    for (int j = i+1; j < 4; j++) {
+      res += lu[i][j] * x[j];
+    }
+    x[i] = (y[i] - res) / lu[i][i];
+  }
+}
+
 bool Matrix4::operator==(const Matrix4& other) const {
   for (int i = 0; i < 4; i++) {
     for (int j = 0; j < 4; j++) {
@@ -92,6 +180,23 @@ bool Matrix4::operator==(const Matrix4& other) const {
 bool Matrix4::operator!=(const Matrix4& other) const {
   return !(*this == other);
 }
+
+bool Matrix4::eq(const Matrix4& other, const double err) const {
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 4; j++) {
+      if (!(elem[i][j] < other.elem[i][j] + err &&
+            elem[i][j] > other.elem[i][j] - err)) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+bool Matrix4::neq(const Matrix4& other, const double err) const {
+  return !eq(other, err);
+}
+
 Matrix4 identity(void) {
   return Matrix4(1.0, 0.0, 0.0, 0.0,
                  0.0, 1.0, 0.0, 0.0,
@@ -121,12 +226,13 @@ Matrix4 scale(double x, double y, double z) {
 }
 
 ostream& operator<<(ostream& cout, const Matrix4& m) {
-  cout << '[';
+  cout << "[\n";
   for (int i = 0; i < 4; i++) {
     for (int j = 0; j < 4; j++) {
-      cout << m(i,j) << " ";
+      cout << setw(4) << m(i,j) << " ";
     }
     cout << "\n";
   }
+  cout << "]\n";
   return cout;
 }
