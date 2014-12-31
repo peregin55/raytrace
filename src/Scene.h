@@ -4,6 +4,7 @@
 #include <string>
 #include <unordered_map>
 #include <memory>
+#include <string>
 #include "Surface.h"
 #include "Light.h"
 #include "Point.h"
@@ -13,6 +14,12 @@ class Color;
 class Hit;
 class Ray;
 
+/** Scene.
+ * Encapsulates lights, surfaces, material-map, background color,
+ * and max number of traces (reflection/refraction ray-bounces).
+ * Provides method to determine a Color given a single Ray into
+ * the Scene.
+ */
 class Scene {
   public:
     Scene(vector<Light> lights,
@@ -20,8 +27,8 @@ class Scene {
           unordered_map<string, Material> materialMap,
           const Color& backgroundColor,
           unsigned int maxTrace):
-          lights(lights), surfaces(std::move(surfaces)), materialMap(materialMap),
-          backgroundColor(backgroundColor), maxTrace(maxTrace) { }
+          lights(lights), surfaces(std::move(surfaces)),
+          materialMap(materialMap), backgroundColor(backgroundColor), maxTrace(maxTrace) { }
     Color calculateColor(const Ray& ray) const;
 
   private:

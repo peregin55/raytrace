@@ -4,19 +4,18 @@
 #include "Matrix4.h"
 #include <cmath>
 
-
 unique_ptr<GLubyte[]> Renderer::render(GLsizei height, GLsizei width) const {
   GLubyte* image(new GLubyte[height*width*3]);
   Color previousColor;
   for (int y = 0; y < height; y++) {
     Point p = pixel2world(0, y, height, width);
-    Vector d = (p - camera->getPosition()).normalized();
+    Vector d = (p - camera->getPosition()).normalize();
     Color color = scene->calculateColor(Ray(p, d));
     setImage(image, 0, y, width, color);
     for (int x = 1; x < width; x++) {
       previousColor = color;
       Point p = pixel2world(x, y, height, width);
-      Vector d = (p - camera->getPosition()).normalized();
+      Vector d = (p - camera->getPosition()).normalize();
       Color color = scene->calculateColor(Ray(p, d));
       if (withinDelta(previousColor, color)) {
         setImage(image, x, y, width, color);
@@ -40,9 +39,9 @@ Point Renderer::pixel2world(double x, double y, GLsizei height, GLsizei width) c
   double ycamera = y/height * frameHeight + camera->getFrameBottom();
   Point pixel(xcamera, ycamera, camera->getFrameNear());
   // camera coordinates to world coordinates
-  Vector w = (camera->getPosition() - camera->getReference()).normalized();
-  Vector u = (camera->getUp().cross(w)).normalized();
-  Vector v = w.cross(u).normalized();
+  Vector w = (camera->getPosition() - camera->getReference()).normalize();
+  Vector u = (camera->getUp().cross(w)).normalize();
+  Vector v = w.cross(u).normalize();
   const Point& o = camera->getPosition();
   Matrix4 cam2world(u[X], v[X], w[X], o[X],
                     u[Y], v[Y], w[Y], o[Y],
@@ -68,11 +67,11 @@ bool Renderer::withinDelta(const Color& previousColor, const Color& color) const
 
 Color Renderer::supersample(int x, int y, const Color& origColor, GLsizei height, GLsizei width) const {
   Point p1 = pixel2world(x - 0.4, y + 0.4, height, width);
-  Vector d1 = (p1 - camera->getPosition()).normalized();
+  Vector d1 = (p1 - camera->getPosition()).normalize();
   Color c1 = scene->calculateColor(Ray(p1, d1));
 
   Point p2 = pixel2world(x + 0.4, y - 0.4, height, width);
-  Vector d2 = (p2 - camera->getPosition()).normalized();
+  Vector d2 = (p2 - camera->getPosition()).normalize();
   Color c2 = scene->calculateColor(Ray(p2, d2));
 
   return (origColor + c1 + c2) / 3.0;

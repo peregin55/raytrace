@@ -4,6 +4,9 @@
 #include "Point.h"
 #include "Color.h"
 
+/** Light.
+ * Representation of a simple point light source.
+ */
 class Light {
   public:
     Light(const Point &position, const Color &color) : position(position), color(color) { }
@@ -18,4 +21,6 @@ class Light {
     return os;
   }
 };
+
+
 #endif

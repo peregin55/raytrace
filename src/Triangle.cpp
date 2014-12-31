@@ -3,9 +3,6 @@
 #include "Hit.h"
 #include "Ray.h"
 
-Triangle::Triangle(const string& materialName, const Point& p0, const Point& p1, const Point& p2) :
-      Surface(materialName), p0(p0), p1(p1), p2(p2), normal((p1 - p0).cross(p2 - p0).normalized()) { }
-
 unique_ptr<Hit> Triangle::intersect(const Ray& ray, double t0, double t1) const {
   Plane p(getMaterialName(), p0, normal);
   unique_ptr<Hit> planeHit = p.intersect(ray, t0, t1);
@@ -17,7 +14,8 @@ unique_ptr<Hit> Triangle::intersect(const Ray& ray, double t0, double t1) const 
     if (isContained(p0, p1, intersect) &&
         isContained(p1, p2, intersect) &&
         isContained(p2, p0, intersect)) {
-      return unique_ptr<Hit>(new Hit(*this, planeHit->getT()));
+      return unique_ptr<Hit>(new Hit(*this, planeHit->getT(),
+        ray.getPoint() + ray.getDirection() * planeHit->getT(), normal));
     }
   }
   return unique_ptr<Hit>();
@@ -29,7 +27,3 @@ bool Triangle::isContained(const Point& p0, const Point& p1, const Point& inters
   Vector intersectNormal = edgeVector.cross(intersectVector);
   return intersectNormal.dot(normal) >= 0.0;
 } 
-
-Vector Triangle::calculateNormal(const Point& surfacePoint) const {
-  return normal;
-}

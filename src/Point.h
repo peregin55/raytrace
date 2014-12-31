@@ -4,14 +4,14 @@
 #include <string>
 #include "Cartesian.h"
 
+/** Point in xyz space. */
 class Point : public Cartesian {
   public:
-    Point() {}
+    Point() : Cartesian() { }
     Point(double x, double y, double z) : Cartesian(x, y, z) { }
     bool operator==(const Point& other) const;
     bool operator!=(const Point& other) const;
-    virtual ~Point();
     virtual string toString() const;
+  friend ostream& operator<<(ostream& cout, const Point& p);
 };
-ostream& operator<<(ostream& cout, const Point& p);
 #endif

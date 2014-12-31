@@ -1,9 +1,6 @@
 #include "Point.h"
 #include <sstream>
 
-Point::~Point() {
-}
-
 bool Point::operator==(const Point& other) const {
   return coord[X] == other[X] &&
          coord[Y] == other[Y] &&

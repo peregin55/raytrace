@@ -3,7 +3,10 @@
 #include <iomanip>
 #include "Matrix4.h"
 #include "Point.h"
+#include "Vector.h"
 #include "RenderException.h"
+
+const double Matrix4::EPSILON = 1.0e-10;
 
 Matrix4::Matrix4(const double xx, const double xy, const double xz, const double xw,
                  const double yx, const double yy, const double yz, const double yw,
@@ -63,14 +66,32 @@ Point Matrix4::operator*(const Point& other) const {
     }
     m[i] = val;
   }
+  // homogenize w element 
   if (m[3] != 1.0) {
-    throw RenderException("Expected normalized w = 1");
+    for (int i = 0; i < 3; i++) {
+      m[i] /= m[3];
+    }
   }
   return Point(m[0], m[1], m[2]);
 }
 
+Vector Matrix4::operator*(const Vector& other) const {
+  double o[] = {other[X], other[Y], other[Z], 0.0};
+  double m[4];
+  for (int i = 0; i < 4; i++) {
+    double val = 0.0;
+    for (int k = 0; k < 4; k++) {
+       val += elem[i][k]*o[k];
+    }
+    m[i] = val;
+  }
+  // dropping w element - in most cases will be 0,
+  // although it may not be such as when using
+  // inverse-transpose matrix TransformSurface 
+  return Vector(m[0], m[1], m[2]);
+}
 
-Matrix4 Matrix4::transpose(void) const {
+Matrix4 Matrix4::transpose() const {
   double m[4][4];
   for (int i = 0; i < 4; i++) {
     for (int j = 0; j < 4; j++) {
@@ -81,7 +102,7 @@ Matrix4 Matrix4::transpose(void) const {
 }
 
 // based on LUP algorithm from Cormen et al "Introduction to Algorithms"
-Matrix4 Matrix4::inverse(void) const {
+Matrix4 Matrix4::inverse() const {
   double lu[4][4];
   int perm[4];
   decomposeLUP(lu, perm);
@@ -123,7 +144,7 @@ void Matrix4::decomposeLUP(double lu[4][4], int perm[4]) const {
         k_prime = i;
       }
     }
-    if (pivot < smallDouble || k_prime < 0) {
+    if (pivot < EPSILON || k_prime < 0) {
       throw RenderException("Unable to calculate inverse of singular matrix");
     }
     // adjust perm bookkeeping and matrix for new pivot-row
@@ -204,11 +225,23 @@ Matrix4 identity(void) {
                  0.0, 0.0, 0.0, 1.0);
 }
 
-Matrix4 rotateZ(double radians) {
-  return Matrix4(cos(radians), -sin(radians), 0.0, 0.0,
-                 sin(radians),  cos(radians), 0.0, 0.0,
-                 0.0,           0.0,          0.0, 0.0,
-                 0.0,           0.0,          0.0, 1.0);
+Matrix4 rotate(Coordinate axis, double radians) {
+  if (axis == X) {
+    return Matrix4(1.0,   0.0,           0.0,           0.0,
+                   0.0,   cos(radians), -sin(radians),  0.0,
+                   0.0,   sin(radians),  cos(radians),  0.0,
+                   0.0,   0.0,           0.0,           1.0);
+  } else if (axis == Y) {
+    return Matrix4(cos(radians),  0.0,   sin(radians),  0.0,
+                   0.0,           1.0,   0.0,           0.0,
+                  -sin(radians),  0.0,   cos(radians),  0.0,
+                   0.0,           0.0,   0.0,           1.0);
+  } else {
+    return Matrix4(cos(radians), -sin(radians), 0.0, 0.0,
+                   sin(radians),  cos(radians), 0.0, 0.0,
+                   0.0,           0.0,          1.0, 0.0,
+                   0.0,           0.0,          0.0, 1.0);
+  }
 }
 
 Matrix4 translate(double x, double y, double z) {

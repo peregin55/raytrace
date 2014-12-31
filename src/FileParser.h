@@ -10,27 +10,39 @@ class Camera;
 class Color;
 class Light;
 class Material;
+class Matrix4;
 class Point;
 class Scene;
 class Surface;
 class Vector;
 namespace Json { class Value; }
 
+/** FileParser.
+ * Parse JSON input file into domain objects.
+ */
 class FileParser {
   public:
-    unique_ptr<Scene> parseScene(Json::Value sceneRoot);
-    unique_ptr<Camera> parseCamera(Json::Value cameraRoot);
+    /** Parse scene node (and supporting objects, lights, materials). */
+    unique_ptr<Scene> parseScene(const Json::Value& docNode) const;
+    /** Parse camera node. */
+    unique_ptr<Camera> parseCamera(const Json::Value& docNode) const;
   private:
-    vector<Light> parseLights(Json::Value lightNodes);
-    vector<unique_ptr<Surface>> parseSurfaces(Json::Value surfacesNode);
-    unordered_map<string, Material> parseMaterials(Json::Value materialNode);
-    Point parsePoint(const Json::Value& node, const string& nodeName);
-    Vector parseVector(const Json::Value& node, const string& nodeName);
-    Color parseColor(const Json::Value& node, const string& nodeName);
-    double parseDouble(const Json::Value& node, const string& nodeName);
-    string parseString(const Json::Value& node, const string& nodeName);
-    unsigned int parseUnsignedInt(const Json::Value& node, const string& nodeName);
-    Color parseOptionalColor(const Json::Value& node, const string& nodeName, double defaultValue);
-    double parseOptionalDouble(const Json::Value& node, double defaultValue);
+    Light parseLight(const Json::Value& lightNode) const;
+    unique_ptr<Surface> parseSurface(const Json::Value& surfacesNode) const;
+    unordered_map<string, Material> parseMaterials(const Json::Value& materialNode) const;
+    void parseContext(vector<unique_ptr<Surface>>& surfaces, Matrix4& obj2world,
+      Json::Value& contextNode, const unordered_map<string, Json::Value>& availableSurfaces) const;
+    Matrix4 parseTransformation(const Json::Value& node) const;
+    Json::Value findReference(const string& name, const unordered_map<string, Json::Value>& map) const;
+    double deg2rad(double degrees) const;
+    unordered_map<string, Json::Value> node2namemap(const Json::Value& node, const string& name) const;
+    Point parsePoint(const Json::Value& node, const string& nodeName) const;
+    Vector parseVector(const Json::Value& node, const string& nodeName) const;
+    Color parseColor(const Json::Value& node, const string& nodeName) const;
+    double parseDouble(const Json::Value& node, const string& nodeName) const;
+    string parseString(const Json::Value& node, const string& nodeName) const;
+    unsigned int parseUnsignedInt(const Json::Value& node, const string& nodeName) const;
+    Color parseOptionalColor(const Json::Value& node, const string& nodeName, double defaultValue) const;
+    double parseOptionalDouble(const Json::Value& node, double defaultValue) const;
 };
 #endif

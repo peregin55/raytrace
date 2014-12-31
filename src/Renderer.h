@@ -7,6 +7,9 @@
 
 class Color;
 
+/** Renderer.
+ * Renders image to image buffer given a camera and scene.
+ */
 class Renderer {
   public:
     Renderer(unique_ptr<Scene> scene, unique_ptr<Camera> camera) :

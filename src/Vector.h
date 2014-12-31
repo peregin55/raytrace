@@ -5,11 +5,11 @@
 #include "Cartesian.h"
 #include "Point.h"
 
+/** Vector in xyz space. */
 class Vector : public Cartesian {
   public:
-    Vector() {} 
+    Vector() : Cartesian() { }
     Vector(double x, double y, double z) : Cartesian(x, y, z) { }
-    virtual ~Vector();
     Vector operator*(double scalar) const;
     Vector operator/(double scalar) const;
     Vector operator+(const Vector& other) const;
@@ -21,10 +21,10 @@ class Vector : public Cartesian {
     double dot(const Vector& other) const;
     Vector cross(const Vector& other) const;
     double length() const;
-    Vector normalized() const;
+    Vector normalize() const;
     virtual string toString() const;
+  friend ostream& operator<<(ostream& os, const Vector& other);
 };
-ostream& operator<<(ostream& os, const Vector& other);
 Vector operator*(double scalar, const Vector& other);
 Vector operator-(const Point& p1, const Point& p2);
 Point operator+(const Point& p, const Vector& v);

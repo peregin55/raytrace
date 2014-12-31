@@ -1,6 +1,10 @@
 #include "Cartesian.h"
 #include <sstream>
 
+Cartesian::Cartesian() {
+  coord[X] = coord[Y] = coord[Z] = 0.0;
+}
+
 Cartesian::Cartesian(double x, double y, double z) { 
   coord[X] = x;
   coord[Y] = y;

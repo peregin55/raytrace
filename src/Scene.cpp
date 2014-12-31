@@ -44,9 +44,9 @@ unique_ptr<Hit> Scene::intersect(const Ray& ray, double t0, double t1) const {
 }
 
 Color Scene::colorFromHit(const Ray& ray, const Hit& hit, unsigned int traceCount) const {
-  Point hitpoint = ray.getPoint() + hit.getT() * ray.getDirection();
-  Vector normal = hit.getSurface().calculateNormal(hitpoint);
-  const Vector& incident = ray.getDirection().normalized();
+  Point hitpoint = hit.getHitpoint();
+  Vector normal = hit.getNormal();
+  const Vector& incident = ray.getDirection().normalize();
   const Material &material = getMaterial(hit.getSurface().getMaterialName());
   Color color;
   for (Light light : lights) {
@@ -68,8 +68,8 @@ Color Scene::colorFromHit(const Ray& ray, const Hit& hit, unsigned int traceCoun
 Color Scene::calculateLocalColor(const Vector& incident, const Vector& normal, const Point& hitpoint,
     const Material& material, const Light& light) const {
   Vector v = -incident;
-  Vector l = (light.getPosition() - hitpoint).normalized();
-  Vector h = (v+l).normalized();
+  Vector l = (light.getPosition() - hitpoint).normalize();
+  Vector h = (v+l).normalize();
   bool isShadow = intersect(Ray(hitpoint, l), DELTA, numeric_limits<double>::infinity()) != nullptr;
 
   const Color& i = light.getColor();
@@ -83,11 +83,11 @@ Color Scene::calculateLocalColor(const Vector& incident, const Vector& normal, c
   double b = ka.getBlue()*i.getBlue();
   if (!isShadow) {
     r += kd.getRed()*i.getRed()*fmax(0, normal.dot(l)) +
-         ks.getRed()*i.getRed()*pow(fmax(0, normal.dot(h)), p);
+         (p <= 0.0 ? 0.0 : ks.getRed()*i.getRed()*pow(fmax(0, normal.dot(h)), p));
     g += kd.getGreen()*i.getGreen()*fmax(0, normal.dot(l)) +
-         ks.getGreen()*i.getGreen()*pow(fmax(0, normal.dot(h)), p);
+         (p <= 0.0 ? 0.0 : ks.getGreen()*i.getGreen()*pow(fmax(0, normal.dot(h)), p));
     b += kd.getBlue()*i.getBlue()*fmax(0, normal.dot(l)) +
-         ks.getBlue()*i.getBlue()*pow(fmax(0, normal.dot(h)), p);
+         (p <= 0.0 ? 0.0 : ks.getBlue()*i.getBlue()*pow(fmax(0, normal.dot(h)), p));
   }
   return Color(r,g,b);
 }
@@ -126,7 +126,7 @@ Color Scene::calculateTransmittedColor(const Vector& incident, const Vector& nor
     // heading out of the surface, apply Beer's law to calculate attenuated signal,
     // material refractive index n < 1.0
     // Check for TIR, in which case return reflected amount only, as refraction doesn't occur
-    k = Color (exp(-material.getRefractiveAttenuation().getRed() * t),
+    k = Color(exp(-material.getRefractiveAttenuation().getRed() * t),
             exp(-material.getRefractiveAttenuation().getGreen() * t),
             exp(-material.getRefractiveAttenuation().getBlue() * t));
     transmitted = calculateTransmittedRay(incident, -normal, n, 1.0, hitpoint);
@@ -145,7 +145,7 @@ Color Scene::calculateTransmittedColor(const Vector& incident, const Vector& nor
 
 Ray Scene::calculateReflectedRay(const Vector& incident, const Vector& normal,
     const Point& hitpoint) const {
-  Vector reflected = (incident - 2 * (incident.dot(normal)) * normal).normalized();
+  Vector reflected = (incident - 2 * (incident.dot(normal)) * normal).normalize();
   Point start = hitpoint + reflected * DELTA;
   return Ray(start, reflected);
 }
@@ -155,7 +155,7 @@ unique_ptr<Ray> Scene::calculateTransmittedRay(const Vector& incident, const Vec
   double cos = incident.dot(normal);
   double radicand = 1 - ((n1*n1)/(n2*n2) * (1 - (cos*cos)));
   if (radicand >= 0.0) {
-    Vector trans = (n1/n2) * (incident - normal*cos) - normal * sqrt(radicand);
+    Vector trans = ((n1/n2) * (incident - normal*cos) - normal * sqrt(radicand)).normalize();
     Point start = hitpoint + trans * DELTA;
     return unique_ptr<Ray>(new Ray(start, trans));
   }

@@ -1,8 +1,14 @@
 #ifndef CAMERA_H
 #define CAMERA_H
+#include <string>
 #include "Point.h"
 #include "Vector.h"
 
+/** Camera.
+ * Includes camera position, reference point where camera is pointed,
+ * up-vector to orient the camera, and  bottom, top, left, right and
+ * near dimensions of the camera frame.
+ */
 class Camera {
   public:
     Camera(const Point& pos,

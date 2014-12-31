@@ -7,17 +7,30 @@
 
 const double Cube::EPSILON = 1.0e-10;
 
+vector<double> Cube::getCubeMin() {
+  return cubeMin;
+}
+
+vector<double> Cube::getCubeMax() {
+  return cubeMax;
+}
 unique_ptr<Hit> Cube::intersect(const Ray& ray, double t0, double t1) const {
   double tmin = 0.0, tmax = 0.0;
   if (isBounded(ray, tmin, tmax)) {
     if (tmin > t0 && tmin < t1) {
-      return unique_ptr<Hit>(new Hit(*this, tmin));
+      return buildHit(ray, tmin);
     }
     else if (tmax > t0 && tmax < t1) {
-      return unique_ptr<Hit>(new Hit(*this, tmax));
+      return buildHit(ray, tmax);
     }
   }
   return unique_ptr<Hit>();
+}
+
+unique_ptr<Hit> Cube::buildHit(const Ray& ray, double t) const {
+  Point hitpoint = ray.getPoint() + ray.getDirection() * t;
+  Vector normal = calculateNormal(hitpoint);
+  return unique_ptr<Hit>(new Hit(*this, t, hitpoint, normal));
 }
 
 bool Cube::isBounded(const Ray& ray, double& t0, double& t1) const {

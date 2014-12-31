@@ -4,6 +4,20 @@
 #include "Color.h"
 using namespace std;
 
+/** Material.
+ * Representation of an object material properties,
+ * including color, reflectiveness, and transparency.
+ *
+ * Supports Blinn-Phong illumination model, with
+ * ambient, diffuse, and specular terms.  Includes
+ * reflectiveFraction to denote the percentage of
+ * reflection in RGB for glossy materials.
+ * Includes refractiveIndex and refractiveAttenuation
+ * for refractive materials, to denote the refractive
+ * index of the material and the amount of signal
+ * reduction in the RGB components of the material.
+ * (Environment is assumed to have refractiveIndex = 1.0)
+ */
 class Material {
   public:
     Material() { }

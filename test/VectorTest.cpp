@@ -41,7 +41,7 @@ TEST_CASE("Vector") {
     bool lengthValid = (Vector(1,2,3).length() < sqrt(14) + 1e-6) &&
           (Vector(1,2,3).length() > sqrt(14) - 1e-6);
     CHECK(lengthValid);
-    CHECK(Vector(3,4,0).normalized() == Vector(3.0/5,4.0/5,0.0));
+    CHECK(Vector(3,4,0).normalize() == Vector(3.0/5,4.0/5,0.0));
   }
 
   SECTION("from points") {

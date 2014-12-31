@@ -6,10 +6,11 @@
 #include "Vector.h"
 using namespace std;
 
+/** Ray in xyz space, defined by a starting location and direction vector. */
 class Ray {
   public:
     Ray() { }
-    Ray(const Point& p, const Vector& v) : point(p), direction(v.normalized()) { }
+    Ray(const Point& p, const Vector& v) : point(p), direction(v) { }
     const Point& getPoint() const { return point; }
     const Vector& getDirection() const { return direction; }
     Point getPoint(double t) const { return point + direction*t; }

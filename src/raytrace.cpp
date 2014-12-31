@@ -9,6 +9,13 @@
 #include "Scene.h"
 using namespace std;
 
+/** raytrace
+ * Stephen H. Johnson
+ *
+ * Main program for ray tracer.
+ * To execute: raytrace <scene-file.json>
+ */
+
 // size of image plane, number of pixels
 static GLsizei width = 300;
 static GLsizei height = 300;
@@ -59,8 +66,8 @@ int main(int argc, char** argv) {
     return 1;
   }
   FileParser parser;
-  unique_ptr<Scene> scene = parser.parseScene(root["scene"]);
-  unique_ptr<Camera> camera = parser.parseCamera(root["camera"]);
+  unique_ptr<Scene> scene = parser.parseScene(root);
+  unique_ptr<Camera> camera = parser.parseCamera(root);
   renderer = unique_ptr<Renderer>(new Renderer(std::move(scene), std::move(camera)));
 
   glutInit(&argc, argv);

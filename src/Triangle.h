@@ -9,13 +9,15 @@
 using namespace std;
 
 class Hit;
+class Matrix4;
 class Ray;
 
+/** Triangle surface. */
 class Triangle : public Surface {
   public:
-    Triangle(const string& materialName, const Point& p0, const Point& p1, const Point& p2);
+    Triangle(const string& materialName, const Point& p0, const Point& p1, const Point& p2) :
+      Surface(materialName), p0(p0), p1(p1), p2(p2), normal((p1 - p0).cross(p2 - p0).normalize()) { }
     virtual unique_ptr<Hit> intersect(const Ray& ray, double t0, double t1) const;
-    virtual Vector calculateNormal(const Point& surfacePoint) const;
   private:
     bool isContained(const Point& p0, const Point& p1, const Point& intersect) const;
     Point p0, p1, p2;

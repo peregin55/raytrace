@@ -2,9 +2,6 @@
 #include <cmath>
 #include <sstream>
 
-Vector::~Vector() {
-}
-
 Vector Vector::operator*(double scalar) const {
   return Vector(scalar * coord[X],
                scalar * coord[Y],
@@ -66,7 +63,7 @@ double Vector::length() const {
               coord[Z] * coord[Z]);
 }
 
-Vector Vector::normalized() const {
+Vector Vector::normalize() const {
   return (*this) / length();
 }
 
