@@ -176,10 +176,10 @@ Json::Value FileParser::findReference(const string& name, const unordered_map<st
   return it->second;
 }
 
-unordered_map<string, Json::Value> FileParser::node2namemap(const Json::Value& root, const string& name) const {
+unordered_map<string, Json::Value> FileParser::node2namemap(const Json::Value& root, const string& errStr) const {
   unordered_map<string, Json::Value> map;
   for (unsigned int i = 0; i < root.size(); i++) {
-    string name = parseString(root[i]["name"], name);
+    string name = parseString(root[i]["name"], errStr);
     map[name] = root[i];
   }
   return map;
