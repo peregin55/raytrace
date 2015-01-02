@@ -69,19 +69,6 @@
         "color": [0.8, 0.8, 0.8],
         "exponent": 24.0
       }
-    },
-    {
-      "name": "black",
-      "ambient": {
-        "color": [0.0, 0.0, 0.0]
-      },
-      "diffuse": {
-        "color": [0.0, 0.0, 0.0]
-      },
-      "specular": {
-        "color": [0.0, 0.0, 0.0],
-        "exponent": 0.0
-      }
     }
   ],
   "scene": { 

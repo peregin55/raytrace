@@ -54,45 +54,6 @@
   ],
   "materials": [
     {
-      "name": "red",
-      "ambient": {
-        "color": [0.2, 0.0, 0.0]
-      },
-      "diffuse": {
-        "color": [1.0, 0.2, 0.2]
-      },
-      "specular": {
-        "color": [1.0, 1.0, 1.0],
-        "exponent": 32.0
-      }
-    },
-    {
-      "name": "green",
-      "ambient": {
-        "color": [0.0, 0.2, 0.0]
-      },
-      "diffuse": {
-        "color": [0.2, 1.0, 0.2]
-      },
-      "specular": {
-        "color": [0.8, 0.8, 0.8],
-        "exponent": 24.0
-      }
-    },
-    {
-      "name": "blue",
-      "ambient": {
-        "color": [0.0, 0.0, 0.2]
-      },
-      "diffuse": {
-        "color": [0.2, 0.2, 1.0]
-      },
-      "specular": {
-        "color": [0.8, 0.8, 0.8],
-        "exponent": 32.0
-      }
-    },
-    {
       "name": "yellow",
       "ambient": {
         "color": [0.5, 0.5, 0.0]
@@ -104,21 +65,7 @@
         "color": [0.8, 0.8, 0.8],
         "exponent": 24.0
       }
-    },
-    {
-      "name": "black",
-      "ambient": {
-        "color": [0.0, 0.0, 0.0]
-      },
-      "diffuse": {
-        "color": [0.0, 0.0, 0.0]
-      },
-      "specular": {
-        "color": [0.0, 0.0, 0.0],
-        "exponent": 0.0
-      }
     }
-
   ],
   "scene": { 
     "max_trace": 3,

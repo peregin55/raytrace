@@ -70,22 +70,6 @@
         "color": [0.8, 0.8, 0.8],
         "exponent": 24.0
       }
-    },
-    {
-      "name": "blue",
-      "refractive_index": 1.0,
-      "refractive_attenuation": [0.3, 0.3, 0.3],
-      "reflective_attenuation": [0.0, 0.0, 0.0],
-      "ambient": {
-        "color": [0.0, 0.0, 0.2]
-      },
-      "diffuse": {
-        "color": [0.2, 0.2, 1.0]
-      },
-      "specular": {
-        "color": [0.8, 0.8, 0.8],
-        "exponent": 32.0
-      }
     }
   ],
   "scene": { 

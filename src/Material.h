@@ -8,10 +8,10 @@ using namespace std;
  * Representation of an object material properties,
  * including color, reflectiveness, and transparency.
  *
- * Supports Blinn-Phong illumination model, with
- * ambient, diffuse, and specular terms.  Includes
- * reflectiveFraction to denote the percentage of
- * reflection in RGB for glossy materials.
+ * Supports local illumination with ambient, diffuse,
+ * and specular terms.  Includes reflectiveFraction to
+ * denote the percentage of reflection in RGB for glossy
+ * materials.
  * Includes refractiveIndex and refractiveAttenuation
  * for refractive materials, to denote the refractive
  * index of the material and the amount of signal
