@@ -4,21 +4,24 @@
 #include "Surface.h"
 
 unique_ptr<Hit> TransformSurface::intersect(const Ray& ray, double t0, double t1) const {
-  return surface->intersect(createLocalRay(ray), t0, t1);
+  Point objCamera = obj2worldInverse * ray.getPoint();
+  Vector objDirection = (obj2worldInverse * ray.getDirection()).normalize();
+  unique_ptr<Hit> hit = surface->intersect(Ray(objCamera, objDirection), t0, t1);
+  if (hit) {
+    return unique_ptr<Hit>(new Hit(*this, hit->getT()));
+  }
+  return unique_ptr<Hit>();
 }
 
-Point TransformSurface::calculateHitpoint(const Ray& ray, double t) const {
-  Point hitpoint = surface->calculateHitpoint(createLocalRay(ray), t);  
-  return obj2world * hitpoint;
-}
-
-Vector TransformSurface::calculateNormal(const Ray& ray, double t) const {
-  Vector normal = surface->calculateNormal(createLocalRay(ray), t);
+Vector TransformSurface::calculateNormal(const Point& hitpoint) const {
+  Vector normal = surface->calculateNormal(obj2worldInverse * hitpoint);
   return (obj2worldTranspose * normal).normalize();
 }
 
-Ray TransformSurface::createLocalRay(const Ray& ray) const {
-  Point objCamera = obj2worldInverse * ray.getPoint();
-  Vector objDirection = (obj2worldInverse * ray.getDirection()).normalize();
-  return Ray(objCamera, objDirection);
+const Material* TransformSurface::getMaterial() const {
+  return surface->getMaterial();
+}
+
+const Texture* TransformSurface::getTexture() const {
+  return surface->getTexture();
 }

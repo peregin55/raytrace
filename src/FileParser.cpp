@@ -130,7 +130,7 @@ unordered_map<string, shared_ptr<Material>> FileParser::parseMaterials(const Jso
       texture = Texture::fromFile(textureNode.asString());
     }
     materials[name] = shared_ptr<Material>(new Material(name, ambientColor, diffuseColor, specularColor, specularExponent,
-      reflectiveFraction, refractiveIndex, refractiveAttenuation, std::move(texture)));
+      reflectiveFraction, refractiveIndex, refractiveAttenuation));
   }
   return materials;
 }

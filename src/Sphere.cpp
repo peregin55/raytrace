@@ -28,6 +28,6 @@ unique_ptr<Hit> Sphere::intersect(const Ray& ray, double t0, double t1) const {
   return unique_ptr<Hit>();
 }
 
-Vector Sphere::calculateNormal(const Ray& ray, double t) const {
-  return (calculateHitpoint(ray, t) - center).normalize();
+Vector Sphere::calculateNormal(const Point& hitpoint) const {
+  return (hitpoint - center).normalize();
 }

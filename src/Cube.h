@@ -23,7 +23,7 @@ class Cube : public Surface {
       Surface(material), cubeMin(min), cubeMax(max) { }
     /** Surface intersection. */
     virtual unique_ptr<Hit> intersect(const Ray& ray, double t0, double t1) const;
-    virtual Vector calculateNormal(const Ray& ray, double t) const;
+    virtual Vector calculateNormal(const Point& hitpoint) const;
     /* returns true if ray intersects this cube, with t0 containing the distance at which
      * ray enters the cube, and t1 the distance at which it exits.
      */

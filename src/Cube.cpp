@@ -68,8 +68,7 @@ bool Cube::isBounded(const Ray& ray, double& t0, double& t1) const {
   return true;
 }
 
-Vector Cube::calculateNormal(const Ray& ray, double t) const {
-  Point hitpoint = calculateHitpoint(ray, t);
+Vector Cube::calculateNormal(const Point& hitpoint) const {
   if (fabs(hitpoint[X] - cubeMin[X]) < EPSILON) {
     return Vector(-1.0, 0.0, 0.0);
   }

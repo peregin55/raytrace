@@ -4,7 +4,7 @@
 #include "Ray.h"
 
 unique_ptr<Hit> Triangle::intersect(const Ray& ray, double t0, double t1) const {
-  Plane p(getMaterial(), p0, normal);
+  Plane p(material, p0, normal);
   unique_ptr<Hit> planeHit = p.intersect(ray, t0, t1);
   if (planeHit) {
     // in-out test, if intersect is inside the triangle, the plane formed by it
@@ -27,6 +27,6 @@ bool Triangle::isContained(const Point& p0, const Point& p1, const Point& inters
   return intersectNormal.dot(normal) >= 0.0;
 }
 
-Vector Triangle::calculateNormal(const Ray& ray, double t) const {
+Vector Triangle::calculateNormal(const Point& hitpoint) const {
   return normal;
 }

@@ -16,16 +16,16 @@ class Vector;
 class TransformSurface : public Surface {
   public:
     TransformSurface(const Matrix4& obj2world, unique_ptr<Surface> surface) :
-      Surface(surface->getMaterial()),
+      Surface(shared_ptr<Material>()),
       obj2world(obj2world),
       obj2worldInverse(obj2world.inverse()),
       obj2worldTranspose(obj2world.transpose()),
       surface(std::move(surface)) { }
     virtual unique_ptr<Hit> intersect(const Ray& ray, double t0, double t1) const;
-    virtual Point calculateHitpoint(const Ray& ray, double t) const;
-    virtual Vector calculateNormal(const Ray& ray, double t) const;
+    Vector calculateNormal(const Point& hitpoint) const;
+    virtual const Material* getMaterial() const;
+    virtual const Texture* getTexture() const;
   private:
-    Ray createLocalRay(const Ray& ray) const;
     Matrix4 obj2world;
     Matrix4 obj2worldInverse;
     Matrix4 obj2worldTranspose;

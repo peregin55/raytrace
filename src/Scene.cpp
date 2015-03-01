@@ -47,7 +47,7 @@ Color Scene::colorFromHit(const Ray& ray, const Hit& hit, unsigned int traceCoun
   const Surface& surface = hit.getSurface();
   double t = hit.getT();
   Point hitpoint = ray.calculatePoint(t);
-  Vector normal = surface.calculateNormal(ray, t);
+  Vector normal = surface.calculateNormal(hitpoint);
   const Vector& incident = ray.getDirection().normalize();
   const Material &material = *hit.getSurface().getMaterial();
   Color color;

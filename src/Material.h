@@ -3,7 +3,6 @@
 #include <string>
 #include <memory>
 #include "Color.h"
-#include "Texture.h"
 using namespace std;
 
 /** Material.
@@ -30,8 +29,7 @@ class Material {
              double specularExponent,
              const Color& reflectiveFraction,
              double refractiveIndex,
-             const Color& refractiveAttenuation,
-             unique_ptr<Texture> texture) :
+             const Color& refractiveAttenuation) :
         name(name),
         ambientColor(ambientColor),
         diffuseColor(diffuseColor),
@@ -39,8 +37,7 @@ class Material {
         specularExponent(specularExponent),
         reflectiveFraction(reflectiveFraction),
         refractiveIndex(refractiveIndex),
-        refractiveAttenuation(refractiveAttenuation),
-        texture(std::move(texture)) {}
+        refractiveAttenuation(refractiveAttenuation) {}
 
     const string& getName() const { return name; }
     const Color& getAmbientColor() const { return ambientColor; }
@@ -50,7 +47,6 @@ class Material {
     const Color& getReflectiveFraction() const { return reflectiveFraction; }
     double getRefractiveIndex() const { return refractiveIndex; }
     const Color& getRefractiveAttenuation() const { return refractiveAttenuation; }
-    const Texture* getTexture() const { return texture.get(); }
   private:
     string name;
     Color ambientColor;
@@ -60,6 +56,5 @@ class Material {
     Color reflectiveFraction;
     double refractiveIndex;
     Color refractiveAttenuation;
-    unique_ptr<Texture> texture;
 };
 #endif
