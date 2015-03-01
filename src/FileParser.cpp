@@ -182,7 +182,7 @@ Matrix4 FileParser::parseTransformation(const Json::Value& transformNode) const 
 Json::Value FileParser::findReference(const string& name, const unordered_map<string, Json::Value>& map) const {
   unordered_map<string, Json::Value>::const_iterator it = map.find(name);
   if (it == map.end()) {
-    throw new RenderException("unable to find reference \"" + name + "\"");
+    throw RenderException("unable to find reference \"" + name + "\"");
   }
   return it->second;
 }

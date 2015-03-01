@@ -18,6 +18,7 @@ class Triangle : public Surface {
     Triangle(shared_ptr<Material> material, const Point& p0, const Point& p1, const Point& p2) :
       Surface(material), p0(p0), p1(p1), p2(p2), normal((p1 - p0).cross(p2 - p0).normalize()) { }
     virtual unique_ptr<Hit> intersect(const Ray& ray, double t0, double t1) const;
+    virtual Vector calculateNormal(const Ray& ray, double t) const;
   private:
     bool isContained(const Point& p0, const Point& p1, const Point& intersect) const;
     Point p0, p1, p2;

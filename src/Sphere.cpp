@@ -2,6 +2,7 @@
 #include "Sphere.h"
 #include "Hit.h"
 #include "Ray.h"
+#include "Vector.h"
 
 unique_ptr<Hit> Sphere::intersect(const Ray& ray, double t0, double t1) const {
   Point e = ray.getPoint();
@@ -15,20 +16,18 @@ unique_ptr<Hit> Sphere::intersect(const Ray& ray, double t0, double t1) const {
     double tPos = (minusB + determinant) / dDotted;
     double tNeg = (minusB - determinant) / dDotted;
     if (tPos > t0 && tPos < t1 && tNeg > t0 && tNeg < t1) {
-      return buildHit(ray, fmin(tNeg, tPos));
+      return unique_ptr<Hit>(new Hit(*this, fmin(tNeg, tPos)));
     }
     else if (tPos > t0 && tPos < t1) {
-      return buildHit(ray, tPos);
+      return unique_ptr<Hit>(new Hit(*this, tPos));
     }
     else if (tNeg > t0 && tNeg < t1) {
-      return buildHit(ray, tNeg);
+      return unique_ptr<Hit>(new Hit(*this, tNeg));
     }
   }
   return unique_ptr<Hit>();
 }
 
-unique_ptr<Hit> Sphere::buildHit(const Ray& ray, double t) const {
-  Point hitpoint = ray.getPoint() + ray.getDirection() * t;
-  Vector normal = (hitpoint - center).normalize();
-  return unique_ptr<Hit>(new Hit(*this, t, hitpoint, normal));
+Vector Sphere::calculateNormal(const Ray& ray, double t) const {
+  return (calculateHitpoint(ray, t) - center).normalize();
 }

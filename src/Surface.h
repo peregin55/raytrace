@@ -3,8 +3,8 @@
 #include <memory>
 #include <string>
 #include "Material.h"
+#include "Ray.h"
 using namespace std;
-class Ray;
 class Hit;
 class Point;
 class Vector;
@@ -18,6 +18,8 @@ class Surface {
      *  if none found.
      */
     virtual unique_ptr<Hit> intersect(const Ray& ray, double t0, double t1) const = 0;
+    virtual Vector calculateNormal(const Ray& ray, double t) const = 0;
+    Point calculateHitpoint(const Ray& ray, double t) const { return ray.getPoint() + ray.getDirection() * t; }
     shared_ptr<Material> getMaterial() const { return material; }
     virtual ~Surface() { }
   private:

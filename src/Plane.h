@@ -18,6 +18,7 @@ class Plane : public Surface {
     Plane(shared_ptr<Material> material, const Point& p, const Vector& normal) :
       Surface(material), point(p), normal(normal.normalize()) {}
     virtual unique_ptr<Hit> intersect(const Ray& ray, double t0, double t1) const;
+    virtual Vector calculateNormal(const Ray& ray, double t) const;
   private:
     Point point;
     Vector normal;

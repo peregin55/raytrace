@@ -44,8 +44,10 @@ unique_ptr<Hit> Scene::intersect(const Ray& ray, double t0, double t1) const {
 }
 
 Color Scene::colorFromHit(const Ray& ray, const Hit& hit, unsigned int traceCount) const {
-  Point hitpoint = hit.getHitpoint();
-  Vector normal = hit.getNormal();
+  const Surface& surface = hit.getSurface();
+  double t = hit.getT();
+  Point hitpoint = ray.calculatePoint(t);
+  Vector normal = surface.calculateNormal(ray, t);
   const Vector& incident = ray.getDirection().normalize();
   const Material &material = *hit.getSurface().getMaterial();
   Color color;

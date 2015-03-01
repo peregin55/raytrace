@@ -18,19 +18,13 @@ unique_ptr<Hit> Cube::intersect(const Ray& ray, double t0, double t1) const {
   double tmin = 0.0, tmax = 0.0;
   if (isBounded(ray, tmin, tmax)) {
     if (tmin > t0 && tmin < t1) {
-      return buildHit(ray, tmin);
+      return unique_ptr<Hit>(new Hit(*this, tmin));
     }
     else if (tmax > t0 && tmax < t1) {
-      return buildHit(ray, tmax);
+      return unique_ptr<Hit>(new Hit(*this, tmax));
     }
   }
   return unique_ptr<Hit>();
-}
-
-unique_ptr<Hit> Cube::buildHit(const Ray& ray, double t) const {
-  Point hitpoint = ray.getPoint() + ray.getDirection() * t;
-  Vector normal = calculateNormal(hitpoint);
-  return unique_ptr<Hit>(new Hit(*this, t, hitpoint, normal));
 }
 
 bool Cube::isBounded(const Ray& ray, double& t0, double& t1) const {
@@ -73,27 +67,28 @@ bool Cube::isBounded(const Ray& ray, double& t0, double& t1) const {
   t1 = fmin(tMaxCoord[Z], tmax);
   return true;
 }
-  
-Vector Cube::calculateNormal(const Point& surfacePoint) const {
-  if (fabs(surfacePoint[X] - cubeMin[X]) < EPSILON) {
+
+Vector Cube::calculateNormal(const Ray& ray, double t) const {
+  Point hitpoint = calculateHitpoint(ray, t);
+  if (fabs(hitpoint[X] - cubeMin[X]) < EPSILON) {
     return Vector(-1.0, 0.0, 0.0);
   }
-  else if (fabs(surfacePoint[X] - cubeMax[X]) < EPSILON) {
+  else if (fabs(hitpoint[X] - cubeMax[X]) < EPSILON) {
     return Vector(1.0, 0.0, 0.0);
   }
-  else if (fabs(surfacePoint[Y] - cubeMin[Y]) < EPSILON) {
+  else if (fabs(hitpoint[Y] - cubeMin[Y]) < EPSILON) {
     return Vector(0.0, -1.0, 0.0);
   }
-  else if (fabs(surfacePoint[Y] - cubeMax[Y]) < EPSILON) {
+  else if (fabs(hitpoint[Y] - cubeMax[Y]) < EPSILON) {
     return Vector(0.0, 1.0, 0.0);
   }
-  else if (fabs(surfacePoint[Z] - cubeMin[Z]) < EPSILON) {
+  else if (fabs(hitpoint[Z] - cubeMin[Z]) < EPSILON) {
     return Vector(0.0, 0.0, -1.0);
   }
-  else if (fabs(surfacePoint[Z] - cubeMax[Z]) < EPSILON) {
+  else if (fabs(hitpoint[Z] - cubeMax[Z]) < EPSILON) {
     return Vector(0.0, 0.0, 1.0);
   }
   else {
-    throw RenderException("Unable to calculate normal for " + surfacePoint.toString());
+    throw RenderException("Unable to calculate normal for " + hitpoint.toString());
   }
 }

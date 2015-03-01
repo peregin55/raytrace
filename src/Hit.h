@@ -1,10 +1,11 @@
 #ifndef HIT_H
 #define HIT_H
 
+#include "Surface.h"
 #include "Point.h"
 #include "Vector.h"
+#include "Ray.h"
 
-class Surface;
 
 /** Representation of a ray-surface intersection.
  *  Includes Surface involved in intersection,
@@ -14,17 +15,12 @@ class Surface;
  */
 class Hit {
   public:
-    Hit(const Surface& s, double t, const Point& hitpoint, const Vector& normal) :
-      surface(s), t(t), hitpoint(hitpoint), normal(normal) { }
+    Hit(const Surface& s, double t) : surface(s), t(t) { }
     const Surface& getSurface() const { return surface; }
     double getT() const { return t; }
-    const Point& getHitpoint() const { return hitpoint; }
-    const Vector& getNormal() const { return normal; }
   private:
     const Surface& surface;
     double t;
-    Point hitpoint;
-    Vector normal;
 };
 
 #endif

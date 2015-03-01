@@ -11,14 +11,15 @@ using namespace std;
 class Hit;
 class Matrix4;
 class Ray;
+class Vector;
 
 /** Sphere surface defined by center location and radius. */
 class Sphere : public Surface {
   public:
     Sphere(shared_ptr<Material> material, const Point& c, double r) : Surface(material), center(c), radius(r) { }
     virtual unique_ptr<Hit> intersect(const Ray& ray, double t0, double t1) const;
+    virtual Vector calculateNormal(const Ray& ray, double t) const;
   private:
-    unique_ptr<Hit> buildHit(const Ray& ray, double t) const;
     Point center;
     double radius;
 };

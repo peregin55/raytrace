@@ -13,7 +13,7 @@ class Ray {
     Ray(const Point& p, const Vector& v) : point(p), direction(v) { }
     const Point& getPoint() const { return point; }
     const Vector& getDirection() const { return direction; }
-    Point getPoint(double t) const { return point + direction*t; }
+    Point calculatePoint(double t) const { return point + direction * t; }
   private:
     Point point;
     Vector direction;
