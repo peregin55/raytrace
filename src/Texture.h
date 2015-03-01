@@ -11,7 +11,7 @@ class Color;
  */
 class Texture {
   public:
-    Texture(vector<unsigned char> image,
+    Texture(const vector<unsigned char>& image,
             unsigned int width,
             unsigned int height) :
         image(image), width(width), height(height) {}

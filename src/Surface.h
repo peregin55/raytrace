@@ -2,6 +2,7 @@
 #define SURFACE_H
 #include <memory>
 #include <string>
+#include "Material.h"
 using namespace std;
 class Ray;
 class Hit;
@@ -11,15 +12,15 @@ class Vector;
 /** Abstract Surface object supported for rendering. */
 class Surface {
   public:
-    Surface(const string& materialName) : materialName(materialName) { }
+    Surface(shared_ptr<Material> material) : material(material) { }
     /** Intersect ray with this object.
      *  Returns closest Hit with distance > t0 and distance < t1, or nullptr
      *  if none found.
      */
     virtual unique_ptr<Hit> intersect(const Ray& ray, double t0, double t1) const = 0;
-    const string& getMaterialName() const { return materialName; }
+    shared_ptr<Material> getMaterial() const { return material; }
     virtual ~Surface() { }
   private:
-    string materialName;
+    shared_ptr<Material> material;
 };
 #endif

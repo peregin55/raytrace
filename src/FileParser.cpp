@@ -39,7 +39,7 @@ unique_ptr<Camera> FileParser::parseCamera(const Json::Value& docNode) const {
 unique_ptr<Scene> FileParser::parseScene(const Json::Value& docNode) const {
   unordered_map<string, Json::Value> availableLights = node2namemap(docNode["lights"], "light");
   unordered_map<string, Json::Value> availableSurfaces = node2namemap(docNode["surfaces"], "surface");
-  unordered_map<string, unique_ptr<Material>> materials = parseMaterials(docNode["materials"]);
+  unordered_map<string, shared_ptr<Material>> materials = parseMaterials(docNode["materials"]);
   Json::Value sceneNode = docNode["scene"];
   unsigned int maxTraces = parseUnsignedInt(sceneNode["max_trace"], "max trace");
   Color backgroundColor = parseColor(sceneNode["background_color"], "background color");
@@ -54,16 +54,15 @@ unique_ptr<Scene> FileParser::parseScene(const Json::Value& docNode) const {
   if (sceneNode["surfaces"] != Json::nullValue) {
     for (unsigned int i=0; i < sceneNode["surfaces"].size(); i++) {
       string surfaceName = parseString(sceneNode["surfaces"][i], "scene surface reference");
-      surfaces.push_back(parseSurface(findReference(surfaceName, availableSurfaces)));
+      surfaces.push_back(parseSurface(findReference(surfaceName, availableSurfaces), materials));
     }
   }
   // surfaces in "context" may have local-object transformations, handle separately
   if (sceneNode["context"] != Json::nullValue) {
-    parseContext(surfaces, obj2world, sceneNode["context"], availableSurfaces);
+    parseContext(surfaces, obj2world, sceneNode["context"], availableSurfaces, materials);
   }
-  return unique_ptr<Scene>(new Scene(lights, std::move(surfaces), std::move(materials), backgroundColor, maxTraces));
+  return unique_ptr<Scene>(new Scene(lights, std::move(surfaces), backgroundColor, maxTraces));
 }
-
 
 
 Light FileParser::parseLight(const Json::Value& lightNode) const {
@@ -73,25 +72,31 @@ Light FileParser::parseLight(const Json::Value& lightNode) const {
 }
 
 
-unique_ptr<Surface> FileParser::parseSurface(const Json::Value& surfaceNode) const {
+unique_ptr<Surface> FileParser::parseSurface(const Json::Value& surfaceNode,
+  const unordered_map<string, shared_ptr<Material>>& materials) const {
   string name = parseString(surfaceNode["name"], "surface name");
   string type = parseString(surfaceNode["type"], "surface type");
-  string materialName = parseString(surfaceNode["material"], type + " surface material");
+  shared_ptr<Material> material;
+  try {
+    material = materials.at(parseString(surfaceNode["material"], type + " surface material"));
+  } catch (const out_of_range& e) {
+    throw RenderException("Unable to find surface material: " + name);
+  }
   if (type == "sphere") {
     Point center = parsePoint(surfaceNode["center"], "sphere center");
     double radius = parseDouble(surfaceNode["radius"], "sphere radius");
-    return unique_ptr<Surface>(new Sphere(materialName, center, radius));
+    return unique_ptr<Surface>(new Sphere(material, center, radius));
   }
   else if (type == "plane") {
     Point point = parsePoint(surfaceNode["point"], "point on plane");
     Vector normal = parseVector(surfaceNode["normal"], "surface normal");
-    return unique_ptr<Surface>(new Plane(materialName, point, normal));
+    return unique_ptr<Surface>(new Plane(material, point, normal));
   }
   else if (type == "triangle") {
     Point p0 = parsePoint(surfaceNode["vertex1"], "vertex 1");
     Point p1 = parsePoint(surfaceNode["vertex2"], "vertex 2");
     Point p2 = parsePoint(surfaceNode["vertex3"], "vertex 3");
-    return unique_ptr<Surface>(new Triangle(materialName, p0, p1, p2));
+    return unique_ptr<Surface>(new Triangle(material, p0, p1, p2));
   }
   else if (type == "cube") {
     double xmin = parseDouble(surfaceNode["xmin"], "x min");
@@ -100,15 +105,15 @@ unique_ptr<Surface> FileParser::parseSurface(const Json::Value& surfaceNode) con
     double ymax = parseDouble(surfaceNode["ymax"], "y max");
     double zmin = parseDouble(surfaceNode["zmin"], "z min");
     double zmax = parseDouble(surfaceNode["zmax"], "z max");
-    return unique_ptr<Surface>(new Cube(materialName, {xmin, ymin, zmin}, {xmax, ymax, zmax}));
+    return unique_ptr<Surface>(new Cube(material, {xmin, ymin, zmin}, {xmax, ymax, zmax}));
   }
   else {
     throw RenderException("Unknown object: \"" + name + "\" of type: \"" + type + "\"");
   }
 }
 
-unordered_map<string, unique_ptr<Material>> FileParser::parseMaterials(const Json::Value& materialsNode) const {
-  unordered_map<string, unique_ptr<Material>> map;
+unordered_map<string, shared_ptr<Material>> FileParser::parseMaterials(const Json::Value& materialsNode) const {
+  unordered_map<string, shared_ptr<Material>> materials;
   for (unsigned int i=0; i < materialsNode.size(); i++) {
     string name = parseString(materialsNode[i]["name"], "material name");
     Color ambientColor = parseColor(materialsNode[i]["ambient"]["color"], "ambient color");
@@ -124,14 +129,15 @@ unordered_map<string, unique_ptr<Material>> FileParser::parseMaterials(const Jso
     if (textureNode != Json::nullValue) {
       texture = Texture::fromFile(textureNode.asString());
     }
-    map[name] = unique_ptr<Material>(new Material(name, ambientColor, diffuseColor, specularColor, specularExponent,
+    materials[name] = shared_ptr<Material>(new Material(name, ambientColor, diffuseColor, specularColor, specularExponent,
       reflectiveFraction, refractiveIndex, refractiveAttenuation, std::move(texture)));
   }
-  return map;
+  return materials;
 }
 
-void FileParser::parseContext(vector<unique_ptr<Surface>>& surfaces, Matrix4& obj2world,
-  Json::Value& contextNode, const unordered_map<string, Json::Value>& availableSurfaces) const {
+void FileParser::parseContext(vector<unique_ptr<Surface>>& surfaces, Matrix4 obj2world,
+  Json::Value contextNode, const unordered_map<string, Json::Value>& availableSurfaces,
+  const unordered_map<string, shared_ptr<Material>>& materials) const {
   while (contextNode != Json::nullValue) {
     Json::Value transformNode = contextNode["transform"];
     if (transformNode != Json::nullValue) {
@@ -143,7 +149,7 @@ void FileParser::parseContext(vector<unique_ptr<Surface>>& surfaces, Matrix4& ob
     if (surfaceNamesNode != Json::nullValue) {
       for (unsigned int i = 0; i < surfaceNamesNode.size(); i++) {
         string surfaceName = parseString(surfaceNamesNode[i], "scene surface reference");
-        unique_ptr<Surface> surface = parseSurface(findReference(surfaceName, availableSurfaces));
+        unique_ptr<Surface> surface = parseSurface(findReference(surfaceName, availableSurfaces), materials);
         unique_ptr<Surface> transformSurface(new TransformSurface(obj2world, std::move(surface)));
         surfaces.push_back(std::move(transformSurface));
       }

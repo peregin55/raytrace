@@ -28,10 +28,11 @@ class FileParser {
     unique_ptr<Camera> parseCamera(const Json::Value& docNode) const;
   private:
     Light parseLight(const Json::Value& lightNode) const;
-    unique_ptr<Surface> parseSurface(const Json::Value& surfacesNode) const;
-    unordered_map<string, unique_ptr<Material>> parseMaterials(const Json::Value& materialNode) const;
-    void parseContext(vector<unique_ptr<Surface>>& surfaces, Matrix4& obj2world,
-      Json::Value& contextNode, const unordered_map<string, Json::Value>& availableSurfaces) const;
+    unique_ptr<Surface> parseSurface(const Json::Value& surfacesNode, const unordered_map<string, shared_ptr<Material>>& materials) const;
+    unordered_map<string, shared_ptr<Material>> parseMaterials(const Json::Value& materialNode) const;
+    void parseContext(vector<unique_ptr<Surface>>& surfaces, Matrix4 obj2world,
+      Json::Value contextNode, const unordered_map<string, Json::Value>& availableSurfaces,
+      const unordered_map<string, shared_ptr<Material>>& materials) const;
     Matrix4 parseTransformation(const Json::Value& node) const;
     Json::Value findReference(const string& name, const unordered_map<string, Json::Value>& map) const;
     double deg2rad(double degrees) const;

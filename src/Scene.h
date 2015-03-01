@@ -2,7 +2,6 @@
 #define SCENE_H
 #include <vector>
 #include <string>
-#include <unordered_map>
 #include <memory>
 #include <string>
 #include "Surface.h"
@@ -15,21 +14,18 @@ class Hit;
 class Ray;
 
 /** Scene.
- * Encapsulates lights, surfaces, material-map, background color,
- * and max number of traces (reflection/refraction ray-bounces).
- * Provides method to determine a Color given a single Ray into
- * the Scene.
+ * Encapsulates lights, surfaces, background color, and max number of traces
+ * (reflection/refraction ray-bounces).
+ * Provides method to determine a Color given a single Ray into the Scene.
  */
 class Scene {
   public:
     Scene(vector<Light> lights,
           vector<unique_ptr<Surface>> surfaces,
-          unordered_map<string, unique_ptr<Material>> materialMap,
           const Color& backgroundColor,
           unsigned int maxTrace):
           lights(lights),
           surfaces(std::move(surfaces)),
-          materialMap(std::move(materialMap)),
           backgroundColor(backgroundColor),
           maxTrace(maxTrace) { }
     Color calculateColor(const Ray& ray) const;
@@ -48,11 +44,9 @@ class Scene {
         const Point& hitpoint) const;
     unique_ptr<Ray> calculateTransmittedRay(const Vector& incident, const Vector& normal, double n1,
         double n2, const Point& hitpoint) const;
-    const Material& getMaterial(const string& name) const;
 
     vector<Light> lights;
     vector<unique_ptr<Surface>> surfaces;
-    unordered_map<string, unique_ptr<Material>> materialMap;
     Color backgroundColor;
     unsigned int maxTrace;
 };

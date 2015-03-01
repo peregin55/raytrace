@@ -15,7 +15,7 @@ class Ray;
 /** Sphere surface defined by center location and radius. */
 class Sphere : public Surface {
   public:
-    Sphere(const string& materialName, const Point& c, double r) : Surface(materialName), center(c), radius(r) { }
+    Sphere(shared_ptr<Material> material, const Point& c, double r) : Surface(material), center(c), radius(r) { }
     virtual unique_ptr<Hit> intersect(const Ray& ray, double t0, double t1) const;
   private:
     unique_ptr<Hit> buildHit(const Ray& ray, double t) const;

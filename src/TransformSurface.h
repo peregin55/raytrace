@@ -15,7 +15,7 @@ class Surface;
 class TransformSurface : public Surface {
   public:
     TransformSurface(const Matrix4& obj2world, unique_ptr<Surface> surface) :
-      Surface(surface->getMaterialName()),
+      Surface(surface->getMaterial()),
       obj2world(obj2world),
       obj2worldInverse(obj2world.inverse()),
       obj2worldTranspose(obj2world.transpose()),

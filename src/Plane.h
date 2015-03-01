@@ -15,8 +15,8 @@ class Ray;
 /** Infinite plane surface. */
 class Plane : public Surface {
   public:
-    Plane(const string& materialName, const Point& p, const Vector& normal) :
-      Surface(materialName), point(p), normal(normal.normalize()) {}
+    Plane(shared_ptr<Material> material, const Point& p, const Vector& normal) :
+      Surface(material), point(p), normal(normal.normalize()) {}
     virtual unique_ptr<Hit> intersect(const Ray& ray, double t0, double t1) const;
   private:
     Point point;

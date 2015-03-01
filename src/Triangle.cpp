@@ -4,7 +4,7 @@
 #include "Ray.h"
 
 unique_ptr<Hit> Triangle::intersect(const Ray& ray, double t0, double t1) const {
-  Plane p(getMaterialName(), p0, normal);
+  Plane p(getMaterial(), p0, normal);
   unique_ptr<Hit> planeHit = p.intersect(ray, t0, t1);
   if (planeHit) {
     // in-out test, if intersect is inside the triangle, the plane formed by it

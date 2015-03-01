@@ -30,25 +30,6 @@ class Material {
              double specularExponent,
              const Color& reflectiveFraction,
              double refractiveIndex,
-             const Color& refractiveAttenuation) :
-        name(name),
-        ambientColor(ambientColor),
-        diffuseColor(diffuseColor),
-        specularColor(specularColor),
-        specularExponent(specularExponent),
-        reflectiveFraction(reflectiveFraction),
-        refractiveIndex(refractiveIndex),
-        refractiveAttenuation(refractiveAttenuation),
-        texture(unique_ptr<Texture>()) {}
-
-    
-    Material(const string& name,
-             const Color& ambientColor,
-             const Color& diffuseColor,
-             const Color& specularColor,
-             double specularExponent,
-             const Color& reflectiveFraction,
-             double refractiveIndex,
              const Color& refractiveAttenuation,
              unique_ptr<Texture> texture) :
         name(name),

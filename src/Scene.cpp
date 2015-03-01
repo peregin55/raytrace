@@ -47,7 +47,7 @@ Color Scene::colorFromHit(const Ray& ray, const Hit& hit, unsigned int traceCoun
   Point hitpoint = hit.getHitpoint();
   Vector normal = hit.getNormal();
   const Vector& incident = ray.getDirection().normalize();
-  const Material &material = getMaterial(hit.getSurface().getMaterialName());
+  const Material &material = *hit.getSurface().getMaterial();
   Color color;
   for (Light light : lights) {
     color = color + calculateLocalColor(incident, normal, hitpoint, material, light);
@@ -162,11 +162,3 @@ unique_ptr<Ray> Scene::calculateTransmittedRay(const Vector& incident, const Vec
   else return unique_ptr<Ray>();
 }
 
-
-const Material& Scene::getMaterial(const string& name) const {
-  try {
-    return *materialMap.at(name);
-  } catch (const out_of_range& e) {
-    throw RenderException("Unable to find surface material: " + name);
-  }
-}

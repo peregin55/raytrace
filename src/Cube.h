@@ -19,8 +19,8 @@ class Cube : public Surface {
     /** Construct cube given name of material, minimum XYZ dimensions contained in min vector,
      * and maximum XYZ dimensions in max vector. (min and max should have 3 components).
      */
-    Cube(const string& materialName, const vector<double>& min, const vector<double>& max) :
-      Surface(materialName), cubeMin(min), cubeMax(max) { }
+    Cube(shared_ptr<Material> material, const vector<double>& min, const vector<double>& max) :
+      Surface(material), cubeMin(min), cubeMax(max) { }
     /** Surface intersection. */
     virtual unique_ptr<Hit> intersect(const Ray& ray, double t0, double t1) const;
     /* returns true if ray intersects this cube, with t0 containing the distance at which
