@@ -165,7 +165,7 @@ unique_ptr<Ray> Scene::calculateTransmittedRay(const Vector& incident, const Vec
 
 const Material& Scene::getMaterial(const string& name) const {
   try {
-    return materialMap.at(name);
+    return *materialMap.at(name);
   } catch (const out_of_range& e) {
     throw RenderException("Unable to find surface material: " + name);
   }

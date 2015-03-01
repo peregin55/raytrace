@@ -13,6 +13,7 @@
 #include "Matrix4.h"
 #include "Scene.h"
 #include "Sphere.h"
+#include "Texture.h"
 #include "TransformSurface.h"
 #include "Triangle.h"
 #include "Plane.h"
@@ -38,7 +39,7 @@ unique_ptr<Camera> FileParser::parseCamera(const Json::Value& docNode) const {
 unique_ptr<Scene> FileParser::parseScene(const Json::Value& docNode) const {
   unordered_map<string, Json::Value> availableLights = node2namemap(docNode["lights"], "light");
   unordered_map<string, Json::Value> availableSurfaces = node2namemap(docNode["surfaces"], "surface");
-  unordered_map<string, Material> materials = parseMaterials(docNode["materials"]);
+  unordered_map<string, unique_ptr<Material>> materials = parseMaterials(docNode["materials"]);
   Json::Value sceneNode = docNode["scene"];
   unsigned int maxTraces = parseUnsignedInt(sceneNode["max_trace"], "max trace");
   Color backgroundColor = parseColor(sceneNode["background_color"], "background color");
@@ -60,7 +61,7 @@ unique_ptr<Scene> FileParser::parseScene(const Json::Value& docNode) const {
   if (sceneNode["context"] != Json::nullValue) {
     parseContext(surfaces, obj2world, sceneNode["context"], availableSurfaces);
   }
-  return unique_ptr<Scene>(new Scene(lights, std::move(surfaces), materials, backgroundColor, maxTraces));
+  return unique_ptr<Scene>(new Scene(lights, std::move(surfaces), std::move(materials), backgroundColor, maxTraces));
 }
 
 
@@ -106,8 +107,8 @@ unique_ptr<Surface> FileParser::parseSurface(const Json::Value& surfaceNode) con
   }
 }
 
-unordered_map<string, Material> FileParser::parseMaterials(const Json::Value& materialsNode) const {
-  unordered_map<string, Material> map;
+unordered_map<string, unique_ptr<Material>> FileParser::parseMaterials(const Json::Value& materialsNode) const {
+  unordered_map<string, unique_ptr<Material>> map;
   for (unsigned int i=0; i < materialsNode.size(); i++) {
     string name = parseString(materialsNode[i]["name"], "material name");
     Color ambientColor = parseColor(materialsNode[i]["ambient"]["color"], "ambient color");
@@ -118,9 +119,13 @@ unordered_map<string, Material> FileParser::parseMaterials(const Json::Value& ma
     Color refractiveAttenuation = parseOptionalColor(materialsNode[i]["refractive_attenuation"],
       "refractive attenuation", numeric_limits<double>::infinity());
     Color reflectiveFraction = parseOptionalColor(materialsNode[i]["reflective_fraction"], "reflective fraction", 0.0);
-    Material m(name, ambientColor, diffuseColor, specularColor, specularExponent,
-      reflectiveFraction, refractiveIndex, refractiveAttenuation);
-    map[name] = m;
+    Json::Value textureNode = materialsNode[i]["texture"];
+    unique_ptr<Texture> texture;
+    if (textureNode != Json::nullValue) {
+      texture = Texture::fromFile(textureNode.asString());
+    }
+    map[name] = unique_ptr<Material>(new Material(name, ambientColor, diffuseColor, specularColor, specularExponent,
+      reflectiveFraction, refractiveIndex, refractiveAttenuation, std::move(texture)));
   }
   return map;
 }
@@ -256,7 +261,7 @@ double FileParser::parseDouble(const Json::Value& node, const string& nodeName) 
   return node.asDouble();
 }
 
-string FileParser:: parseString(const Json::Value& node, const string& nodeName) const {
+string FileParser::parseString(const Json::Value& node, const string& nodeName) const {
   if (node == Json::nullValue) {
     throw RenderException("unable to parse string for \"" + nodeName + "\"");
   }

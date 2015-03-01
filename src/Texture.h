@@ -1,6 +1,7 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 #include <string>
+#include <memory>
 #include <vector>
 using namespace std;
 
@@ -15,7 +16,7 @@ class Texture {
             unsigned int height) :
         image(image), width(width), height(height) {}
 
-    static Texture fromFile(const string& filename);
+    static unique_ptr<Texture> fromFile(const string& filename);
     Color colorAt(int u, int v) const;
 
   private:

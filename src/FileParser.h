@@ -29,7 +29,7 @@ class FileParser {
   private:
     Light parseLight(const Json::Value& lightNode) const;
     unique_ptr<Surface> parseSurface(const Json::Value& surfacesNode) const;
-    unordered_map<string, Material> parseMaterials(const Json::Value& materialNode) const;
+    unordered_map<string, unique_ptr<Material>> parseMaterials(const Json::Value& materialNode) const;
     void parseContext(vector<unique_ptr<Surface>>& surfaces, Matrix4& obj2world,
       Json::Value& contextNode, const unordered_map<string, Json::Value>& availableSurfaces) const;
     Matrix4 parseTransformation(const Json::Value& node) const;

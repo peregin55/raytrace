@@ -24,11 +24,14 @@ class Scene {
   public:
     Scene(vector<Light> lights,
           vector<unique_ptr<Surface>> surfaces,
-          unordered_map<string, Material> materialMap,
+          unordered_map<string, unique_ptr<Material>> materialMap,
           const Color& backgroundColor,
           unsigned int maxTrace):
-          lights(lights), surfaces(std::move(surfaces)),
-          materialMap(materialMap), backgroundColor(backgroundColor), maxTrace(maxTrace) { }
+          lights(lights),
+          surfaces(std::move(surfaces)),
+          materialMap(std::move(materialMap)),
+          backgroundColor(backgroundColor),
+          maxTrace(maxTrace) { }
     Color calculateColor(const Ray& ray) const;
 
   private:
@@ -49,7 +52,7 @@ class Scene {
 
     vector<Light> lights;
     vector<unique_ptr<Surface>> surfaces;
-    unordered_map<string, Material> materialMap;
+    unordered_map<string, unique_ptr<Material>> materialMap;
     Color backgroundColor;
     unsigned int maxTrace;
 };

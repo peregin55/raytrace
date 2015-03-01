@@ -6,7 +6,7 @@
 const unsigned char Texture::BITDEPTH = 8;
 const double Texture::NORM = 255.0;
 
-Texture Texture::fromFile(const string& filename) {
+unique_ptr<Texture> Texture::fromFile(const string& filename) {
   vector<unsigned char> image;
   unsigned int width;
   unsigned int height;
@@ -14,7 +14,7 @@ Texture Texture::fromFile(const string& filename) {
   if (error) {
     throw RenderException("Error reading png file: \"" + filename + "\" - error code " + to_string(error));
   }
-  return Texture(image, width, height);
+  return unique_ptr<Texture>(new Texture(image, width, height));
 }
 
 
