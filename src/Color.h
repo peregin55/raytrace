@@ -5,7 +5,7 @@
 using namespace std;
 
 /** Color.
- * RGB based color representation.
+ * RGB based color representation, normalized from 0.0 (absence) to 1.0 (presence).
  */
 class Color {
   public:

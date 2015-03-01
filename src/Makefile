@@ -1,12 +1,13 @@
 include ../Makefile.inc
 
 # preprocessor (header) flags
-CPPFLAGS      = -I/opt/X11/include -I../dependencies/jsoncpp-0.5.0
+CPPFLAGS      = -I/opt/X11/include -I../dependencies/jsoncpp-0.5.0 -I../dependencies/lodepng-20141130
 # linker flags
-LDFLAGS       = -L/opt/X11/lib -L../dependencies/jsoncpp-0.5.0
+LDFLAGS       = -L/opt/X11/lib -L../dependencies/jsoncpp-0.5.0 -L../dependencies/lodepng-20141130
+
 # linker libraries
 GL_LIBS       = -lglut -lGLU -lGL
-LDLIBS        = $(GL_LIBS) -ljsoncpp -lm
+LDLIBS        = $(GL_LIBS) -ljsoncpp -llodepng -lm
 # source and build paths
 SOURCES = $(wildcard *.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
