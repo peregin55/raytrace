@@ -1,0 +1,57 @@
+{
+  "camera": {
+    "position": [0.0, 0.0, 5.0],
+    "reference": [0.0, 0.0, 0.0],
+    "up_direction": [0.0, 1.0, 0.0],
+    "frame": {
+      "bottom": -2.0,
+      "top": 2.0,
+      "left": -2.0,
+      "right": 2.0,
+      "near": -2.0
+    }
+  },
+  "lights": [
+    {
+      "name": "point_light",
+      "position": [-11.0, 11.0, 11.0],
+      "color": [0.8, 0.8, 0.8]
+    }
+  ],  
+  "surfaces": [
+    {
+      "name": "planet",
+      "type": "sphere", 
+      "material": "red",
+      "texture": "textures/planet.png",
+      "center": [0.0, 0.0, 0.0],
+      "radius": 2.0
+    }
+  ],
+  "materials": [
+    {
+      "name": "red",
+      "ambient": {
+        "color": [0.2, 0.0, 0.0]
+      },
+      "diffuse": {
+        "color": [1.0, 0.2, 0.2]
+      },
+      "specular": {
+        "color": [1.0, 1.0, 1.0],
+        "exponent": 64.0
+      }
+    }
+  ],
+  "scene": { 
+    "max_trace": 3,
+    "background_color": [0.0, 0.0, 0.3],
+    "lights": ["point_light"],
+    "context": {
+      "transform": [
+        {"scale": [2.0, 1.0, 1.0] }
+      ],
+      "surfaces" : ["red_sphere"]
+    } 
+  }
+}

@@ -82,10 +82,15 @@ unique_ptr<Surface> FileParser::parseSurface(const Json::Value& surfaceNode,
   } catch (const out_of_range& e) {
     throw RenderException("Unable to find surface material: " + name);
   }
+  Json::Value textureNode = surfaceNode["texture"];
+  unique_ptr<Texture> texture;
+  if (textureNode != Json::nullValue) {
+    texture = Texture::fromFile(textureNode.asString());
+  }
   if (type == "sphere") {
     Point center = parsePoint(surfaceNode["center"], "sphere center");
     double radius = parseDouble(surfaceNode["radius"], "sphere radius");
-    return unique_ptr<Surface>(new Sphere(material, center, radius));
+    return unique_ptr<Surface>(new Sphere(center, radius, material, std::move(texture)));
   }
   else if (type == "plane") {
     Point point = parsePoint(surfaceNode["point"], "point on plane");
@@ -124,11 +129,6 @@ unordered_map<string, shared_ptr<Material>> FileParser::parseMaterials(const Jso
     Color refractiveAttenuation = parseOptionalColor(materialsNode[i]["refractive_attenuation"],
       "refractive attenuation", numeric_limits<double>::infinity());
     Color reflectiveFraction = parseOptionalColor(materialsNode[i]["reflective_fraction"], "reflective fraction", 0.0);
-    Json::Value textureNode = materialsNode[i]["texture"];
-    unique_ptr<Texture> texture;
-    if (textureNode != Json::nullValue) {
-      texture = Texture::fromFile(textureNode.asString());
-    }
     materials[name] = shared_ptr<Material>(new Material(name, ambientColor, diffuseColor, specularColor, specularExponent,
       reflectiveFraction, refractiveIndex, refractiveAttenuation));
   }

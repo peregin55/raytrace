@@ -9,6 +9,7 @@
 using namespace std;
 
 class Hit;
+class Texture;
 class Matrix4;
 class Ray;
 class Vector;
@@ -16,7 +17,8 @@ class Vector;
 /** Sphere surface defined by center location and radius. */
 class Sphere : public Surface {
   public:
-    Sphere(shared_ptr<Material> material, const Point& c, double r) : Surface(material), center(c), radius(r) { }
+    Sphere(const Point& c, double r, shared_ptr<Material> material, shared_ptr<Texture> texture):
+      Surface(material, texture), center(c), radius(r) { }
     virtual unique_ptr<Hit> intersect(const Ray& ray, double t0, double t1) const;
     virtual Vector calculateNormal(const Point& hitpoint) const;
   private:
