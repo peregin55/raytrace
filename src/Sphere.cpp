@@ -2,6 +2,7 @@
 #include "Sphere.h"
 #include "Hit.h"
 #include "Ray.h"
+#include "Texture.h"
 #include "Vector.h"
 
 unique_ptr<Hit> Sphere::intersect(const Ray& ray, double t0, double t1) const {
@@ -30,4 +31,22 @@ unique_ptr<Hit> Sphere::intersect(const Ray& ray, double t0, double t1) const {
 
 Vector Sphere::calculateNormal(const Point& hitpoint) const {
   return (hitpoint - center).normalize();
+}
+
+Color Sphere::textureColor(const Point& hitpoint) const {
+  Point local = world2obj * hitpoint; 
+  double rho = sqrt(local[X]*local[X] + local[Y]*local[Y] + local[Z]*local[Z]);
+  double theta = atan(local[Y]/local[X]);
+  double phi = acos(local[Z]/rho);
+  if (texture) {
+    int u = textureNormalize(theta, texture->getWidth(), M_PI/2.0);
+    int v = textureNormalize(phi, texture->getHeight(), 1.0);
+    return texture->colorAt(u,v);
+  }
+  return Color();
+}
+
+double Sphere::textureNormalize(double value, double textureMax, double surfaceMax) const {
+  double norm = textureMax / 2.0;
+  return value * norm / surfaceMax + norm;
 }

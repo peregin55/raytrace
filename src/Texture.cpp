@@ -27,3 +27,11 @@ Color Texture::colorAt(int u, int v) const {
   //cout << "i is " + to_string(i) + " and vtex is " + to_string(vtex) + + " and v is " + to_string(v) << endl;
   return Color(image[i]/NORM, image[i+1]/NORM, image[i+2]/NORM);
 }
+
+unsigned int Texture::getWidth() const {
+  return width;
+}
+
+unsigned int Texture::getHeight() const {
+  return height;
+}

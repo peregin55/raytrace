@@ -35,7 +35,7 @@ class Scene {
     unique_ptr<Hit> intersect(const Ray& ray, double t0, double t1) const;
     Color colorFromHit(const Ray& r, const Hit& h, unsigned int traceCount) const;
     Color calculateLocalColor(const Vector& incident, const Vector& normal, const Point& hitpoint,
-        const Material& material, const Light& light) const;
+        const Material& material, const Color& textureColor, const Light& light) const;
     Color calculateReflectedColor(const Vector& incident, const Vector& normal,
         const Point& hitpoint, const Material& material, unsigned int traceCount) const;
     Color calculateTransmittedColor(const Vector& incident, const Vector& normal,

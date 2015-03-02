@@ -22,20 +22,20 @@
     {
       "name": "planet",
       "type": "sphere", 
-      "material": "red",
-      "texture": "textures/planet.png",
+      "material": "white",
+      "texture": "scenes/textures/planet.png",
       "center": [0.0, 0.0, 0.0],
       "radius": 2.0
     }
   ],
   "materials": [
     {
-      "name": "red",
+      "name": "white",
       "ambient": {
         "color": [0.2, 0.0, 0.0]
       },
       "diffuse": {
-        "color": [1.0, 0.2, 0.2]
+        "color": [0.0, 0.0, 0.0]
       },
       "specular": {
         "color": [1.0, 1.0, 1.0],
@@ -45,13 +45,8 @@
   ],
   "scene": { 
     "max_trace": 3,
-    "background_color": [0.0, 0.0, 0.3],
+    "background_color": [0.0, 0.0, 0.0],
     "lights": ["point_light"],
-    "context": {
-      "transform": [
-        {"scale": [2.0, 1.0, 1.0] }
-      ],
-      "surfaces" : ["red_sphere"]
-    } 
+    "surfaces" : ["planet"]
   }
 }

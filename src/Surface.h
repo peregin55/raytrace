@@ -24,6 +24,7 @@ class Surface {
     virtual Vector calculateNormal(const Point& hitpoint) const = 0;
     virtual const Material* getMaterial() const { return material.get(); }
     virtual const Texture* getTexture() const { return texture.get(); }
+    virtual Color textureColor(const Point& hitpoint) const { return Color(); }
     virtual ~Surface() { }
   protected:
     shared_ptr<Material> material;

@@ -18,7 +18,8 @@ class Texture {
 
     static unique_ptr<Texture> fromFile(const string& filename);
     Color colorAt(int u, int v) const;
-
+    unsigned int getWidth() const;
+    unsigned int getHeight() const;
   private:
     static const unsigned char BITDEPTH;
     static const double NORM;

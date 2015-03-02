@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 #include "Point.h"
+#include "Matrix4.h"
 #include "Surface.h"
 using namespace std;
 
@@ -18,11 +19,14 @@ class Vector;
 class Sphere : public Surface {
   public:
     Sphere(const Point& c, double r, shared_ptr<Material> material, shared_ptr<Texture> texture):
-      Surface(material, texture), center(c), radius(r) { }
+      Surface(material, texture), center(c), radius(r), world2obj(translate(-c[X], -c[Y], -c[Z])) { }
     virtual unique_ptr<Hit> intersect(const Ray& ray, double t0, double t1) const;
     virtual Vector calculateNormal(const Point& hitpoint) const;
+    virtual Color textureColor(const Point& hitpoint) const;
   private:
+    double textureNormalize(double value, double textureMax, double surfaceMax) const;
     Point center;
     double radius;
+    Matrix4 world2obj;
 };
 #endif

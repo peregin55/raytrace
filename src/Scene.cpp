@@ -50,9 +50,10 @@ Color Scene::colorFromHit(const Ray& ray, const Hit& hit, unsigned int traceCoun
   Vector normal = surface.calculateNormal(hitpoint);
   const Vector& incident = ray.getDirection().normalize();
   const Material &material = *hit.getSurface().getMaterial();
+  Color textureColor = hit.getSurface().textureColor(hitpoint);
   Color color;
   for (Light light : lights) {
-    color = color + calculateLocalColor(incident, normal, hitpoint, material, light);
+    color = color + calculateLocalColor(incident, normal, hitpoint, material, textureColor, light);
   }
   if (traceCount < maxTrace) {
     if (material.getReflectiveFraction() != ZERO_COLOR) {
@@ -68,7 +69,7 @@ Color Scene::colorFromHit(const Ray& ray, const Hit& hit, unsigned int traceCoun
 }
 
 Color Scene::calculateLocalColor(const Vector& incident, const Vector& normal, const Point& hitpoint,
-    const Material& material, const Light& light) const {
+    const Material& material, const Color& textureColor, const Light& light) const {
   Vector v = -incident;
   Vector l = (light.getPosition() - hitpoint).normalize();
   Vector h = (v+l).normalize();
@@ -76,7 +77,7 @@ Color Scene::calculateLocalColor(const Vector& incident, const Vector& normal, c
 
   const Color& i = light.getColor();
   const Color& ka = material.getAmbientColor();
-  const Color& kd = material.getDiffuseColor();
+  const Color& kd = material.getDiffuseColor() + textureColor;
   const Color& ks = material.getSpecularColor();
   double p = material.getSpecularExponent();
   
