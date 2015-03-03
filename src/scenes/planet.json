@@ -23,7 +23,7 @@
       "name": "planet",
       "type": "sphere", 
       "material": "white",
-      "texture": "scenes/textures/planet.png",
+      "texture": "scenes/textures/checkerboard.png",
       "center": [0.0, 0.0, 0.0],
       "radius": 2.0
     }
