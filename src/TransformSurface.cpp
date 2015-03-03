@@ -10,7 +10,7 @@ unique_ptr<Hit> TransformSurface::intersect(const Ray& ray, double t0, double t1
   unique_ptr<Hit> hit = surface->intersect(Ray(objCamera, objDirection), t0, t1);
   if (hit) {
     Point worldHitpoint = obj2world * hit->getHitpoint();
-    Vector worldNormal = (obj2worldTranspose * hit->getNormal()).normalize();
+    Vector worldNormal = (obj2worldInverseTranspose * hit->getNormal()).normalize();
     return unique_ptr<Hit>(new Hit(hit->getSurface(), hit->getT(), worldHitpoint, worldNormal));
   }
   else {
