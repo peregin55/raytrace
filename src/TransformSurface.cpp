@@ -15,7 +15,7 @@ unique_ptr<Hit> TransformSurface::intersect(const Ray& ray, double t0, double t1
 
 Vector TransformSurface::calculateNormal(const Point& hitpoint) const {
   Vector normal = surface->calculateNormal(obj2worldInverse * hitpoint);
-  return (obj2worldTranspose * normal).normalize();
+  return (obj2worldInverseTranspose * normal).normalize();
 }
 
 const Material* TransformSurface::getMaterial() const {

@@ -19,7 +19,7 @@ class TransformSurface : public Surface {
       Surface(shared_ptr<Material>()),
       obj2world(obj2world),
       obj2worldInverse(obj2world.inverse()),
-      obj2worldTranspose(obj2world.transpose()),
+      obj2worldInverseTranspose(obj2world.inverse().transpose()),
       surface(std::move(surface)) { }
     virtual unique_ptr<Hit> intersect(const Ray& ray, double t0, double t1) const;
     Vector calculateNormal(const Point& hitpoint) const;
@@ -28,7 +28,7 @@ class TransformSurface : public Surface {
   private:
     Matrix4 obj2world;
     Matrix4 obj2worldInverse;
-    Matrix4 obj2worldTranspose;
+    Matrix4 obj2worldInverseTranspose;
     unique_ptr<Surface> surface;
 };
 #endif
