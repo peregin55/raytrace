@@ -25,3 +25,7 @@ const Material* TransformSurface::getMaterial() const {
 const Texture* TransformSurface::getTexture() const {
   return surface->getTexture();
 }
+
+Color TransformSurface::textureColor(const Point& hitpoint) const {
+  return surface->textureColor(obj2worldInverse * hitpoint);
+}

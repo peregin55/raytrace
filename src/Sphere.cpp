@@ -36,11 +36,15 @@ Vector Sphere::calculateNormal(const Point& hitpoint) const {
 Color Sphere::textureColor(const Point& hitpoint) const {
   Point local = world2obj * hitpoint; 
   double rho = sqrt(local[X]*local[X] + local[Y]*local[Y] + local[Z]*local[Z]);
-  double theta = atan(local[Y]/local[X]);
-  double phi = acos(local[Z]/rho);
+  double theta = atan(local[X]/local[Z]);
+  double phi = acos(local[Y]/rho);
   if (texture) {
+    int u = (theta + M_PI/2.0) * texture->getWidth() / M_PI;
+    int v = phi * (texture->getHeight()) / M_PI;
+    /*
     int u = textureNormalize(theta, texture->getWidth(), M_PI/2.0);
     int v = textureNormalize(phi, texture->getHeight(), 1.0);
+    */
     return texture->colorAt(u,v);
   }
   return Color();

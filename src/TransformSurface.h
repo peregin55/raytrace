@@ -25,6 +25,7 @@ class TransformSurface : public Surface {
     Vector calculateNormal(const Point& hitpoint) const;
     virtual const Material* getMaterial() const;
     virtual const Texture* getTexture() const;
+    virtual Color textureColor(const Point& hitpoint) const;
   private:
     Matrix4 obj2world;
     Matrix4 obj2worldInverse;

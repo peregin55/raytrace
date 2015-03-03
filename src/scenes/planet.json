@@ -23,7 +23,7 @@
       "name": "planet",
       "type": "sphere", 
       "material": "white",
-      "texture": "scenes/textures/checkerboard.png",
+      "texture": "scenes/textures/earth.png",
       "center": [0.0, 0.0, 0.0],
       "radius": 2.0
     }
@@ -32,7 +32,7 @@
     {
       "name": "white",
       "ambient": {
-        "color": [0.2, 0.0, 0.0]
+        "color": [0.05, 0.05, 0.05]
       },
       "diffuse": {
         "color": [0.0, 0.0, 0.0]
@@ -47,6 +47,9 @@
     "max_trace": 3,
     "background_color": [0.0, 0.0, 0.0],
     "lights": ["point_light"],
-    "surfaces" : ["planet"]
+    "context": {
+      "transform": [{"rotateY": 15}],
+      "surfaces" : ["planet"]
+    }
   }
 }
