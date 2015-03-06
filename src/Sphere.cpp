@@ -39,18 +39,9 @@ Color Sphere::textureColor(const Point& hitpoint) const {
   double theta = atan(local[X]/local[Z]);
   double phi = acos(local[Y]/rho);
   if (texture) {
-    int u = (theta + M_PI/2.0) * texture->getWidth() / M_PI;
-    int v = phi * (texture->getHeight()) / M_PI;
-    /*
-    int u = textureNormalize(theta, texture->getWidth(), M_PI/2.0);
-    int v = textureNormalize(phi, texture->getHeight(), 1.0);
-    */
+    double u = (theta + M_PI/2.0) / M_PI;
+    double v = phi / M_PI;
     return texture->colorAt(u,v);
   }
   return Color();
-}
-
-double Sphere::textureNormalize(double value, double textureMax, double surfaceMax) const {
-  double norm = textureMax / 2.0;
-  return value * norm / surfaceMax + norm;
 }

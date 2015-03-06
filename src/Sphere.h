@@ -24,7 +24,6 @@ class Sphere : public Surface {
     virtual Vector calculateNormal(const Point& hitpoint) const;
     virtual Color textureColor(const Point& hitpoint) const;
   private:
-    double textureNormalize(double value, double textureMax, double surfaceMax) const;
     Point center;
     double radius;
     Matrix4 world2obj;
