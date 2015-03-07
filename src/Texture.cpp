@@ -30,6 +30,12 @@ Color Texture::pixelColor(unsigned int x, unsigned int y) const {
  * http://supercomputingblog.com/graphics/coding-bilinear-interpolation/
  */
 Color Texture::colorAt(double u, double v) const {
+  if (u > 1.0 || u < 0.0) {
+    throw RenderException("invalid u = " + to_string(u));
+  }
+  if (v > 1.0 || v < 0.0) {
+    throw RenderException("invalid v = " + to_string(v));
+  }
   double x = u * (width-1);
   double y = v * (height-1);
   unsigned int x1 = x;

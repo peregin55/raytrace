@@ -22,6 +22,7 @@ namespace Json { class Value; }
  */
 class FileParser {
   public:
+    FileParser(const string& dir) : dir(dir) { }
     /** Parse scene node (and supporting objects, lights, materials). */
     unique_ptr<Scene> parseScene(const Json::Value& docNode) const;
     /** Parse camera node. */
@@ -45,5 +46,6 @@ class FileParser {
     unsigned int parseUnsignedInt(const Json::Value& node, const string& nodeName) const;
     Color parseOptionalColor(const Json::Value& node, const string& nodeName, double defaultValue) const;
     double parseOptionalDouble(const Json::Value& node, double defaultValue) const;
+    string dir;
 };
 #endif

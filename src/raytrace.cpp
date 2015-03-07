@@ -48,12 +48,20 @@ static void reshape(int w, int h) {
   glMatrixMode(GL_MODELVIEW);
 }
 
+static string getParentDir(const string& path) {
+  size_t i = path.find_last_of("/\\");
+  if (i != string::npos) {
+    return path.substr(0, i) + path[i];
+  }
+  return path;
+}
+
 int main(int argc, char** argv) {
   if (argc != 2) {
     cout << "raytrace <scene-file>\n";
     return 1;
   }
-  char* filename = *(argv+1);
+  const string filename = string(*(argv+1));
   ifstream ffin(filename);
   if (!ffin.is_open()) {
     cerr << "Cannot open file " << filename << "\n";
@@ -65,7 +73,7 @@ int main(int argc, char** argv) {
     cerr << "Failed to parse " << filename << "\n" << reader.getFormatedErrorMessages();
     return 1;
   }
-  FileParser parser;
+  FileParser parser(getParentDir(filename));
   unique_ptr<Scene> scene = parser.parseScene(root);
   unique_ptr<Camera> camera = parser.parseCamera(root);
   renderer = unique_ptr<Renderer>(new Renderer(std::move(scene), std::move(camera)));

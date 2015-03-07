@@ -86,9 +86,13 @@ unique_ptr<Surface> FileParser::parseSurface(const Json::Value& surfaceNode,
   unique_ptr<Texture> texture;
   if (textureNode != Json::nullValue) {
     try {
-      texture = Texture::fromFile(textureNode.asString());
+      texture = Texture::fromFile(dir + textureNode.asString());
     } catch(RenderException e) {
-      cerr << "Unable to load texture. " << e.what() << " -- not all textures will be present.";
+      try {
+        texture = Texture::fromFile(textureNode.asString());
+      } catch(RenderException e2) {
+        cerr << "Unable to load texture (" << e.what() << ", " << e2.what() << ")" << endl;
+      }
     }
   }
   if (type == "sphere") {

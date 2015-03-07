@@ -23,7 +23,7 @@
       "name": "planet",
       "type": "sphere", 
       "material": "white",
-      "texture": "scenes/textures/earth.png",
+      "texture": "textures/earth.png",
       "center": [0.0, 0.0, 0.0],
       "radius": 3.0
     }
