@@ -83,7 +83,7 @@ unique_ptr<Surface> FileParser::parseSurface(const Json::Value& surfaceNode,
     throw RenderException("Unable to find surface material: " + name);
   }
   Json::Value textureNode = surfaceNode["texture"];
-  unique_ptr<Texture> texture;
+  shared_ptr<Texture> texture;
   if (textureNode != Json::nullValue) {
     try {
       texture = Texture::fromFile(dir + textureNode.asString());
@@ -98,7 +98,7 @@ unique_ptr<Surface> FileParser::parseSurface(const Json::Value& surfaceNode,
   if (type == "sphere") {
     Point center = parsePoint(surfaceNode["center"], "sphere center");
     double radius = parseDouble(surfaceNode["radius"], "sphere radius");
-    return unique_ptr<Surface>(new Sphere(center, radius, material, std::move(texture)));
+    return unique_ptr<Surface>(new Sphere(material, texture, center, radius));
   }
   else if (type == "plane") {
     Point point = parsePoint(surfaceNode["point"], "point on plane");
@@ -118,7 +118,7 @@ unique_ptr<Surface> FileParser::parseSurface(const Json::Value& surfaceNode,
     double ymax = parseDouble(surfaceNode["ymax"], "y max");
     double zmin = parseDouble(surfaceNode["zmin"], "z min");
     double zmax = parseDouble(surfaceNode["zmax"], "z max");
-    return unique_ptr<Surface>(new Cube(material, {xmin, ymin, zmin}, {xmax, ymax, zmax}));
+    return unique_ptr<Surface>(new Cube(material, texture, {xmin, ymin, zmin}, {xmax, ymax, zmax}));
   }
   else {
     throw RenderException("Unknown object: \"" + name + "\" of type: \"" + type + "\"");

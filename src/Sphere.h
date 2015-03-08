@@ -18,7 +18,7 @@ class Vector;
 /** Sphere surface defined by center location and radius. */
 class Sphere : public Surface {
   public:
-    Sphere(const Point& c, double r, shared_ptr<Material> material, shared_ptr<Texture> texture):
+    Sphere(shared_ptr<Material> material, shared_ptr<Texture> texture, const Point& c, double r):
       Surface(material, texture), center(c), radius(r), world2obj(translate(-c[X], -c[Y], -c[Z])) { }
     virtual unique_ptr<Hit> intersect(const Ray& ray, double t0, double t1) const;
     virtual Vector calculateNormal(const Point& hitpoint) const;

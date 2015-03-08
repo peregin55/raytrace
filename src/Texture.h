@@ -15,7 +15,7 @@ class Texture {
             unsigned int width,
             unsigned int height) :
         image(image), width(width), height(height) {}
-    static unique_ptr<Texture> fromFile(const string& filename);
+    static shared_ptr<Texture> fromFile(const string& filename);
     Color pixelColor(unsigned int x, unsigned int y) const;
     Color colorAt(double u, double v) const;
     unsigned int getWidth() const;

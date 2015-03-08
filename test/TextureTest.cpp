@@ -10,7 +10,7 @@ TEST_CASE("Texture") {
   const Color BLUE(0,0,1);
 
   SECTION("texture within bounds") {
-    unique_ptr<Texture> t(Texture::fromFile("textures/test.png"));
+    shared_ptr<Texture> t(Texture::fromFile("textures/test.png"));
     CHECK(t->pixelColor(0,0) == WHITE);
     CHECK(t->pixelColor(1,0) == RED);
     CHECK(t->pixelColor(2,0) == GREEN);
@@ -38,7 +38,7 @@ TEST_CASE("Texture") {
   }
 
   SECTION("texture unbounded") {
-    unique_ptr<Texture> t(Texture::fromFile("textures/test.png"));
+    shared_ptr<Texture> t(Texture::fromFile("textures/test.png"));
     REQUIRE_THROWS_AS(t->pixelColor(100, -20), RenderException);
     REQUIRE_THROWS_AS(t->pixelColor(-1,-1), RenderException);
     REQUIRE_THROWS_AS(t->pixelColor(-21, 19), RenderException);

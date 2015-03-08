@@ -4,6 +4,8 @@
 #include "Ray.h"
 #include "RenderException.h"
 #include "Vector.h"
+#include "Color.h"
+#include "Texture.h"
 
 const double Cube::EPSILON = 1.0e-10;
 
@@ -86,6 +88,30 @@ Vector Cube::calculateNormal(const Point& hitpoint) const {
   }
   else if (fabs(hitpoint[Z] - cubeMax[Z]) < EPSILON) {
     return Vector(0.0, 0.0, 1.0);
+  }
+  else {
+    throw RenderException("Unable to calculate normal for " + hitpoint.toString());
+  }
+}
+
+Color Cube::textureColor(const Point& hitpoint) const {
+  if (!texture) {
+    return Color();
+  }
+  if (fabs(hitpoint[X] - cubeMin[X]) < EPSILON || fabs(hitpoint[X] - cubeMax[X]) < EPSILON) {
+    double u = (hitpoint[Z] - cubeMin[Z]) / (cubeMax[Z] - cubeMin[Z]);
+    double v = (cubeMax[Y] - hitpoint[Y]) / (cubeMax[Y] - cubeMin[Y]);
+    return texture->colorAt(u, v);
+  }
+  else if (fabs(hitpoint[Y] - cubeMin[Y]) < EPSILON || fabs(hitpoint[Y] - cubeMax[Y]) < EPSILON) {
+    double u = (hitpoint[X] - cubeMin[X]) / (cubeMax[X] - cubeMin[X]);
+    double v = (hitpoint[Z] - cubeMin[Z]) / (cubeMax[Z] - cubeMin[Z]);
+    return texture->colorAt(u, v);
+  }
+  else if (fabs(hitpoint[Z] - cubeMin[Z]) < EPSILON || fabs(hitpoint[Z] - cubeMax[Z]) < EPSILON) {
+    double u = (hitpoint[X] - cubeMin[X]) / (cubeMax[X] - cubeMin[X]);
+    double v = (cubeMax[Y] - hitpoint[Y]) / (cubeMax[Y] - cubeMin[Y]);
+    return texture->colorAt(u, v);
   }
   else {
     throw RenderException("Unable to calculate normal for " + hitpoint.toString());
