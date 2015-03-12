@@ -1,0 +1,59 @@
+{
+  "camera": {
+    "position": [0.0, 0.0, 4.0],
+    "reference": [0.0, 0.0, 0.0],
+    "up_direction": [0.0, 1.0, 0.0],
+    "frame": {
+      "bottom": -1.0,
+      "top": 1.0,
+      "left": -1.0,
+      "right": 1.0,
+      "near": -2.0
+    }
+  },
+  "lights": [
+    {
+      "name": "primary_light",
+      "position": [10.0, 10.0, 10.0],
+      "color": [0.8, 0.8, 0.8]
+    },
+    {
+      "name": "secondary_light",
+      "position": [-10.0, 10.0, 10.0],
+      "color": [0.8, 0.8, 0.8]
+    }
+
+  ],
+  "surfaces": [
+    {
+      "name": "t1",
+      "type": "triangle",
+      "material": "yellow",
+      "texture": "textures/city.png",
+      "vertex1": [-1.0, 0.0, 0.0],
+      "vertex2": [1.0, 0.0, 0.0],
+      "vertex3": [0.0, 1.0, 0.0]
+    }
+  ],
+  "materials": [
+    {
+      "name": "yellow",
+      "ambient": {
+        "color": [0.2, 0.2, 0.0]
+      },
+      "diffuse": {
+        "color": [0.1, 0.1, 0.1]
+      },
+      "specular": {
+        "color": [0.8, 0.8, 0.8],
+        "exponent": 24.0
+      }
+    }
+  ],
+  "scene": { 
+    "max_trace": 3,
+    "background_color": [0.0, 0.0, 0.0],
+    "lights": ["primary_light", "secondary_light"],
+    "surfaces": ["t1"]
+  }
+}

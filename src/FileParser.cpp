@@ -109,7 +109,7 @@ unique_ptr<Surface> FileParser::parseSurface(const Json::Value& surfaceNode,
     Point p0 = parsePoint(surfaceNode["vertex1"], "vertex 1");
     Point p1 = parsePoint(surfaceNode["vertex2"], "vertex 2");
     Point p2 = parsePoint(surfaceNode["vertex3"], "vertex 3");
-    return unique_ptr<Surface>(new Triangle(material, p0, p1, p2));
+    return unique_ptr<Surface>(new Triangle(material, texture, p0, p1, p2));
   }
   else if (type == "cube") {
     double xmin = parseDouble(surfaceNode["xmin"], "x min");

@@ -6,6 +6,7 @@
 
 const unsigned char Texture::BITDEPTH = 8;
 const double Texture::NORM = 255.0;
+const double Texture::EPSILON = 1.0e-10;
 
 shared_ptr<Texture> Texture::fromFile(const string& filename) {
   vector<unsigned char> image;
@@ -30,14 +31,14 @@ Color Texture::pixelColor(unsigned int x, unsigned int y) const {
  * http://supercomputingblog.com/graphics/coding-bilinear-interpolation/
  */
 Color Texture::colorAt(double u, double v) const {
-  if (u > 1.0 || u < 0.0) {
+  if (u > (1.0 + EPSILON) || u < -EPSILON) {
     throw RenderException("invalid u = " + to_string(u));
   }
-  if (v > 1.0 || v < 0.0) {
+  if (v > (1.0 + EPSILON) || v < -EPSILON) {
     throw RenderException("invalid v = " + to_string(v));
   }
-  double x = u * (width-1);
-  double y = v * (height-1);
+  double x = bound(u) * (width-1);
+  double y = bound(v) * (height-1);
   unsigned int x1 = x;
   unsigned int y1 = y;
   unsigned int x2 = ceil(x);
@@ -55,6 +56,14 @@ Color Texture::colorAt(double u, double v) const {
   Color c2 = (c12 * w1) + (c22 * w2);
   return c1 * (y2 - y) / (y2 - y1) + c2 * (y - y1) / (y2 - y1);
 }
+
+double Texture::bound(double x) const {
+  if (x > 0.0) {
+    return fmin(1.0, x);
+  }
+  return 0.0;
+}
+
 
 unsigned int Texture::getWidth() const {
   return width;

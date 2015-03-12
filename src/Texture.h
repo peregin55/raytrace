@@ -23,6 +23,8 @@ class Texture {
   private:
     static const unsigned char BITDEPTH;
     static const double NORM;
+    static const double EPSILON;
+    double bound(double x) const;
     vector<unsigned char> image;
     unsigned int width;
     unsigned int height;

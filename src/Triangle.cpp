@@ -1,7 +1,9 @@
+#include "Color.h"
 #include "Triangle.h"
 #include "Plane.h"
 #include "Hit.h"
 #include "Ray.h"
+#include "Texture.h"
 
 unique_ptr<Hit> Triangle::intersect(const Ray& ray, double t0, double t1) const {
   Plane p(material, p0, normal);
@@ -29,4 +31,13 @@ bool Triangle::isContained(const Point& p0, const Point& p1, const Point& inters
 
 Vector Triangle::calculateNormal(const Point& hitpoint) const {
   return normal;
+}
+
+Color Triangle::textureColor(const Point& hitpoint) const {
+  Point local = world2Barycentric * hitpoint;
+  if (texture) {
+    return texture->colorAt(local[X], local[Y]);
+  } else {
+    return Color();
+  }
 }

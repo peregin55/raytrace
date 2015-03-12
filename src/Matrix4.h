@@ -15,6 +15,7 @@ class Vector;
  */
 class Matrix4 {
   public:
+    Matrix4() { }
     Matrix4(const double m[4][4]);
     Matrix4(double xx, double xy, double xz, double xw,
             double yx, double yy, double yz, double yw,
