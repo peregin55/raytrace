@@ -6,7 +6,7 @@
 #include "Texture.h"
 
 unique_ptr<Hit> Triangle::intersect(const Ray& ray, double t0, double t1) const {
-  Plane p(material, p0, normal);
+  Plane p(material, p0, p1, p2);
   unique_ptr<Hit> planeHit = p.intersect(ray, t0, t1);
   if (planeHit) {
     // in-out test, if intersect is inside the triangle, the plane formed by it
@@ -22,9 +22,9 @@ unique_ptr<Hit> Triangle::intersect(const Ray& ray, double t0, double t1) const 
   return unique_ptr<Hit>();
 }
 
-bool Triangle::isContained(const Point& p0, const Point& p1, const Point& intersect) const {
-  Vector edgeVector = p1 - p0;
-  Vector intersectVector = intersect - p0;
+bool Triangle::isContained(const Point& q0, const Point& q1, const Point& intersect) const {
+  Vector edgeVector = q1 - q0;
+  Vector intersectVector = intersect - q0;
   Vector intersectNormal = edgeVector.cross(intersectVector);
   return intersectNormal.dot(normal) >= 0.0;
 }

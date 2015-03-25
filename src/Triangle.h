@@ -33,7 +33,7 @@ class Triangle : public Surface {
     virtual Vector calculateNormal(const Point& hitpoint) const;
     virtual Color textureColor(const Point& hitpoint) const;
   private:
-    bool isContained(const Point& p0, const Point& p1, const Point& intersect) const;
+    bool isContained(const Point& q0, const Point& q1, const Point& intersect) const;
     Point p0, p1, p2;
     Vector normal;
     Matrix4 world2Barycentric;

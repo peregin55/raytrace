@@ -23,33 +23,33 @@
       "name": "t1",
       "type": "triangle",
       "material": "yellow",
-      "vertex1": [-1.0, 0.0, 0.0],
-      "vertex2": [0.0, 0.0, 1.0],
-      "vertex3": [1.0, 0.0, 0.0]
+      "vertex0": [-1.0, 0.0, 0.0],
+      "vertex1": [0.0, 0.0, 1.0],
+      "vertex2": [1.0, 0.0, 0.0]
     },
     {
       "name": "t2",
       "type": "triangle",
       "material": "yellow",
-      "vertex1": [-1.0, 0.0, 0.0],
-      "vertex2": [0.0, 0.0, 1.0],
-      "vertex3": [0.0, 1.0, 0.5]
+      "vertex0": [-1.0, 0.0, 0.0],
+      "vertex1": [0.0, 0.0, 1.0],
+      "vertex2": [0.0, 1.0, 0.5]
     },
     {
       "name": "t3",
       "type": "triangle",
       "material": "yellow",
-      "vertex1": [0.0, 1.0, 0.5],
-      "vertex2": [0.0, 0.0, 1.0],
-      "vertex3": [1.0, 0.0, 0.0]
+      "vertex0": [0.0, 1.0, 0.5],
+      "vertex1": [0.0, 0.0, 1.0],
+      "vertex2": [1.0, 0.0, 0.0]
     },
     {
       "name": "t4",
       "type": "triangle",
       "material": "yellow",
-      "vertex1": [-1.0, 0.0, 0.0],
-      "vertex2": [1.0, 0.0, 0.0],
-      "vertex3": [0.0, 1.0, 0.5]
+      "vertex0": [-1.0, 0.0, 0.0],
+      "vertex1": [1.0, 0.0, 0.0],
+      "vertex2": [0.0, 1.0, 0.5]
     }
   ],
   "materials": [

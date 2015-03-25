@@ -101,14 +101,15 @@ unique_ptr<Surface> FileParser::parseSurface(const Json::Value& surfaceNode,
     return unique_ptr<Surface>(new Sphere(material, texture, center, radius));
   }
   else if (type == "plane") {
-    Point point = parsePoint(surfaceNode["point"], "point on plane");
-    Vector normal = parseVector(surfaceNode["normal"], "surface normal");
-    return unique_ptr<Surface>(new Plane(material, point, normal));
+    Point p0 = parsePoint(surfaceNode["vertex0"], "vertex0");
+    Point p1 = parsePoint(surfaceNode["vertex1"], "vertex1");
+    Point p2  = parsePoint(surfaceNode["vertex2"], "vertex2");
+    return unique_ptr<Surface>(new Plane(material, p0, p1, p2));
   }
   else if (type == "triangle") {
-    Point p0 = parsePoint(surfaceNode["vertex1"], "vertex 1");
-    Point p1 = parsePoint(surfaceNode["vertex2"], "vertex 2");
-    Point p2 = parsePoint(surfaceNode["vertex3"], "vertex 3");
+    Point p0 = parsePoint(surfaceNode["vertex0"], "vertex0");
+    Point p1 = parsePoint(surfaceNode["vertex1"], "vertex1");
+    Point p2 = parsePoint(surfaceNode["vertex2"], "vertex2");
     return unique_ptr<Surface>(new Triangle(material, texture, p0, p1, p2));
   }
   else if (type == "cube") {

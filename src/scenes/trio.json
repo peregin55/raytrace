@@ -20,36 +20,36 @@
   ],
   "surfaces": [
     {
+      "name": "triangle0",
+      "type": "triangle",
+      "material": "yellow",
+      "vertex0": [-1.0, 0.0, 0.0],
+      "vertex1": [0.0, 0.0, 1.0],
+      "vertex2": [1.0, 0.0, 0.0]
+    },
+    {
       "name": "triangle1",
       "type": "triangle",
       "material": "yellow",
-      "vertex1": [-1.0, 0.0, 0.0],
-      "vertex2": [0.0, 0.0, 1.0],
-      "vertex3": [1.0, 0.0, 0.0]
+      "vertex0": [-1.0, 0.0, 0.0],
+      "vertex1": [0.0, 0.0, 1.0],
+      "vertex2": [0.0, 1.0, 0.5]
     },
     {
       "name": "triangle2",
       "type": "triangle",
       "material": "yellow",
-      "vertex1": [-1.0, 0.0, 0.0],
-      "vertex2": [0.0, 0.0, 1.0],
-      "vertex3": [0.0, 1.0, 0.5]
+      "vertex0": [0.0, 1.0, 0.5],
+      "vertex1": [0.0, 0.0, 1.0],
+      "vertex2": [1.0, 0.0, 0.0]
     },
     {
       "name": "triangle3",
       "type": "triangle",
       "material": "yellow",
-      "vertex1": [0.0, 1.0, 0.5],
-      "vertex2": [0.0, 0.0, 1.0],
-      "vertex3": [1.0, 0.0, 0.0]
-    },
-    {
-      "name": "triangle4",
-      "type": "triangle",
-      "material": "yellow",
-      "vertex1": [-1.0, 0.0, 0.0],
-      "vertex2": [1.0, 0.0, 0.0],
-      "vertex3": [0.0, 1.0, 0.5]
+      "vertex0": [-1.0, 0.0, 0.0],
+      "vertex1": [1.0, 0.0, 0.0],
+      "vertex2": [0.0, 1.0, 0.5]
     },
     {
       "name": "sphere",
@@ -73,8 +73,9 @@
       "name": "plane",
       "type": "plane",
       "material": "grey",
-      "point": [0.0, -1e-10, 0.0],
-      "normal": [0.0, 1.0, 0.0]
+      "vertex0": [0.0, -1e-10, 0.0],
+      "vertex1": [1.0, -1e-10, 0.0],
+      "vertex2": [0.0, -1e-10, -1.0]
     }
 
   ],
@@ -155,7 +156,7 @@
     "max_trace": 3,
     "background_color": [0.0, 0.0, 0.0],
     "lights": ["primary_light"],
-    "surfaces": ["triangle1", "triangle2", "triangle3", "triangle4",
+    "surfaces": ["triangle0", "triangle1", "triangle2", "triangle3",
       "sphere", "cube", "plane"]
   }
 }

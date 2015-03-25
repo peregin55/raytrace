@@ -34,10 +34,9 @@ Vector Sphere::calculateNormal(const Point& hitpoint) const {
 }
 
 Color Sphere::textureColor(const Point& hitpoint) const {
-  Point local = world2obj * hitpoint; 
-  double rho = sqrt(local[X]*local[X] + local[Y]*local[Y] + local[Z]*local[Z]);
+  Vector local = hitpoint - center;
   double theta = atan(local[X]/local[Z]);
-  double phi = acos(local[Y]/rho);
+  double phi = acos(local[Y]/radius);
   if (texture) {
     double u = (theta + M_PI/2.0) / M_PI;
     double v = phi / M_PI;
