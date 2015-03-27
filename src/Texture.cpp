@@ -19,7 +19,7 @@ shared_ptr<Texture> Texture::fromFile(const string& filename) {
   return shared_ptr<Texture>(new Texture(image, width, height));
 }
 
-Color Texture::pixelColor(unsigned int x, unsigned int y) const {
+Color Texture::fileColorAt(unsigned int x, unsigned int y) const {
   if (x >= width || y >= height) {
     throw RenderException("Invalid color location: (" + to_string(x) + ", " + to_string(y)  + ")");
   }
@@ -27,7 +27,7 @@ Color Texture::pixelColor(unsigned int x, unsigned int y) const {
   return Color(image[i]/NORM, image[i+1]/NORM, image[i+2]/NORM);
 }
 
-/** u,v ranges from [0,1]. Uses bilinear interpolation
+/** u,v ranges from [0,1], origin at bottom left of image. Uses bilinear interpolation
  * http://supercomputingblog.com/graphics/coding-bilinear-interpolation/
  */
 Color Texture::colorAt(double u, double v) const {
@@ -38,18 +38,18 @@ Color Texture::colorAt(double u, double v) const {
     throw RenderException("invalid v = " + to_string(v));
   }
   double x = bound(u) * (width-1);
-  double y = bound(v) * (height-1);
+  double y = bound(1.0-v) * (height-1);
   unsigned int x1 = x;
   unsigned int y1 = y;
   unsigned int x2 = ceil(x);
   unsigned int y2 = ceil(y);
   if (x1 == x2 || y1 == y2) {
-    return pixelColor(x, y);
+    return fileColorAt(x, y);
   }
-  Color c11 = pixelColor(x1, y1);
-  Color c12 = pixelColor(x1, y2);
-  Color c21 = pixelColor(x2, y1);
-  Color c22 = pixelColor(x2, y2);
+  Color c11 = fileColorAt(x1, y1);
+  Color c12 = fileColorAt(x1, y2);
+  Color c21 = fileColorAt(x2, y1);
+  Color c22 = fileColorAt(x2, y2);
   double w1 = (x2 - x) / (x2 - x1);
   double w2 = (x - x1) / (x2 - x1);
   Color c1 = (c11 * w1) + (c21 * w2);

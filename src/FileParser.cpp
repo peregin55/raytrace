@@ -104,7 +104,7 @@ unique_ptr<Surface> FileParser::parseSurface(const Json::Value& surfaceNode,
     Point p0 = parsePoint(surfaceNode["vertex0"], "vertex0");
     Point p1 = parsePoint(surfaceNode["vertex1"], "vertex1");
     Point p2  = parsePoint(surfaceNode["vertex2"], "vertex2");
-    return unique_ptr<Surface>(new Plane(material, p0, p1, p2));
+    return unique_ptr<Surface>(new Plane(material, texture, p0, p1, p2));
   }
   else if (type == "triangle") {
     Point p0 = parsePoint(surfaceNode["vertex0"], "vertex0");

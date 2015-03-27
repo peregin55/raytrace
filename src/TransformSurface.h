@@ -16,7 +16,7 @@ class Vector;
 class TransformSurface : public Surface {
   public:
     TransformSurface(const Matrix4& obj2world, unique_ptr<Surface> surface) :
-      Surface(shared_ptr<Material>()),
+      Surface(shared_ptr<Material>(), shared_ptr<Texture>()),
       obj2world(obj2world),
       obj2worldInverse(obj2world.inverse()),
       obj2worldInverseTranspose(obj2world.inverse().transpose()),

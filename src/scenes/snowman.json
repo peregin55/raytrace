@@ -1,6 +1,6 @@
 {
   "camera": {
-    "position": [0.0, 0.5, 6.0],
+    "position": [0.0, 0.5, 5.0],
     "reference": [0.0, 0.0, 0.0],
     "up_direction": [0.0, 1.0, 0.0],
     "frame": {
@@ -44,6 +44,7 @@
       "name": "ground",
       "type": "plane",
       "material": "yellow",
+      "texture": "textures/arrows.png",
       "vertex0": [0.0, -2.5, 0.0],
       "vertex1": [1.0, -2.5, 0.0],
       "vertex2": [0.0, -2.5, -1.0]
@@ -96,10 +97,10 @@
       "name": "yellow",
       "reflective_fraction": [1.0, 1.0, 1.0],
       "ambient": {
-        "color": [0.5, 0.5, 0.0]
+        "color": [0.2, 0.2, 0.0]
       },
       "diffuse": {
-        "color": [0.5, 0.5, 0.3]
+        "color": [0.2, 0.2, 0.3]
       },
       "specular": {
         "color": [0.8, 0.8, 0.8],

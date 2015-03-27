@@ -34,11 +34,11 @@ Vector Sphere::calculateNormal(const Point& hitpoint) const {
 }
 
 Color Sphere::textureColor(const Point& hitpoint) const {
-  Vector local = hitpoint - center;
-  double theta = atan(local[X]/local[Z]);
-  double phi = acos(local[Y]/radius);
   if (texture) {
-    double u = (theta + M_PI/2.0) / M_PI;
+    Vector local = hitpoint - center;
+    double theta = atan(local[X]/local[Z]);
+    double phi = acos(-local[Y]/radius);
+    double u = theta / M_PI + 0.5;  // u = (theta + M_PI/2.0) / M_PI;
     double v = phi / M_PI;
     return texture->colorAt(u,v);
   }
