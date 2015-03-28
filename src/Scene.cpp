@@ -70,10 +70,12 @@ Color Scene::colorFromHit(const Ray& ray, const Hit& hit, unsigned int traceCoun
 
 Color Scene::calculateLocalColor(const Vector& incident, const Vector& normal, const Point& hitpoint,
     const Material& material, const Color& textureColor, const Light& light) const {
+  Vector lightVector = light.getPosition() - hitpoint;
+  double lightDistance = lightVector.length();
   Vector v = -incident;
-  Vector l = (light.getPosition() - hitpoint).normalize();
+  Vector l = (lightVector).normalize();
   Vector h = (v+l).normalize();
-  bool isShadow = intersect(Ray(hitpoint, l), DELTA, numeric_limits<double>::infinity()) != nullptr;
+  bool isShadow = intersect(Ray(hitpoint, l), DELTA, lightDistance) != nullptr;
 
   const Color& i = light.getColor();
   const Color& ka = material.getAmbientColor();
