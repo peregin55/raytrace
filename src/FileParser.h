@@ -12,8 +12,10 @@ class Light;
 class Material;
 class Matrix4;
 class Point;
+class Renderer;
 class Scene;
 class Surface;
+class Texture;
 class Vector;
 namespace Json { class Value; }
 
@@ -23,12 +25,11 @@ namespace Json { class Value; }
 class FileParser {
   public:
     FileParser(const string& dir) : dir(dir) { }
-    /** Parse scene node (and supporting objects, lights, materials). */
-    unique_ptr<Scene> parseScene(const Json::Value& docNode) const;
-    /** Parse camera node. */
-    unique_ptr<Camera> parseCamera(const Json::Value& docNode) const;
+    unique_ptr<Renderer> parseRenderer(const Json::Value& root) const;
   private:
-    Light parseLight(const Json::Value& lightNode) const;
+    unique_ptr<Scene> parseScene(const Json::Value& sceneNode) const;
+    unique_ptr<Camera> parseCamera(const Json::Value& cameraNode) const;
+    vector<Light> parseLights(const Json::Value& lightsNode) const;
     unique_ptr<Surface> parseSurface(const Json::Value& surfacesNode, const unordered_map<string, shared_ptr<Material>>& materials) const;
     unordered_map<string, shared_ptr<Material>> parseMaterials(const Json::Value& materialNode) const;
     void parseContext(vector<unique_ptr<Surface>>& surfaces, Matrix4 obj2world,
@@ -41,10 +42,11 @@ class FileParser {
     Point parsePoint(const Json::Value& node, const string& nodeName) const;
     Vector parseVector(const Json::Value& node, const string& nodeName) const;
     Color parseColor(const Json::Value& node, const string& nodeName) const;
+    Color parseOptionalColor(const Json::Value& node, const string& nodeName, double defaultValue) const;
+    Texture* parseTexture(const Json::Value& node, const string& nodename) const;
     double parseDouble(const Json::Value& node, const string& nodeName) const;
     string parseString(const Json::Value& node, const string& nodeName) const;
     unsigned int parseUnsignedInt(const Json::Value& node, const string& nodeName) const;
-    Color parseOptionalColor(const Json::Value& node, const string& nodeName, double defaultValue) const;
     double parseOptionalDouble(const Json::Value& node, double defaultValue) const;
     string dir;
 };

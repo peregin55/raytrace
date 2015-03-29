@@ -6,8 +6,7 @@
 #include "Texture.h"
 
 unique_ptr<Hit> Triangle::intersect(const Ray& ray, double t0, double t1) const {
-  Plane p(material, texture, p0, normal, identity());
-  unique_ptr<Hit> planeHit = p.intersect(ray, t0, t1);
+  unique_ptr<Hit> planeHit = plane.intersect(ray, t0, t1);
   if (planeHit) {
     // in-out test, if intersect is inside the triangle, the plane formed by it
     // and edgeVector will have a normal vector in same direction as the original
@@ -34,9 +33,5 @@ Vector Triangle::calculateNormal(const Point& hitpoint) const {
 }
 
 Color Triangle::textureColor(const Point& hitpoint) const {
-  if (texture) {
-    Point local = world2Barycentric * hitpoint;
-    return texture->colorAt(local[X], local[Y]);
-  }
-  return Color();
+  return plane.textureColor(hitpoint);
 }

@@ -16,18 +16,24 @@ using namespace std;
 static const double DELTA = 1e-10;
 static const Color ZERO_COLOR(0.0, 0.0, 0.0);
 
-Color Scene::calculateColor(const Ray& ray) const {
-  return calculateColor(ray, 0);
+unique_ptr<Color> Scene::calculateColor(const Ray& ray) const {
+  unique_ptr<Hit> closest = intersect(ray);
+  if (closest) {
+    return unique_ptr<Color>(new Color(colorFromHit(ray, *closest, 0)));
+  }
+  return unique_ptr<Color>();
 }
 
-Color Scene::calculateColor(const Ray& ray, unsigned int traceCount) const {
-  unique_ptr<Hit> closest = intersect(ray, 0.0, numeric_limits<double>::infinity());
+const Color Scene::traceColor(const Ray& ray, unsigned int traceCount) const {
+  unique_ptr<Hit> closest = intersect(ray);
   if (closest) {
     return colorFromHit(ray, *closest, traceCount);
   }
-  else {
-    return Color(backgroundColor);
-  }
+  return ZERO_COLOR;
+}
+
+unique_ptr<Hit> Scene::intersect(const Ray& ray) const {
+  return intersect(ray, 0.0, numeric_limits<double>::infinity());
 }
 
 unique_ptr<Hit> Scene::intersect(const Ray& ray, double t0, double t1) const {
@@ -103,7 +109,7 @@ Color Scene::calculateLocalColor(const Vector& incident, const Vector& normal, c
 Color Scene::calculateReflectedColor(const Vector& incident, const Vector& normal,
     const Point& hitpoint, const Material& material, unsigned int traceCount) const {
   Ray reflected = calculateReflectedRay(incident, normal, hitpoint);
-  return material.getReflectiveFraction() * calculateColor(reflected, traceCount+1);
+  return material.getReflectiveFraction() * traceColor(reflected, traceCount+1);
 }
 
 Color Scene::calculateTransmittedColor(const Vector& incident, const Vector& normal,
@@ -139,13 +145,13 @@ Color Scene::calculateTransmittedColor(const Vector& incident, const Vector& nor
       c = transmitted->getDirection().dot(normal);
     }
     else {
-      return k * calculateColor(reflected, traceCount+1);
+      return k * traceColor(reflected, traceCount+1);
     }
   }
   // Schlick's approximation of Fresnel equations, ignoring polarization of light
   double r0 = ((n-1) * (n-1)) / ((n+1) * (n+1));
   double r = r0 + (1-r0)*(1-c)*(1-c)*(1-c)*(1-c)*(1-c);
-  return k*(calculateColor(reflected, traceCount+1) * r + calculateColor(*transmitted, traceCount+1) * (1-r));
+  return k*(traceColor(reflected, traceCount+1) * r + traceColor(*transmitted, traceCount+1) * (1-r));
 }
 
 Ray Scene::calculateReflectedRay(const Vector& incident, const Vector& normal,

@@ -11,51 +11,45 @@
       "near": -2.0
     }
   },
-  "lights": [
-    {
-      "name": "primary_light",
-      "position": [3.0, 11.0, 0.0],
-      "color": [0.8, 0.8, 0.8]
-    },
-    {
-      "name": "secondary_light",
-      "position": [0.0, 1.0, 5.0],
-      "color": [0.8, 0.8, 0.8]
-    }
-  ],
-  "surfaces": [
-    {
-      "name": "red_cube",
-      "type": "cube", 
-      "material": "red",
-      "texture": "textures/arrows.png",
-      "xmin": -1.0,
-      "xmax": 1.0,
-      "ymin": -1.0,
-      "ymax": 1.0,
-      "zmin": -1.0,
-      "zmax": 1.0
-    }
-  ],
-  "materials": [
-    {
-      "name": "red",
-      "ambient": {
-        "color": [0.2, 0.0, 0.0]
-      },
-      "diffuse": {
-        "color": [1.0, 0.2, 0.2]
-      },
-      "specular": {
-        "color": [1.0, 1.0, 1.0],
-        "exponent": 32.0
+  "scene": {
+    "lights": [
+      {
+        "name": "primary_light",
+        "position": [3.0, 11.0, 0.0],
+        "color": [0.8, 0.8, 0.8]
       }
-    }
-  ],
-  "scene": { 
+    ],
+    "surfaces": [
+      {
+        "name": "red_cube",
+        "type": "cube", 
+        "material": "red",
+        "xmin": -1.0,
+        "xmax": 1.0,
+        "ymin": -1.0,
+        "ymax": 1.0,
+        "zmin": -1.0,
+        "zmax": 1.0
+      }
+    ],
+    "materials": [
+      {
+        "name": "red",
+        "ambient": {
+          "color": [0.2, 0.0, 0.0]
+        },
+        "diffuse": {
+          "color": [1.0, 0.2, 0.2]
+        },
+        "specular": {
+          "color": [1.0, 1.0, 1.0],
+          "exponent": 32.0
+        }
+      }
+    ],
     "max_trace": 3,
-    "background_color": [0.0, 0.0, 0.0],
-    "lights": ["primary_light", "secondary_light"],
-    "surfaces": ["red_cube"]
+    "context": {
+      "surfaces": ["red_cube"]
+    }
   }
 }

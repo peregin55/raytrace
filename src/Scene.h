@@ -22,17 +22,16 @@ class Scene {
   public:
     Scene(vector<Light> lights,
           vector<unique_ptr<Surface>> surfaces,
-          const Color& backgroundColor,
           unsigned int maxTrace):
           lights(lights),
           surfaces(std::move(surfaces)),
-          backgroundColor(backgroundColor),
           maxTrace(maxTrace) { }
-    Color calculateColor(const Ray& ray) const;
+    unique_ptr<Color> calculateColor(const Ray& ray) const;
 
   private:
-    Color calculateColor(const Ray& ray, unsigned int traceCount) const;
+    const Color traceColor(const Ray& ray, unsigned int traceCount) const;
     unique_ptr<Hit> intersect(const Ray& ray, double t0, double t1) const;
+    unique_ptr<Hit> intersect(const Ray& ray) const;
     Color colorFromHit(const Ray& r, const Hit& h, unsigned int traceCount) const;
     Color calculateLocalColor(const Vector& incident, const Vector& normal, const Point& hitpoint,
         const Material& material, const Color& textureColor, const Light& light) const;
@@ -47,7 +46,6 @@ class Scene {
 
     vector<Light> lights;
     vector<unique_ptr<Surface>> surfaces;
-    Color backgroundColor;
     unsigned int maxTrace;
 };
 

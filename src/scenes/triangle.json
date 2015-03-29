@@ -11,49 +11,49 @@
       "near": -2.0
     }
   },
-  "lights": [
-    {
-      "name": "primary_light",
-      "position": [10.0, 10.0, 10.0],
-      "color": [0.8, 0.8, 0.8]
-    },
-    {
-      "name": "secondary_light",
-      "position": [-10.0, 10.0, 10.0],
-      "color": [0.8, 0.8, 0.8]
-    }
-
-  ],
-  "surfaces": [
-    {
-      "name": "t1",
-      "type": "triangle",
-      "material": "yellow",
-      "texture": "textures/city.png",
-      "vertex0": [-1.0, 0.0, 0.0],
-      "vertex1": [1.0, 0.0, 0.0],
-      "vertex2": [0.0, 1.0, 0.0]
-    }
-  ],
-  "materials": [
-    {
-      "name": "yellow",
-      "ambient": {
-        "color": [0.2, 0.2, 0.0]
+  "scene": {
+    "lights": [
+      {
+        "name": "primary_light",
+        "position": [10.0, 10.0, 10.0],
+        "color": [0.8, 0.8, 0.8]
       },
-      "diffuse": {
-        "color": [0.1, 0.1, 0.1]
-      },
-      "specular": {
-        "color": [0.8, 0.8, 0.8],
-        "exponent": 24.0
+      {
+        "name": "secondary_light",
+        "position": [-10.0, 10.0, 10.0],
+        "color": [0.8, 0.8, 0.8]
       }
-    }
-  ],
-  "scene": { 
+
+    ],
+    "surfaces": [
+      {
+        "name": "t1",
+        "type": "triangle",
+        "material": "yellow",
+        "texture": "textures/city.png",
+        "vertex0": [-1.0, 0.0, 0.0],
+        "vertex1": [1.0, 0.0, 0.0],
+        "vertex2": [0.0, 1.0, 0.0]
+      }
+    ],
+    "materials": [
+      {
+        "name": "yellow",
+        "ambient": {
+          "color": [0.2, 0.2, 0.0]
+        },
+        "diffuse": {
+          "color": [0.1, 0.1, 0.1]
+        },
+        "specular": {
+          "color": [0.8, 0.8, 0.8],
+          "exponent": 24.0
+        }
+      }
+    ],
     "max_trace": 3,
-    "background_color": [0.0, 0.0, 0.0],
-    "lights": ["primary_light", "secondary_light"],
-    "surfaces": ["t1"]
+    "context": {
+      "surfaces": ["t1"]
+    }
   }
 }

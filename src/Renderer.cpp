@@ -2,21 +2,19 @@
 #include "Color.h"
 #include "Ray.h"
 #include "Matrix4.h"
+#include "RenderException.h"
 #include <cmath>
+#include <string>
 
 unique_ptr<GLubyte[]> Renderer::render(GLsizei height, GLsizei width) const {
   GLubyte* image(new GLubyte[height*width*3]);
   Color previousColor;
   for (int y = 0; y < height; y++) {
-    Point p = pixel2world(0, y, height, width);
-    Vector d = (p - camera->getPosition()).normalize();
-    Color color = scene->calculateColor(Ray(p, d));
+    Color color = sceneColor(0, y, height, width);
     setImage(image, 0, y, width, color);
     for (int x = 1; x < width; x++) {
       previousColor = color;
-      Point p = pixel2world(x, y, height, width);
-      Vector d = (p - camera->getPosition()).normalize();
-      Color color = scene->calculateColor(Ray(p, d));
+      color = sceneColor(x, y, height, width);
       if (withinDelta(previousColor, color)) {
         setImage(image, x, y, width, color);
       }
@@ -28,6 +26,22 @@ unique_ptr<GLubyte[]> Renderer::render(GLsizei height, GLsizei width) const {
   return unique_ptr<GLubyte[]>(image);
 }  
 
+Color Renderer::sceneColor(double x, double y, GLsizei height, GLsizei width) const {
+  Point p = pixel2world(x, y, height, width);
+  Vector d = (p - camera->getPosition()).normalize();
+  unique_ptr<Color> color = scene->calculateColor(Ray(p, d));
+  if (color) {
+    return *color;
+  } else if (backgroundTexture &&
+            (unsigned int)x < backgroundTexture->getWidth() &&
+            (unsigned int)y < backgroundTexture->getHeight()) {
+    return backgroundTexture->fileColorAt((unsigned int)x,
+      backgroundTexture->getHeight() - 1 - (unsigned int)y);
+  } else {
+    return backgroundColor;
+  }
+}
+ 
 // convert pixel coordinates to world coordinates.
 // conceptually similar to walking backwards through graphics pipeline,
 // but no canonical view volume/projection needed
@@ -39,6 +53,7 @@ Point Renderer::pixel2world(double x, double y, GLsizei height, GLsizei width) c
   double ycamera = y/height * frameHeight + camera->getFrameBottom();
   Point pixel(xcamera, ycamera, camera->getFrameNear());
   // camera coordinates to world coordinates
+  // use crossproduct+normalize to ensure orthonormal basis
   Vector w = (camera->getPosition() - camera->getReference()).normalize();
   Vector u = (camera->getUp().cross(w)).normalize();
   Vector v = w.cross(u).normalize();
@@ -61,18 +76,12 @@ bool Renderer::withinDelta(const Color& previousColor, const Color& color) const
   double rChange = (color.getRed() - previousColor.getRed()) / previousColor.getRed();
   double gChange = (color.getGreen() - previousColor.getGreen()) / previousColor.getGreen();
   double bChange = (color.getBlue() - previousColor.getBlue()) / previousColor.getBlue();
-  return rChange < 0.50 && rChange > -0.50 && gChange < 0.50 && gChange > -0.50 &&
-    bChange < 0.50 && bChange > -0.50;
+  return rChange < 0.30 && rChange > -0.30 && gChange < 0.30 && gChange > -0.30 &&
+    bChange < 0.30 && bChange > -0.30;
 }
 
 Color Renderer::supersample(int x, int y, const Color& origColor, GLsizei height, GLsizei width) const {
-  Point p1 = pixel2world(x - 0.4, y + 0.4, height, width);
-  Vector d1 = (p1 - camera->getPosition()).normalize();
-  Color c1 = scene->calculateColor(Ray(p1, d1));
-
-  Point p2 = pixel2world(x + 0.4, y - 0.4, height, width);
-  Vector d2 = (p2 - camera->getPosition()).normalize();
-  Color c2 = scene->calculateColor(Ray(p2, d2));
-
+  Color c1 = sceneColor(x -0.4, y + 0.4, height, width);
+  Color c2 = sceneColor(x + 0.4, y - 0.4, height, width);
   return (origColor + c1 + c2) / 3.0;
 }

@@ -11,152 +11,151 @@
       "near": -3.0
     }
   },
-  "lights": [
-    {
-      "name": "primary_light",
-      "position": [10.0, 10.0, 10.0],
-      "color": [0.8, 0.8, 0.8]
-    }
-  ],
-  "surfaces": [
-    {
-      "name": "triangle0",
-      "type": "triangle",
-      "material": "yellow",
-      "vertex0": [-1.0, 0.0, 0.0],
-      "vertex1": [0.0, 0.0, 1.0],
-      "vertex2": [1.0, 0.0, 0.0]
-    },
-    {
-      "name": "triangle1",
-      "type": "triangle",
-      "material": "yellow",
-      "vertex0": [-1.0, 0.0, 0.0],
-      "vertex1": [0.0, 0.0, 1.0],
-      "vertex2": [0.0, 1.0, 0.5]
-    },
-    {
-      "name": "triangle2",
-      "type": "triangle",
-      "material": "yellow",
-      "vertex0": [0.0, 1.0, 0.5],
-      "vertex1": [0.0, 0.0, 1.0],
-      "vertex2": [1.0, 0.0, 0.0]
-    },
-    {
-      "name": "triangle3",
-      "type": "triangle",
-      "material": "yellow",
-      "vertex0": [-1.0, 0.0, 0.0],
-      "vertex1": [1.0, 0.0, 0.0],
-      "vertex2": [0.0, 1.0, 0.5]
-    },
-    {
-      "name": "sphere",
-      "type": "sphere",
-      "material": "red",
-      "center": [1.6, 0.7, 0.2],
-      "radius": 0.7
-    },
-    {
-      "name": "cube",
-      "type": "cube",
-      "material": "green",
-      "xmin": -2.1,
-      "xmax": -1.1,
-      "ymin": 0.0,
-      "ymax": 1.0,
-      "zmin": -0.2,
-      "zmax": 0.8
-    },
-    {
-      "name": "plane",
-      "type": "plane",
-      "material": "grey",
-      "vertex0": [0.0, -1e-10, 0.0],
-      "vertex1": [1.0, -1e-10, 0.0],
-      "vertex2": [0.0, -1e-10, -1.0]
-    }
+  "scene": {
+    "lights": [
+      {
+        "name": "primary_light",
+        "position": [10.0, 10.0, 10.0],
+        "color": [0.8, 0.8, 0.8]
+      }
+    ],
+    "surfaces": [
+      {
+        "name": "triangle0",
+        "type": "triangle",
+        "material": "yellow",
+        "vertex0": [-1.0, 0.0, 0.0],
+        "vertex1": [0.0, 0.0, 1.0],
+        "vertex2": [1.0, 0.0, 0.0]
+      },
+      {
+        "name": "triangle1",
+        "type": "triangle",
+        "material": "yellow",
+        "vertex0": [-1.0, 0.0, 0.0],
+        "vertex1": [0.0, 0.0, 1.0],
+        "vertex2": [0.0, 1.0, 0.5]
+      },
+      {
+        "name": "triangle2",
+        "type": "triangle",
+        "material": "yellow",
+        "vertex0": [0.0, 1.0, 0.5],
+        "vertex1": [0.0, 0.0, 1.0],
+        "vertex2": [1.0, 0.0, 0.0]
+      },
+      {
+        "name": "triangle3",
+        "type": "triangle",
+        "material": "yellow",
+        "vertex0": [-1.0, 0.0, 0.0],
+        "vertex1": [1.0, 0.0, 0.0],
+        "vertex2": [0.0, 1.0, 0.5]
+      },
+      {
+        "name": "sphere",
+        "type": "sphere",
+        "material": "red",
+        "center": [1.6, 0.7, 0.2],
+        "radius": 0.7
+      },
+      {
+        "name": "cube",
+        "type": "cube",
+        "material": "green",
+        "xmin": -2.1,
+        "xmax": -1.1,
+        "ymin": 0.0,
+        "ymax": 1.0,
+        "zmin": -0.2,
+        "zmax": 0.8
+      },
+      {
+        "name": "plane",
+        "type": "plane",
+        "material": "grey",
+        "vertex0": [0.0, -1e-10, 0.0],
+        "vertex1": [1.0, -1e-10, 0.0],
+        "vertex2": [0.0, -1e-10, -1.0]
+      }
 
-  ],
-  "materials": [
-    {
-      "name": "red",
-      "reflective_fraction": [0.4, 0.2, 0.3],
-      "ambient": {
-        "color": [0.2, 0.0, 0.0]
+    ],
+    "materials": [
+      {
+        "name": "red",
+        "reflective_fraction": [0.4, 0.2, 0.3],
+        "ambient": {
+          "color": [0.2, 0.0, 0.0]
+        },
+        "diffuse": {
+          "color": [1.0, 0.2, 0.2]
+        },
+        "specular": {
+          "color": [1.0, 1.0, 1.0],
+          "exponent": 32.0
+        }
       },
-      "diffuse": {
-        "color": [1.0, 0.2, 0.2]
+      {
+        "name": "green",
+        "refractive_index": 1.2,
+        "refractive_attenuation": [0.3, 0.3, 0.3],
+        "ambient": {
+          "color": [0.0, 0.1, 0.0]
+        },
+        "diffuse": {
+          "color": [0.2, 0.8, 0.2]
+        },
+        "specular": {
+          "color": [0.8, 0.8, 0.8],
+          "exponent": 4.0
+        }
       },
-      "specular": {
-        "color": [1.0, 1.0, 1.0],
-        "exponent": 32.0
+      {
+        "name": "blue",
+        "ambient": {
+          "color": [0.0, 0.0, 0.2]
+        },
+        "diffuse": {
+          "color": [0.2, 0.2, 1.0]
+        },
+        "specular": {
+          "color": [0.8, 0.8, 0.8],
+          "exponent": 32.0
+        }
+      },
+      {
+        "name": "yellow",
+        "refractive_index": 1.33,
+        "refractive_attenuation": [0.1, 0.1, 0.1],
+        "ambient": {
+          "color": [0.3, 0.3, 0.0]
+        },
+        "diffuse": {
+          "color": [0.3, 0.3, 0.3]
+        },
+        "specular": {
+          "color": [0.8, 0.8, 0.8],
+          "exponent": 32.0
+        }
+      },
+      {
+        "name": "grey",
+        "reflective_fraction": [0.2, 0.2, 0.1],
+        "ambient": {
+          "color": [0.25, 0.25, 0.25]
+        },
+        "diffuse": {
+          "color": [0.2, 0.2, 0.3]
+        },
+        "specular": {
+          "color": [0.8, 0.8, 0.8],
+          "exponent": 24.0
+        }
       }
-    },
-    {
-      "name": "green",
-      "refractive_index": 1.2,
-      "refractive_attenuation": [0.3, 0.3, 0.3],
-      "ambient": {
-        "color": [0.0, 0.1, 0.0]
-      },
-      "diffuse": {
-        "color": [0.2, 0.8, 0.2]
-      },
-      "specular": {
-        "color": [0.8, 0.8, 0.8],
-        "exponent": 4.0
-      }
-    },
-    {
-      "name": "blue",
-      "ambient": {
-        "color": [0.0, 0.0, 0.2]
-      },
-      "diffuse": {
-        "color": [0.2, 0.2, 1.0]
-      },
-      "specular": {
-        "color": [0.8, 0.8, 0.8],
-        "exponent": 32.0
-      }
-    },
-    {
-      "name": "yellow",
-      "refractive_index": 1.33,
-      "refractive_attenuation": [0.1, 0.1, 0.1],
-      "ambient": {
-        "color": [0.3, 0.3, 0.0]
-      },
-      "diffuse": {
-        "color": [0.3, 0.3, 0.3]
-      },
-      "specular": {
-        "color": [0.8, 0.8, 0.8],
-        "exponent": 32.0
-      }
-    },
-    {
-      "name": "grey",
-      "reflective_fraction": [0.2, 0.2, 0.1],
-      "ambient": {
-        "color": [0.25, 0.25, 0.25]
-      },
-      "diffuse": {
-        "color": [0.2, 0.2, 0.3]
-      },
-      "specular": {
-        "color": [0.8, 0.8, 0.8],
-        "exponent": 24.0
-      }
-    }
-  ],
-  "scene": { 
+    ],
     "max_trace": 3,
-    "background_color": [0.0, 0.0, 0.0],
-    "lights": ["primary_light"],
-    "surfaces": ["triangle0", "triangle1", "triangle2", "triangle3",
-      "sphere", "cube", "plane"]
+    "context": {
+      "surfaces": ["triangle0", "triangle1", "triangle2", "triangle3", "sphere", "cube", "plane"]
+    }
   }
 }

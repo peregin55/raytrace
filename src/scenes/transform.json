@@ -10,70 +10,68 @@
       "near": -2.0
     }
   },
-  "lights": [
-    {
-      "name": "primary_light",
-      "position": [3.0, 11.0, 0.0],
-      "color": [0.8, 0.8, 0.8]
-    },
-    {
-      "name": "secondary_light",
-      "position": [-2.0, 11.0, 6.0],
-      "color": [0.8, 0.8, 0.8]
-    }
-  ],
-  "surfaces": [
-    {
-      "name": "red_cube",
-      "type": "cube", 
-      "material": "red",
-      "xmin": -0.5,
-      "xmax": 0.5,
-      "ymin": -0.5,
-      "ymax": 0.5,
-      "zmin": -0.5,
-      "zmax": 0.5
-    },
-    {
-      "name": "green_sphere",
-      "type": "sphere",
-      "material": "green",
-      "center": [0.0, 0.0, 0.0],
-      "radius": 0.5
-    }
-  ],
-  "materials": [
-    {
-      "name": "red",
-      "ambient": {
-        "color": [0.2, 0.0, 0.0]
+  "scene": {
+    "lights": [
+      {
+        "name": "primary_light",
+        "position": [3.0, 11.0, 0.0],
+        "color": [0.8, 0.8, 0.8]
       },
-      "diffuse": {
-        "color": [1.0, 0.2, 0.2]
-      },
-      "specular": {
-        "color": [1.0, 1.0, 1.0],
-        "exponent": 32.0
+      {
+        "name": "secondary_light",
+        "position": [-2.0, 11.0, 6.0],
+        "color": [0.8, 0.8, 0.8]
       }
-    },
-    {
-      "name": "green",
-      "ambient": {
-        "color": [0.0, 0.2, 0.0]
+    ],
+    "surfaces": [
+      {
+        "name": "red_cube",
+        "type": "cube", 
+        "material": "red",
+        "xmin": -0.5,
+        "xmax": 0.5,
+        "ymin": -0.5,
+        "ymax": 0.5,
+        "zmin": -0.5,
+        "zmax": 0.5
       },
-      "diffuse": {
-        "color": [0.2, 1.0, 0.2]
-      },
-      "specular": {
-        "color": [0.8, 0.8, 0.8],
-        "exponent": 24.0
+      {
+        "name": "green_sphere",
+        "type": "sphere",
+        "material": "green",
+        "center": [0.0, 0.0, 0.0],
+        "radius": 0.5
       }
-    }
-  ],
-  "scene": { 
+    ],
+    "materials": [
+      {
+        "name": "red",
+        "ambient": {
+          "color": [0.2, 0.0, 0.0]
+        },
+        "diffuse": {
+          "color": [1.0, 0.2, 0.2]
+        },
+        "specular": {
+          "color": [1.0, 1.0, 1.0],
+          "exponent": 32.0
+        }
+      },
+      {
+        "name": "green",
+        "ambient": {
+          "color": [0.0, 0.2, 0.0]
+        },
+        "diffuse": {
+          "color": [0.2, 1.0, 0.2]
+        },
+        "specular": {
+          "color": [0.8, 0.8, 0.8],
+          "exponent": 24.0
+        }
+      }
+    ],
     "max_trace": 3,
-    "background_color": [0.0, 0.0, 0.0],
-    "lights": ["primary_light", "secondary_light"],
     "context": {
       "transform": [ {"translate": [2.0, 0.0, 0.0]} ],
       "surfaces": ["green_sphere"],

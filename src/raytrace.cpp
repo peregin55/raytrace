@@ -30,7 +30,7 @@ static void display() {
   glRasterPos3d(-1.0, -1.0, -1.0);  // x,y,z in world coordinates
   glPixelStorei(GL_PACK_ALIGNMENT, 1);  // use next available byte when packing image
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-  glDrawPixels(width, height, GL_RGB, GL_UNSIGNED_BYTE, image.get());
+  glDrawPixels(width, height, GL_RGB, GL_UNSIGNED_BYTE, image.get());  // draw pixel data, origin at lower left
   glFlush();
 }
 
@@ -74,9 +74,7 @@ int main(int argc, char** argv) {
     return 1;
   }
   FileParser parser(getParentDir(filename));
-  unique_ptr<Scene> scene = parser.parseScene(root);
-  unique_ptr<Camera> camera = parser.parseCamera(root);
-  renderer = unique_ptr<Renderer>(new Renderer(std::move(scene), std::move(camera)));
+  renderer = parser.parseRenderer(root);
 
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);

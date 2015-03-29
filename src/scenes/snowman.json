@@ -11,107 +11,107 @@
       "near": -2.0
     }
   },
-  "lights": [
-    {
-      "name": "primary_light",
-      "position": [5.0, 3.0, 3.0],
-      "color": [0.8, 0.8, 0.8]
-    }
-  ],
-  "surfaces": [
-    {
-      "name": "head",
-      "type": "sphere", 
-      "material": "red",
-      "center": [0.0, 1.0, 0.0],
-      "radius": 0.5
-    },
-    {
-      "name": "torso",
-      "type": "sphere", 
-      "material": "green",
-      "center": [0.0, 0.0, 0.0],
-      "radius": 0.75
-    },
-    {
-      "name": "legs",
-      "type": "sphere", 
-      "material": "blue",
-      "center": [0.0, -1.5, 0.0],
-      "radius": 1.0 
-    },
-    {
-      "name": "ground",
-      "type": "plane",
-      "material": "yellow",
-      "texture": "textures/arrows.png",
-      "vertex0": [0.0, -2.5, 0.0],
-      "vertex1": [1.0, -2.5, 0.0],
-      "vertex2": [0.0, -2.5, -1.0]
-    }
-  ],
-  "materials": [
-    {
-      "name": "red",
-      "reflective_fraction": [0.2, 0.2, 0.2],
-      "ambient": {
-        "color": [0.2, 0.0, 0.0]
-      },
-      "diffuse": {
-        "color": [1.0, 0.2, 0.2]
-      },
-      "specular": {
-        "color": [1.0, 1.0, 1.0],
-        "exponent": 32.0
+  "scene": {
+    "lights": [
+      {
+        "name": "primary_light",
+        "position": [5.0, 3.0, 3.0],
+        "color": [0.8, 0.8, 0.8]
       }
-    },
-    {
-      "name": "green",
-      "reflective_fraction": [0.2, 0.2, 0.2],
-      "ambient": {
-        "color": [0.0, 0.2, 0.0]
+    ],
+    "surfaces": [
+      {
+        "name": "head",
+        "type": "sphere", 
+        "material": "red",
+        "center": [0.0, 1.0, 0.0],
+        "radius": 0.5
       },
-      "diffuse": {
-        "color": [0.2, 1.0, 0.2]
+      {
+        "name": "torso",
+        "type": "sphere", 
+        "material": "green",
+        "center": [0.0, 0.0, 0.0],
+        "radius": 0.75
       },
-      "specular": {
-        "color": [0.8, 0.8, 0.8],
-        "exponent": 24.0
+      {
+        "name": "legs",
+        "type": "sphere", 
+        "material": "blue",
+        "center": [0.0, -1.5, 0.0],
+        "radius": 1.0 
+      },
+      {
+        "name": "ground",
+        "type": "plane",
+        "material": "yellow",
+        "texture": "textures/checkerboard.png",
+        "vertex0": [0.0, -2.5, 0.0],
+        "vertex1": [20.0, -2.5, 0.0],
+        "vertex2": [0.0, -2.5, -20.0]
       }
-    },
-    {
-      "name": "blue",
-      "reflective_fraction": [0.2, 0.2, 0.2],
-      "ambient": {
-        "color": [0.0, 0.0, 0.2]
+    ],
+    "materials": [
+      {
+        "name": "red",
+        "reflective_fraction": [0.2, 0.2, 0.2],
+        "ambient": {
+          "color": [0.2, 0.0, 0.0]
+        },
+        "diffuse": {
+          "color": [1.0, 0.2, 0.2]
+        },
+        "specular": {
+          "color": [1.0, 1.0, 1.0],
+          "exponent": 32.0
+        }
       },
-      "diffuse": {
-        "color": [0.2, 0.2, 1.0]
+      {
+        "name": "green",
+        "reflective_fraction": [0.2, 0.2, 0.2],
+        "ambient": {
+          "color": [0.0, 0.2, 0.0]
+        },
+        "diffuse": {
+          "color": [0.2, 1.0, 0.2]
+        },
+        "specular": {
+          "color": [0.8, 0.8, 0.8],
+          "exponent": 24.0
+        }
       },
-      "specular": {
-        "color": [0.8, 0.8, 0.8],
-        "exponent": 32.0
+      {
+        "name": "blue",
+        "reflective_fraction": [0.2, 0.2, 0.2],
+        "ambient": {
+          "color": [0.0, 0.0, 0.2]
+        },
+        "diffuse": {
+          "color": [0.2, 0.2, 1.0]
+        },
+        "specular": {
+          "color": [0.8, 0.8, 0.8],
+          "exponent": 32.0
+        }
+      },
+      {
+        "name": "yellow",
+        "reflective_fraction": [1.0, 1.0, 1.0],
+        "ambient": {
+          "color": [0.2, 0.2, 0.0]
+        },
+        "diffuse": {
+          "color": [0.2, 0.2, 0.3]
+        },
+        "specular": {
+          "color": [0.8, 0.8, 0.8],
+          "exponent": 24.0
+        }
       }
-    },
-    {
-      "name": "yellow",
-      "reflective_fraction": [1.0, 1.0, 1.0],
-      "ambient": {
-        "color": [0.2, 0.2, 0.0]
-      },
-      "diffuse": {
-        "color": [0.2, 0.2, 0.3]
-      },
-      "specular": {
-        "color": [0.8, 0.8, 0.8],
-        "exponent": 24.0
-      }
-    }
-  ],
-  "scene": { 
+    ],
     "max_trace": 3,
-    "background_color": [0.0, 0.0, 0.0],
-    "lights": ["primary_light"],
-    "surfaces": ["head", "torso", "legs", "ground"]
+    "context": {
+      "surfaces": ["head", "torso", "legs", "ground"]
+    }
   }
 }

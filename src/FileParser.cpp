@@ -11,6 +11,7 @@
 #include "RenderException.h"
 #include "Material.h"
 #include "Matrix4.h"
+#include "Renderer.h"
 #include "Scene.h"
 #include "Sphere.h"
 #include "Texture.h"
@@ -21,9 +22,16 @@
 #include "Vector.h"
 using namespace std;
 
+unique_ptr<Renderer> FileParser::parseRenderer(const Json::Value& root) const {
+  unique_ptr<Camera> camera = parseCamera(root["camera"]);
+  unique_ptr<Scene> scene = parseScene(root["scene"]);
+  unique_ptr<Texture> envTexture = unique_ptr<Texture>(parseTexture(root["environment"]["texture"], "environment texture"));
+  Color envColor = parseOptionalColor(root["environment"]["color"], "background color", 0.0);
+  return unique_ptr<Renderer>(new Renderer(std::move(scene), std::move(camera), std::move(envTexture), envColor));
+}
+
 /** Parse and instantiate Camera from input file. */
-unique_ptr<Camera> FileParser::parseCamera(const Json::Value& docNode) const {
-  Json::Value cameraNode = docNode["camera"];
+unique_ptr<Camera> FileParser::parseCamera(const Json::Value& cameraNode) const {
   Point position = parsePoint(cameraNode["position"], "camera position");
   Point reference = parsePoint(cameraNode["reference"], "camera reference");
   Vector up = parseVector(cameraNode["up_direction"], "camera up direction");
@@ -36,41 +44,30 @@ unique_ptr<Camera> FileParser::parseCamera(const Json::Value& docNode) const {
 }
 
 /** Parse and instantiate Scene from input file. */
-unique_ptr<Scene> FileParser::parseScene(const Json::Value& docNode) const {
-  unordered_map<string, Json::Value> availableLights = node2namemap(docNode["lights"], "light");
-  unordered_map<string, Json::Value> availableSurfaces = node2namemap(docNode["surfaces"], "surface");
-  unordered_map<string, shared_ptr<Material>> materials = parseMaterials(docNode["materials"]);
-  Json::Value sceneNode = docNode["scene"];
+unique_ptr<Scene> FileParser::parseScene(const Json::Value& sceneNode) const {
+  unordered_map<string, Json::Value> availableLights = node2namemap(sceneNode["lights"], "light");
+  unordered_map<string, Json::Value> availableSurfaces = node2namemap(sceneNode["surfaces"], "surface");
+  unordered_map<string, shared_ptr<Material>> materials = parseMaterials(sceneNode["materials"]);
   unsigned int maxTraces = parseUnsignedInt(sceneNode["max_trace"], "max trace");
-  Color backgroundColor = parseColor(sceneNode["background_color"], "background color");
-  vector<Light> lights;
-  for (unsigned int i = 0; i < sceneNode["lights"].size(); i++) {
-    string lightName = parseString(sceneNode["lights"][i], "scene light reference");
-    lights.push_back(parseLight(findReference(lightName, availableLights)));
-  }
+  vector<Light> lights = parseLights(sceneNode["lights"]);
   vector<unique_ptr<Surface>> surfaces;
   Matrix4 obj2world = identity();
-  // root surfaces won't have any transformations, so build regular Surface instance
-  if (sceneNode["surfaces"] != Json::nullValue) {
-    for (unsigned int i=0; i < sceneNode["surfaces"].size(); i++) {
-      string surfaceName = parseString(sceneNode["surfaces"][i], "scene surface reference");
-      surfaces.push_back(parseSurface(findReference(surfaceName, availableSurfaces), materials));
-    }
-  }
   // surfaces in "context" may have local-object transformations, handle separately
   if (sceneNode["context"] != Json::nullValue) {
     parseContext(surfaces, obj2world, sceneNode["context"], availableSurfaces, materials);
   }
-  return unique_ptr<Scene>(new Scene(lights, std::move(surfaces), backgroundColor, maxTraces));
+  return unique_ptr<Scene>(new Scene(lights, std::move(surfaces), maxTraces));
 }
 
-
-Light FileParser::parseLight(const Json::Value& lightNode) const {
-  Point p = parsePoint(lightNode["position"], "light position");
-  Color c = parseColor(lightNode["color"], "light color");
-  return Light(p,c);
+vector<Light> FileParser::parseLights(const Json::Value& lightsNode) const {
+  vector<Light> lights;
+  for (unsigned int i = 0; i < lightsNode.size(); i++) {
+    Point p = parsePoint(lightsNode[i]["position"], "light position");
+    Color c = parseColor(lightsNode[i]["color"], "light color");
+    lights.emplace_back(p,c);
+  }
+  return lights;
 }
-
 
 unique_ptr<Surface> FileParser::parseSurface(const Json::Value& surfaceNode,
   const unordered_map<string, shared_ptr<Material>>& materials) const {
@@ -82,19 +79,7 @@ unique_ptr<Surface> FileParser::parseSurface(const Json::Value& surfaceNode,
   } catch (const out_of_range& e) {
     throw RenderException("Unable to find surface material: " + name);
   }
-  Json::Value textureNode = surfaceNode["texture"];
-  shared_ptr<Texture> texture;
-  if (textureNode != Json::nullValue) {
-    try {
-      texture = Texture::fromFile(dir + textureNode.asString());
-    } catch(RenderException e) {
-      try {
-        texture = Texture::fromFile(textureNode.asString());
-      } catch(RenderException e2) {
-        cerr << "Unable to load texture (" << e.what() << ", " << e2.what() << ")" << endl;
-      }
-    }
-  }
+  shared_ptr<Texture> texture = shared_ptr<Texture>(parseTexture(surfaceNode["texture"], "surface texture"));
   if (type == "sphere") {
     Point center = parsePoint(surfaceNode["center"], "sphere center");
     double radius = parseDouble(surfaceNode["radius"], "sphere radius");
@@ -258,6 +243,22 @@ Color FileParser::parseOptionalColor(const Json::Value& node, const string& node
     return Color(node[(Json::Value::UInt)0].asDouble(),
       node[1].asDouble(), node[2].asDouble());
   }
+}
+
+Texture* FileParser::parseTexture(const Json::Value& textureNode, const string& nodeName) const {
+  Texture* texture = nullptr;
+  if (textureNode != Json::nullValue) {
+    try {
+      texture = Texture::fromFile(dir + textureNode.asString());
+    } catch(RenderException e) {
+      try {
+        texture = Texture::fromFile(textureNode.asString());
+      } catch(RenderException e2) {
+        cerr << "Unable to load texture (" << e.what() << ", " << e2.what() << ")" << endl;
+      }
+    }
+  }
+  return texture;
 }
 
 double FileParser::parseOptionalDouble(const Json::Value& node, double defaultValue) const {
