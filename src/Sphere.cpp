@@ -22,7 +22,7 @@
 #include "Texture.h"
 #include "Vector.h"
 
-unique_ptr<Hit> Sphere::intersect(const Ray& ray, double t0, double t1) const {
+bool Sphere::intersect(const Ray& ray, double t0, double t1, Hit& hit) const {
   Point e = ray.getPoint();
   Vector d = ray.getDirection();
   Vector centerToEye = e - center;
@@ -34,16 +34,19 @@ unique_ptr<Hit> Sphere::intersect(const Ray& ray, double t0, double t1) const {
     double tPos = (minusB + determinant) / dDotted;
     double tNeg = (minusB - determinant) / dDotted;
     if (tPos > t0 && tPos < t1 && tNeg > t0 && tNeg < t1) {
-      return unique_ptr<Hit>(new Hit(*this, fmin(tNeg, tPos)));
+      hit = Hit(this, fmin(tNeg, tPos));
+      return true;
     }
     else if (tPos > t0 && tPos < t1) {
-      return unique_ptr<Hit>(new Hit(*this, tPos));
+      hit = Hit(this, tPos);
+      return true;
     }
     else if (tNeg > t0 && tNeg < t1) {
-      return unique_ptr<Hit>(new Hit(*this, tNeg));
+      hit = Hit(this, tNeg);
+      return true;
     }
   }
-  return unique_ptr<Hit>();
+  return false;
 }
 
 Vector Sphere::calculateNormal(const Point& hitpoint) const {

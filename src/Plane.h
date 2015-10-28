@@ -62,7 +62,7 @@ class Plane : public Surface {
                               0.0,   0.0,   0.0,   1.0).inverse();
     }
 
-    virtual unique_ptr<Hit> intersect(const Ray& ray, double t0, double t1) const;
+    virtual bool intersect(const Ray& ray, double t0, double t1, Hit& hit) const;
     virtual Vector calculateNormal(const Point& hitpoint) const;
     virtual Color textureColor(const Point& hitpoint) const;
   private:

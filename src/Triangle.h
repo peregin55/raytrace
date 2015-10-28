@@ -37,7 +37,7 @@ class Triangle : public Surface {
   public:
     Triangle(shared_ptr<Material> material, shared_ptr<Texture> texture, const Point& p0, const Point& p1, const Point& p2) :
       Surface(material, texture), p0(p0), p1(p1), p2(p2), plane(material, texture, p0, p1, p2), normal(plane.calculateNormal(p0)) { }
-    virtual unique_ptr<Hit> intersect(const Ray& ray, double t0, double t1) const;
+    virtual bool intersect(const Ray& ray, double t0, double t1, Hit& hit) const;
     virtual Vector calculateNormal(const Point& hitpoint) const;
     virtual Color textureColor(const Point& hitpoint) const;
   private:

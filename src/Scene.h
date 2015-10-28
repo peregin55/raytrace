@@ -43,12 +43,12 @@ class Scene {
           lights(lights),
           surfaces(std::move(surfaces)),
           maxTrace(maxTrace) { }
-    unique_ptr<Color> calculateColor(const Ray& ray) const;
+    bool calculateColor(const Ray& ray, Color& color) const;
 
   private:
-    const Color traceColor(const Ray& ray, unsigned int traceCount) const;
-    unique_ptr<Hit> intersect(const Ray& ray, double t0, double t1) const;
-    unique_ptr<Hit> intersect(const Ray& ray) const;
+    Color traceColor(const Ray& ray, unsigned int traceCount) const;
+    bool intersect(const Ray& ray, double t0, double t1, Hit& hit) const;
+    bool intersect(const Ray& ray, Hit& hit) const;
     Color colorFromHit(const Ray& r, const Hit& h, unsigned int traceCount) const;
     Color calculateLocalColor(const Vector& incident, const Vector& normal, const Point& hitpoint,
         const Material& material, const Color& textureColor, const Light& light) const;

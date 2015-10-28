@@ -31,11 +31,11 @@ class Color;
 class Renderer {
   public:
     Renderer(unique_ptr<Scene> scene,
-             unique_ptr<Camera> camera,
+             const Camera& camera,
              unique_ptr<Texture> backgroundTexture,
              const Color& backgroundColor) :
       scene(std::move(scene)),
-      camera(std::move(camera)),
+      camera(camera),
       backgroundTexture(std::move(backgroundTexture)),
       backgroundColor(backgroundColor) { }
     unique_ptr<GLubyte[]> render(GLsizei height, GLsizei width) const;
@@ -48,7 +48,7 @@ class Renderer {
     Color supersample(int x, int y, const Color& origColor, GLsizei height, GLsizei width) const;
 
     unique_ptr<Scene> scene;
-    unique_ptr<Camera> camera;
+    Camera camera;
     unique_ptr<Texture> backgroundTexture;
     Color backgroundColor;
 };

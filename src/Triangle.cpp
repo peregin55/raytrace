@@ -22,20 +22,21 @@
 #include "Ray.h"
 #include "Texture.h"
 
-unique_ptr<Hit> Triangle::intersect(const Ray& ray, double t0, double t1) const {
-  unique_ptr<Hit> planeHit = plane.intersect(ray, t0, t1);
-  if (planeHit) {
+bool Triangle::intersect(const Ray& ray, double t0, double t1, Hit& hit) const {
+  Hit planeHit;
+  if (plane.intersect(ray, t0, t1, planeHit)) {
     // in-out test, if intersect is inside the triangle, the plane formed by it
     // and edgeVector will have a normal vector in same direction as the original
     // plane.  If outside the vector, the normal vector will be -planeNormal vector.
-    Point intersect = ray.calculatePoint(planeHit->getT());
+    Point intersect = ray.calculatePoint(planeHit.getT());
     if (isContained(p0, p1, intersect) &&
         isContained(p1, p2, intersect) &&
         isContained(p2, p0, intersect)) {
-      return unique_ptr<Hit>(new Hit(*this, planeHit->getT()));
+      hit = Hit(this, planeHit.getT());
+      return true;
     }
   }
-  return unique_ptr<Hit>();
+  return false;
 }
 
 bool Triangle::isContained(const Point& q0, const Point& q1, const Point& intersect) const {

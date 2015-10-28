@@ -45,7 +45,7 @@ class FileParser {
     unique_ptr<Renderer> parseRenderer(const Json::Value& root) const;
   private:
     unique_ptr<Scene> parseScene(const Json::Value& sceneNode) const;
-    unique_ptr<Camera> parseCamera(const Json::Value& cameraNode) const;
+    Camera parseCamera(const Json::Value& cameraNode) const;
     vector<Light> parseLights(const Json::Value& lightsNode) const;
     unique_ptr<Surface> parseSurface(const Json::Value& surfacesNode, const unordered_map<string, shared_ptr<Material>>& materials) const;
     unordered_map<string, shared_ptr<Material>> parseMaterials(const Json::Value& materialNode) const;

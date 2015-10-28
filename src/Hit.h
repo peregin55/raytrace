@@ -32,11 +32,12 @@
  */
 class Hit {
   public:
-    Hit(const Surface& s, double t) : surface(s), t(t) { }
-    const Surface& getSurface() const { return surface; }
+    Hit() : surface(NULL), t(0.0) { }
+    Hit(const Surface* s, double t) : surface(s), t(t) { }
+    const Surface* getSurface() const { return surface; }
     double getT() const { return t; }
   private:
-    const Surface& surface;
+    const Surface* surface;
     double t;
 };
 

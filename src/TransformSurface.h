@@ -38,7 +38,7 @@ class TransformSurface : public Surface {
       obj2worldInverse(obj2world.inverse()),
       obj2worldInverseTranspose(obj2world.inverse().transpose()),
       surface(std::move(surface)) { }
-    virtual unique_ptr<Hit> intersect(const Ray& ray, double t0, double t1) const;
+    virtual bool intersect(const Ray& ray, double t0, double t1, Hit& hit) const;
     Vector calculateNormal(const Point& hitpoint) const;
     virtual const Material* getMaterial() const;
     virtual const Texture* getTexture() const;

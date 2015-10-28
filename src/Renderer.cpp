@@ -22,10 +22,10 @@
 #include "RenderException.h"
 #include <cmath>
 #include <string>
-#include <time.h>
+#include <chrono>
 
 unique_ptr<GLubyte[]> Renderer::render(GLsizei height, GLsizei width) const {
-  time_t start = time(NULL);
+  chrono::time_point<chrono::system_clock> start = chrono::high_resolution_clock::now();
   GLubyte* image(new GLubyte[height*width*3]);
   Color previousColor;
   for (int y = 0; y < height; y++) {
@@ -42,17 +42,17 @@ unique_ptr<GLubyte[]> Renderer::render(GLsizei height, GLsizei width) const {
       }
     }
   }
-  time_t end = time(NULL);
-  fprintf(stderr, "Total render time: %lf\n", difftime(end, start) * 1000.0);
+  chrono::time_point<chrono::system_clock> end = chrono::high_resolution_clock::now();
+  cerr << "time: " << chrono::duration_cast<chrono::milliseconds>(end-start).count() << "\n";
   return unique_ptr<GLubyte[]>(image);
 }  
 
 Color Renderer::sceneColor(double x, double y, GLsizei height, GLsizei width) const {
   Point p = pixel2world(x, y, height, width);
-  Vector d = (p - camera->getPosition()).normalize();
-  unique_ptr<Color> color = scene->calculateColor(Ray(p, d));
-  if (color) {
-    return *color;
+  Vector d = (p - camera.getPosition()).normalize();
+  Color color;
+  if (scene->calculateColor(Ray(p, d), color)) {
+    return color;
   } else if (backgroundTexture &&
             (unsigned int)x < backgroundTexture->getWidth() &&
             (unsigned int)y < backgroundTexture->getHeight()) {
@@ -68,17 +68,17 @@ Color Renderer::sceneColor(double x, double y, GLsizei height, GLsizei width) co
 // but no canonical view volume/projection needed
 Point Renderer::pixel2world(double x, double y, GLsizei height, GLsizei width) const {
   // screen coordinates (x,y) to camera coordinates
-  double frameWidth = camera->getFrameRight() - camera->getFrameLeft();
-  double frameHeight = camera->getFrameTop() - camera->getFrameBottom();
-  double xcamera = x/width * frameWidth + camera->getFrameLeft();
-  double ycamera = y/height * frameHeight + camera->getFrameBottom();
-  Point pixel(xcamera, ycamera, camera->getFrameNear());
+  double frameWidth = camera.getFrameRight() - camera.getFrameLeft();
+  double frameHeight = camera.getFrameTop() - camera.getFrameBottom();
+  double xcamera = x/width * frameWidth + camera.getFrameLeft();
+  double ycamera = y/height * frameHeight + camera.getFrameBottom();
+  Point pixel(xcamera, ycamera, camera.getFrameNear());
   // camera coordinates to world coordinates
   // use crossproduct+normalize to ensure orthonormal basis
-  Vector w = (camera->getPosition() - camera->getReference()).normalize();
-  Vector u = (camera->getUp().cross(w)).normalize();
+  Vector w = (camera.getPosition() - camera.getReference()).normalize();
+  Vector u = (camera.getUp().cross(w)).normalize();
   Vector v = w.cross(u).normalize();
-  const Point& o = camera->getPosition();
+  const Point& o = camera.getPosition();
   Matrix4 cam2world(u[X], v[X], w[X], o[X],
                     u[Y], v[Y], w[Y], o[Y],
                     u[Z], v[Z], w[Z], o[Z],

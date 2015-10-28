@@ -40,15 +40,15 @@
 using namespace std;
 
 unique_ptr<Renderer> FileParser::parseRenderer(const Json::Value& root) const {
-  unique_ptr<Camera> camera = parseCamera(root["camera"]);
+  Camera camera = parseCamera(root["camera"]);
   unique_ptr<Scene> scene = parseScene(root["scene"]);
   unique_ptr<Texture> envTexture = unique_ptr<Texture>(parseTexture(root["environment"]["texture"], "environment texture"));
   Color envColor = parseOptionalColor(root["environment"]["color"], "background color", 0.0);
-  return unique_ptr<Renderer>(new Renderer(std::move(scene), std::move(camera), std::move(envTexture), envColor));
+  return unique_ptr<Renderer>(new Renderer(std::move(scene), camera, std::move(envTexture), envColor));
 }
 
 /** Parse and instantiate Camera from input file. */
-unique_ptr<Camera> FileParser::parseCamera(const Json::Value& cameraNode) const {
+Camera FileParser::parseCamera(const Json::Value& cameraNode) const {
   Point position = parsePoint(cameraNode["position"], "camera position");
   Point reference = parsePoint(cameraNode["reference"], "camera reference");
   Vector up = parseVector(cameraNode["up_direction"], "camera up direction");
@@ -57,7 +57,7 @@ unique_ptr<Camera> FileParser::parseCamera(const Json::Value& cameraNode) const 
   double left = parseDouble(cameraNode["frame"]["left"], "camera frame left");
   double right = parseDouble(cameraNode["frame"]["right"], "camera frame right");
   double near = parseDouble(cameraNode["frame"]["near"], "camera frame near");
-  return unique_ptr<Camera>(new Camera(position, reference, up, bottom, top, left, right, near));
+  return Camera(position, reference, up, bottom, top, left, right, near);
 }
 
 /** Parse and instantiate Scene from input file. */

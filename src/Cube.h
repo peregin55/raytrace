@@ -40,7 +40,7 @@ class Cube : public Surface {
     Cube(shared_ptr<Material> material, shared_ptr<Texture> texture, const vector<double>& min, const vector<double>& max) :
       Surface(material, texture), cubeMin(min), cubeMax(max) { }
     /** Surface intersection. */
-    virtual unique_ptr<Hit> intersect(const Ray& ray, double t0, double t1) const;
+    virtual bool intersect(const Ray& ray, double t0, double t1, Hit& hit) const;
     virtual Vector calculateNormal(const Point& hitpoint) const;
     virtual Color textureColor(const Point& hitpoint) const;
     /* returns true if ray intersects this cube, with t0 containing the distance at which

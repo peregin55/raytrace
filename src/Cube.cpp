@@ -33,17 +33,19 @@ vector<double> Cube::getCubeMin() {
 vector<double> Cube::getCubeMax() {
   return cubeMax;
 }
-unique_ptr<Hit> Cube::intersect(const Ray& ray, double t0, double t1) const {
+bool Cube::intersect(const Ray& ray, double t0, double t1, Hit& hit) const {
   double tmin = 0.0, tmax = 0.0;
   if (isBounded(ray, tmin, tmax)) {
     if (tmin > t0 && tmin < t1) {
-      return unique_ptr<Hit>(new Hit(*this, tmin));
+      hit = Hit(this, tmin);
+      return true;
     }
     else if (tmax > t0 && tmax < t1) {
-      return unique_ptr<Hit>(new Hit(*this, tmax));
+      hit = Hit(this, tmax);
+      return true;
     }
   }
-  return unique_ptr<Hit>();
+  return false;
 }
 
 bool Cube::isBounded(const Ray& ray, double& t0, double& t1) const {

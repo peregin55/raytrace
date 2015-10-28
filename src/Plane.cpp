@@ -21,15 +21,16 @@
 #include "Texture.h"
 #include <cmath>
 
-unique_ptr<Hit> Plane::intersect(const Ray& ray, double t0, double t1) const {
+bool Plane::intersect(const Ray& ray, double t0, double t1, Hit& hit) const {
   Point q = ray.getPoint();
   Vector v = ray.getDirection();
 
   double t = (normal.dot(p0 - q)) / (normal.dot(v));
   if (t > t0 && t < t1) {
-    return unique_ptr<Hit>(new Hit(*this, t));
+    hit = Hit(this, t);
+    return true;
   }
-  return unique_ptr<Hit>();
+  return false;
 }
 
 Vector Plane::calculateNormal(const Point& hitpoint) const {

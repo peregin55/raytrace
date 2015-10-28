@@ -33,47 +33,50 @@ using namespace std;
 static const double DELTA = 1e-10;
 static const Color ZERO_COLOR(0.0, 0.0, 0.0);
 
-unique_ptr<Color> Scene::calculateColor(const Ray& ray) const {
-  unique_ptr<Hit> closest = intersect(ray);
-  if (closest) {
-    return unique_ptr<Color>(new Color(colorFromHit(ray, *closest, 0)));
+bool Scene::calculateColor(const Ray& ray, Color& color) const {
+  Hit hit;
+  bool wasHit = intersect(ray, hit);
+  if (wasHit) {
+    color = colorFromHit(ray, hit, 0);
   }
-  return unique_ptr<Color>();
+  return wasHit;
 }
 
-const Color Scene::traceColor(const Ray& ray, unsigned int traceCount) const {
-  unique_ptr<Hit> closest = intersect(ray);
-  if (closest) {
-    return colorFromHit(ray, *closest, traceCount);
+Color Scene::traceColor(const Ray& ray, unsigned int traceCount) const {
+  Hit hit;
+  if (intersect(ray, hit)) {
+    return colorFromHit(ray, hit, traceCount);
   }
   return ZERO_COLOR;
 }
 
-unique_ptr<Hit> Scene::intersect(const Ray& ray) const {
-  return intersect(ray, 0.0, numeric_limits<double>::infinity());
+bool Scene::intersect(const Ray& ray, Hit& hit) const {
+  return intersect(ray, 0.0, numeric_limits<double>::infinity(), hit);
 }
 
-unique_ptr<Hit> Scene::intersect(const Ray& ray, double t0, double t1) const {
-  unique_ptr<Hit> closest;
-  unique_ptr<Hit> h;
-   for (const unique_ptr<Surface>& s : surfaces) {
-    h = s->intersect(ray, t0, t1);
-    if (h) {
-      t1 = h->getT();
-      closest = std::move(h);
+bool Scene::intersect(const Ray& ray, double t0, double t1, Hit& hit) const {
+  Hit closest;
+  Hit h;
+  bool isHit = false;
+  for (const unique_ptr<Surface>& s : surfaces) {
+    if(s->intersect(ray, t0, t1, h)) {
+      isHit = true;
+      t1 = h.getT();
+      closest = h;
     }
   }
-  return closest;
+  hit = closest;
+  return isHit;
 }
 
 Color Scene::colorFromHit(const Ray& ray, const Hit& hit, unsigned int traceCount) const {
-  const Surface& surface = hit.getSurface();
+  const Surface* surface = hit.getSurface();
   double t = hit.getT();
   Point hitpoint = ray.calculatePoint(t);
-  Vector normal = surface.calculateNormal(hitpoint);
+  Vector normal = surface->calculateNormal(hitpoint);
   const Vector& incident = ray.getDirection().normalize();
-  const Material &material = *hit.getSurface().getMaterial();
-  Color textureColor = hit.getSurface().textureColor(hitpoint);
+  const Material &material = *hit.getSurface()->getMaterial();
+  Color textureColor = hit.getSurface()->textureColor(hitpoint);
   Color color;
   for (Light light : lights) {
     color = color + calculateLocalColor(incident, normal, hitpoint, material, textureColor, light);
@@ -98,7 +101,8 @@ Color Scene::calculateLocalColor(const Vector& incident, const Vector& normal, c
   Vector v = -incident;
   Vector l = (lightVector).normalize();
   Vector h = (v+l).normalize();
-  bool isShadow = intersect(Ray(hitpoint, l), DELTA, lightDistance) != nullptr;
+  Hit shadowHit;
+  bool isShadow = intersect(Ray(hitpoint, l), DELTA, lightDistance, shadowHit);
 
   const Color& i = light.getColor();
   const Color& ka = material.getAmbientColor();

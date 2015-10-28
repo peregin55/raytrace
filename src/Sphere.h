@@ -37,7 +37,7 @@ class Sphere : public Surface {
   public:
     Sphere(shared_ptr<Material> material, shared_ptr<Texture> texture, const Point& c, double r):
       Surface(material, texture), center(c), radius(r) { }
-    virtual unique_ptr<Hit> intersect(const Ray& ray, double t0, double t1) const;
+    virtual bool intersect(const Ray& ray, double t0, double t1, Hit& hit) const;
     virtual Vector calculateNormal(const Point& hitpoint) const;
     virtual Color textureColor(const Point& hitpoint) const;
   private:

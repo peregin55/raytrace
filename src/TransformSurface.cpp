@@ -20,14 +20,15 @@
 #include "Hit.h"
 #include "Surface.h"
 
-unique_ptr<Hit> TransformSurface::intersect(const Ray& ray, double t0, double t1) const {
+bool TransformSurface::intersect(const Ray& ray, double t0, double t1, Hit& hit) const {
   Point objCamera = obj2worldInverse * ray.getPoint();
   Vector objDirection = (obj2worldInverse * ray.getDirection()).normalize();
-  unique_ptr<Hit> hit = surface->intersect(Ray(objCamera, objDirection), t0, t1);
-  if (hit) {
-    return unique_ptr<Hit>(new Hit(*this, hit->getT()));
+  Hit objHit;
+  if(surface->intersect(Ray(objCamera, objDirection), t0, t1, objHit)) {
+    hit = objHit;
+    return true;
   }
-  return unique_ptr<Hit>();
+  return false;
 }
 
 Vector TransformSurface::calculateNormal(const Point& hitpoint) const {
