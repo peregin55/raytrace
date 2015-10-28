@@ -22,8 +22,10 @@
 #include "RenderException.h"
 #include <cmath>
 #include <string>
+#include <time.h>
 
 unique_ptr<GLubyte[]> Renderer::render(GLsizei height, GLsizei width) const {
+  time_t start = time(NULL);
   GLubyte* image(new GLubyte[height*width*3]);
   Color previousColor;
   for (int y = 0; y < height; y++) {
@@ -40,6 +42,8 @@ unique_ptr<GLubyte[]> Renderer::render(GLsizei height, GLsizei width) const {
       }
     }
   }
+  time_t end = time(NULL);
+  fprintf(stderr, "Total render time: %lf\n", difftime(end, start) * 1000.0);
   return unique_ptr<GLubyte[]>(image);
 }  
 
