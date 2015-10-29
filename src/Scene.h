@@ -58,8 +58,8 @@ class Scene {
         const Point& hitpoint, double t, const Material& material, unsigned int traceCount) const;
     Ray calculateReflectedRay(const Vector& incident, const Vector& normal,
         const Point& hitpoint) const;
-    unique_ptr<Ray> calculateTransmittedRay(const Vector& incident, const Vector& normal, double n1,
-        double n2, const Point& hitpoint) const;
+    bool calculateTransmittedRay(const Vector& incident, const Vector& normal, double n1,
+        double n2, const Point& hitpoint, Ray& transmittedRay) const;
 
     vector<Light> lights;
     vector<unique_ptr<Surface>> surfaces;

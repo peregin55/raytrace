@@ -35,11 +35,11 @@ static const Color ZERO_COLOR(0.0, 0.0, 0.0);
 
 bool Scene::calculateColor(const Ray& ray, Color& color) const {
   Hit hit;
-  bool wasHit = intersect(ray, hit);
-  if (wasHit) {
+  if (intersect(ray, hit)) {
     color = colorFromHit(ray, hit, 0);
+    return true;
   }
-  return wasHit;
+  return false;
 }
 
 Color Scene::traceColor(const Ray& ray, unsigned int traceCount) const {
@@ -55,17 +55,15 @@ bool Scene::intersect(const Ray& ray, Hit& hit) const {
 }
 
 bool Scene::intersect(const Ray& ray, double t0, double t1, Hit& hit) const {
-  Hit closest;
   Hit h;
   bool isHit = false;
   for (const unique_ptr<Surface>& s : surfaces) {
     if(s->intersect(ray, t0, t1, h)) {
       isHit = true;
       t1 = h.getT();
-      closest = h;
+      hit = h;
     }
   }
-  hit = closest;
   return isHit;
 }
 
@@ -140,14 +138,14 @@ Color Scene::calculateTransmittedColor(const Vector& incident, const Vector& nor
   double c;
   unique_ptr<Ray> transmitted;
   Ray reflected = calculateReflectedRay(incident, normal, hitpoint);
+  Ray transmittedRay;
 
   if (incident.dot(normal) < 0) {
     // incident ray heading into the surface 
     // assuming environment has refractive index = 1.0 and material refractive index n >= 1.0
     // (n1 = 1.0, n2 = n-material)
     // (if it were less than 1, than would have to worry about TIR)
-    transmitted = calculateTransmittedRay(incident, normal, 1.0, n, hitpoint);
-    if (!transmitted) {
+    if (!calculateTransmittedRay(incident, normal, 1.0, n, hitpoint, transmittedRay)) {
       // TIR, which shouldn't happen unless n < 1.0
       throw RenderException("incoming ray experienced total internal reflection.");
     }
@@ -161,9 +159,8 @@ Color Scene::calculateTransmittedColor(const Vector& incident, const Vector& nor
     k = Color(exp(-material.getRefractiveAttenuation().getRed() * t),
             exp(-material.getRefractiveAttenuation().getGreen() * t),
             exp(-material.getRefractiveAttenuation().getBlue() * t));
-    transmitted = calculateTransmittedRay(incident, -normal, n, 1.0, hitpoint);
-    if (transmitted) {
-      c = transmitted->getDirection().dot(normal);
+    if (calculateTransmittedRay(incident, -normal, n, 1.0, hitpoint, transmittedRay)) {
+      c = transmittedRay.getDirection().dot(normal);
     }
     else {
       return k * traceColor(reflected, traceCount+1);
@@ -172,7 +169,7 @@ Color Scene::calculateTransmittedColor(const Vector& incident, const Vector& nor
   // Schlick's approximation of Fresnel equations, ignoring polarization of light
   double r0 = ((n-1) * (n-1)) / ((n+1) * (n+1));
   double r = r0 + (1-r0)*(1-c)*(1-c)*(1-c)*(1-c)*(1-c);
-  return k*(traceColor(reflected, traceCount+1) * r + traceColor(*transmitted, traceCount+1) * (1-r));
+  return k*(traceColor(reflected, traceCount+1) * r + traceColor(transmittedRay, traceCount+1) * (1-r));
 }
 
 Ray Scene::calculateReflectedRay(const Vector& incident, const Vector& normal,
@@ -182,15 +179,16 @@ Ray Scene::calculateReflectedRay(const Vector& incident, const Vector& normal,
   return Ray(start, reflected);
 }
 
-unique_ptr<Ray> Scene::calculateTransmittedRay(const Vector& incident, const Vector& normal, double n1,
-    double n2, const Point& hitpoint) const {
+bool Scene::calculateTransmittedRay(const Vector& incident, const Vector& normal, double n1,
+    double n2, const Point& hitpoint, Ray& transmittedRay) const {
   double cos = incident.dot(normal);
   double radicand = 1 - ((n1*n1)/(n2*n2) * (1 - (cos*cos)));
   if (radicand >= 0.0) {
     Vector trans = ((n1/n2) * (incident - normal*cos) - normal * sqrt(radicand)).normalize();
     Point start = hitpoint + trans * DELTA;
-    return unique_ptr<Ray>(new Ray(start, trans));
+    transmittedRay = Ray(start, trans);
+    return true;
   }
-  else return unique_ptr<Ray>();
+  return false;
 }
 

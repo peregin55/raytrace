@@ -25,7 +25,8 @@ bool TransformSurface::intersect(const Ray& ray, double t0, double t1, Hit& hit)
   Vector objDirection = (obj2worldInverse * ray.getDirection()).normalize();
   Hit objHit;
   if(surface->intersect(Ray(objCamera, objDirection), t0, t1, objHit)) {
-    hit = objHit;
+    // make Hit that references this Surface and not underlying one 
+    hit = Hit(this, objHit.getT());  
     return true;
   }
   return false;
