@@ -41,9 +41,10 @@ class Renderer {
     unique_ptr<GLubyte[]> render(GLsizei height, GLsizei width) const;
 
   private:
-    Color sceneColor(double x, double y, GLsizei height, GLsizei width) const;
+    void sceneColor(double x, double y, GLsizei height, GLsizei width, Color* color) const;
     Point pixel2world(double x, double y, GLsizei height, GLsizei width) const;
     void setImage(GLubyte* image, int x, int y, GLsizei width, const Color& color) const;
+    Color getImage(GLubyte* image, int x, int y, GLsizei height, GLsizei width) const;
     bool withinDelta(const Color& previousColor, const Color& color) const;
     Color supersample(int x, int y, const Color& origColor, GLsizei height, GLsizei width) const;
 
@@ -51,6 +52,7 @@ class Renderer {
     Camera camera;
     unique_ptr<Texture> backgroundTexture;
     Color backgroundColor;
+    const static double DELTA;
 };
 
 #endif

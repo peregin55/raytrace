@@ -23,18 +23,19 @@
 #include <cmath>
 #include <string>
 #include <chrono>
+#include <thread>
+
+const double Renderer::DELTA = 0.1;
 
 unique_ptr<GLubyte[]> Renderer::render(GLsizei height, GLsizei width) const {
   chrono::time_point<chrono::system_clock> start = chrono::high_resolution_clock::now();
   GLubyte* image(new GLubyte[height*width*3]);
-  Color previousColor;
+  Color color;
   for (int y = 0; y < height; y++) {
-    Color color = sceneColor(0, y, height, width);
-    setImage(image, 0, y, width, color);
-    for (int x = 1; x < width; x++) {
-      previousColor = color;
-      color = sceneColor(x, y, height, width);
-      if (withinDelta(previousColor, color)) {
+    for (int x = 0; x < width; x++) {
+      sceneColor(x, y, height, width, &color);
+      if (withinDelta(getImage(image, x-1, y, height, width), color) ||
+          withinDelta(getImage(image, x, y-1, height, width), color)) {
         setImage(image, x, y, width, color);
       }
       else {
@@ -47,19 +48,17 @@ unique_ptr<GLubyte[]> Renderer::render(GLsizei height, GLsizei width) const {
   return unique_ptr<GLubyte[]>(image);
 }  
 
-Color Renderer::sceneColor(double x, double y, GLsizei height, GLsizei width) const {
+void Renderer::sceneColor(double x, double y, GLsizei height, GLsizei width, Color* color) const {
   Point p = pixel2world(x, y, height, width);
   Vector d = (p - camera.getPosition()).normalize();
-  Color color;
-  if (scene->calculateColor(Ray(p, d), color)) {
-    return color;
-  } else if (backgroundTexture &&
+  if (scene->calculateColor(Ray(p, d), *color)) ; 
+  else if (backgroundTexture &&
             (unsigned int)x < backgroundTexture->getWidth() &&
             (unsigned int)y < backgroundTexture->getHeight()) {
-    return backgroundTexture->fileColorAt((unsigned int)x,
+    *color = backgroundTexture->fileColorAt((unsigned int)x,
       backgroundTexture->getHeight() - 1 - (unsigned int)y);
   } else {
-    return backgroundColor;
+    *color = backgroundColor;
   }
 }
  
@@ -93,16 +92,31 @@ void Renderer::setImage(GLubyte* image, int x, int y, GLsizei width, const Color
   *pixel = fmin(255, 255 * color.getBlue());
 }
 
+Color Renderer::getImage(GLubyte* image, int x, int y, GLsizei height, GLsizei width) const {
+  x = fmin(width, fmax(0.0, x));
+  y = fmin(height, fmax(0.0, y));
+  GLubyte* r = image + (y*width + x) * 3;
+  return Color(*r / 255.0, *(r+1) / 255.0, *(r+2) / 255.0);
+}
+
 bool Renderer::withinDelta(const Color& previousColor, const Color& color) const {
   double rChange = (color.getRed() - previousColor.getRed()) / previousColor.getRed();
   double gChange = (color.getGreen() - previousColor.getGreen()) / previousColor.getGreen();
   double bChange = (color.getBlue() - previousColor.getBlue()) / previousColor.getBlue();
-  return rChange < 0.30 && rChange > -0.30 && gChange < 0.30 && gChange > -0.30 &&
-    bChange < 0.30 && bChange > -0.30;
+  return rChange < DELTA && rChange > -DELTA && gChange < DELTA && gChange > -DELTA &&
+    bChange < DELTA && bChange > -DELTA;
 }
 
+
 Color Renderer::supersample(int x, int y, const Color& origColor, GLsizei height, GLsizei width) const {
-  Color c1 = sceneColor(x -0.4, y + 0.4, height, width);
-  Color c2 = sceneColor(x + 0.4, y - 0.4, height, width);
-  return (origColor + c1 + c2) / 3.0;
+  Color c1, c2, c3, c4;
+  thread t1(&Renderer::sceneColor, this, x - 0.75, y + 0.75, height, width, &c1);
+  thread t2(&Renderer::sceneColor, this, x + 0.75, y + 0.75, height, width, &c2);
+  thread t3(&Renderer::sceneColor, this, x - 0.75, y - 0.75, height, width, &c3);
+  thread t4(&Renderer::sceneColor, this, x + 0.75, y - 0.75, height, width, &c4);
+  t1.join();
+  t2.join();
+  t3.join();
+  t4.join();
+  return (origColor + c1 + c2 + c3 + c4) / 5.0;
 }
