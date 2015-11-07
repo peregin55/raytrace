@@ -29,11 +29,26 @@ const double Renderer::DELTA = 0.1;
 
 unique_ptr<GLubyte[]> Renderer::render(GLsizei height, GLsizei width) const {
   chrono::time_point<chrono::system_clock> start = chrono::high_resolution_clock::now();
-  GLubyte* image(new GLubyte[height*width*3]);
+  GLsizei midx = width / 2;
+  GLsizei midy = height / 2;
+  unique_ptr<GLubyte[]> image(new GLubyte[height*width*3]);
+  thread t1(&Renderer::renderPart, this, 0, midx, 0, midy, height, width, image.get());
+  thread t2(&Renderer::renderPart, this, midx, width, 0, midy, height, width, image.get());
+  thread t3(&Renderer::renderPart, this, 0, midx, midy, height, height, width, image.get());
+  renderPart(midx, width, midy, height, height, width, image.get());
+  t1.join();
+  t2.join();
+  t3.join();
+  chrono::time_point<chrono::system_clock> end = chrono::high_resolution_clock::now();
+  cerr << "time: " << chrono::duration_cast<chrono::milliseconds>(end-start).count() << "\n";
+  return image;
+}
+
+void Renderer::renderPart(GLsizei startX, GLsizei stopX, GLsizei startY, GLsizei stopY, GLsizei height, GLsizei width, GLubyte* image) const {
   Color color;
-  for (int y = 0; y < height; y++) {
-    for (int x = 0; x < width; x++) {
-      sceneColor(x, y, height, width, &color);
+  for (int y = startY; y < stopY; y++) {
+    for (int x = startX; x < stopX; x++) {
+      const Color& color = sceneColor(x, y, height, width);
       if (withinDelta(getImage(image, x-1, y, height, width), color) ||
           withinDelta(getImage(image, x, y-1, height, width), color)) {
         setImage(image, x, y, width, color);
@@ -43,23 +58,22 @@ unique_ptr<GLubyte[]> Renderer::render(GLsizei height, GLsizei width) const {
       }
     }
   }
-  chrono::time_point<chrono::system_clock> end = chrono::high_resolution_clock::now();
-  cerr << "time: " << chrono::duration_cast<chrono::milliseconds>(end-start).count() << "\n";
-  return unique_ptr<GLubyte[]>(image);
 }  
 
-void Renderer::sceneColor(double x, double y, GLsizei height, GLsizei width, Color* color) const {
+Color Renderer::sceneColor(double x, double y, GLsizei height, GLsizei width) const {
   Point p = pixel2world(x, y, height, width);
   Vector d = (p - camera.getPosition()).normalize();
-  if (scene->calculateColor(Ray(p, d), *color)) ; 
+  Color color;
+  if (scene->calculateColor(Ray(p, d), color)) ;
   else if (backgroundTexture &&
             (unsigned int)x < backgroundTexture->getWidth() &&
             (unsigned int)y < backgroundTexture->getHeight()) {
-    *color = backgroundTexture->fileColorAt((unsigned int)x,
+    color = backgroundTexture->fileColorAt((unsigned int)x,
       backgroundTexture->getHeight() - 1 - (unsigned int)y);
   } else {
-    *color = backgroundColor;
+    color = backgroundColor;
   }
+  return color;
 }
  
 // convert pixel coordinates to world coordinates.
@@ -107,16 +121,10 @@ bool Renderer::withinDelta(const Color& previousColor, const Color& color) const
     bChange < DELTA && bChange > -DELTA;
 }
 
-
 Color Renderer::supersample(int x, int y, const Color& origColor, GLsizei height, GLsizei width) const {
-  Color c1, c2, c3, c4;
-  thread t1(&Renderer::sceneColor, this, x - 0.75, y + 0.75, height, width, &c1);
-  thread t2(&Renderer::sceneColor, this, x + 0.75, y + 0.75, height, width, &c2);
-  thread t3(&Renderer::sceneColor, this, x - 0.75, y - 0.75, height, width, &c3);
-  thread t4(&Renderer::sceneColor, this, x + 0.75, y - 0.75, height, width, &c4);
-  t1.join();
-  t2.join();
-  t3.join();
-  t4.join();
+  const Color& c1 = sceneColor(x - 0.75, y + 0.75, height, width);
+  const Color& c2 = sceneColor(x + 0.75, y + 0.75, height, width);
+  const Color& c3 = sceneColor(x - 0.75, y - 0.75, height, width);
+  const Color& c4 = sceneColor(x + 0.75, y - 0.75, height, width);
   return (origColor + c1 + c2 + c3 + c4) / 5.0;
 }

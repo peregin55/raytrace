@@ -41,7 +41,8 @@ class Renderer {
     unique_ptr<GLubyte[]> render(GLsizei height, GLsizei width) const;
 
   private:
-    void sceneColor(double x, double y, GLsizei height, GLsizei width, Color* color) const;
+    void renderPart(GLsizei startX, GLsizei stopX, GLsizei startY, GLsizei stopY, GLsizei hieght, GLsizei width, GLubyte* image) const;
+    Color sceneColor(double x, double y, GLsizei height, GLsizei width) const;
     Point pixel2world(double x, double y, GLsizei height, GLsizei width) const;
     void setImage(GLubyte* image, int x, int y, GLsizei width, const Color& color) const;
     Color getImage(GLubyte* image, int x, int y, GLsizei height, GLsizei width) const;
