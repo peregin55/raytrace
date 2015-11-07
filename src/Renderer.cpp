@@ -65,11 +65,10 @@ Color Renderer::sceneColor(double x, double y, GLsizei height, GLsizei width) co
   Vector d = (p - camera.getPosition()).normalize();
   Color color;
   if (scene->calculateColor(Ray(p, d), color)) ;
-  else if (backgroundTexture &&
-            (unsigned int)x < backgroundTexture->getWidth() &&
-            (unsigned int)y < backgroundTexture->getHeight()) {
-    color = backgroundTexture->fileColorAt((unsigned int)x,
-      backgroundTexture->getHeight() - 1 - (unsigned int)y);
+  else if (backgroundTexture){
+    unsigned int texx = fmax(fmin((x / width), 1.0), 0.0) * backgroundTexture->getWidth();
+    unsigned int texy = fmax(fmin((y / height), 1.0), 0.0) * backgroundTexture->getHeight();
+    color = backgroundTexture->fileColorAt(texx, backgroundTexture->getHeight() - 1 - texy);
   } else {
     color = backgroundColor;
   }
