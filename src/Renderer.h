@@ -48,6 +48,7 @@ class Renderer {
     Color getImage(GLubyte* image, int x, int y, GLsizei height, GLsizei width) const;
     bool withinDelta(const Color& previousColor, const Color& color) const;
     Color supersample(int x, int y, const Color& origColor, GLsizei height, GLsizei width) const;
+    unique_ptr<GLubyte[]> filterImage(GLubyte image[], GLsizei height, GLsizei width, GLsizei radius, double f(int, unsigned int)) const;
 
     unique_ptr<Scene> scene;
     Camera camera;

@@ -26,6 +26,7 @@
 #include <thread>
 
 const double Renderer::DELTA = 0.1;
+static double gaussian(int x, unsigned int radius);
 
 unique_ptr<GLubyte[]> Renderer::render(GLsizei height, GLsizei width) const {
   chrono::time_point<chrono::system_clock> start = chrono::high_resolution_clock::now();
@@ -41,7 +42,7 @@ unique_ptr<GLubyte[]> Renderer::render(GLsizei height, GLsizei width) const {
   t3.join();
   chrono::time_point<chrono::system_clock> end = chrono::high_resolution_clock::now();
   cerr << "time: " << chrono::duration_cast<chrono::milliseconds>(end-start).count() << "\n";
-  return image;
+  return this->filterImage(image.get(), height, width, 2, &gaussian);
 }
 
 void Renderer::renderPart(GLsizei startX, GLsizei stopX, GLsizei startY, GLsizei stopY, GLsizei height, GLsizei width, GLubyte* image) const {
@@ -126,4 +127,39 @@ Color Renderer::supersample(int x, int y, const Color& origColor, GLsizei height
   const Color& c3 = sceneColor(x - 0.75, y - 0.75, height, width);
   const Color& c4 = sceneColor(x + 0.75, y - 0.75, height, width);
   return (origColor + c1 + c2 + c3 + c4) / 5.0;
+}
+
+unique_ptr<GLubyte[]> Renderer::filterImage(GLubyte image[], GLsizei height, GLsizei width, GLsizei radius, double f(int, unsigned int)) const {
+  unique_ptr<unique_ptr<Color>[]> cache = unique_ptr<unique_ptr<Color>[]>(new unique_ptr<Color>[width]());
+  unique_ptr<GLubyte[]> newImage = unique_ptr<GLubyte[]>(new GLubyte[height * width * 3]());
+  for (GLsizei y = 0; y < height; y++) {
+    for (GLsizei x = 0; x < width; x++) {
+      cache[x] = unique_ptr<Color>(new Color());
+      for (GLsizei i = -radius; i <= radius; i++) {
+        GLsizei yminusi = abs(y-i);
+        if (yminusi >= height) {
+          yminusi = height-1 - (yminusi-height);
+        }
+        const Color& color = getImage(image, x, yminusi, height, width);
+        *cache[x] = *cache[x] + color * f(i, radius);
+      }
+    }
+    for (GLsizei x = 0; x < width; x++) {
+      for (GLsizei i = -radius; i <= radius; i++) {
+        const Color& current = getImage(newImage.get(), x, y, height, width);
+        GLsizei xminusi = abs(x-i);
+        if (xminusi >= width) {
+          xminusi = width-1 - (xminusi-width);
+        }
+        setImage(newImage.get(), x, y, width, current + (*cache[xminusi]) * f(i, radius));
+      }
+    }
+  }
+  return newImage;
+}
+
+static double gaussian(int x, unsigned int radius) {
+  double stddev = fmax(0.5, radius / 3.0);  // 99.7% within 3 stddevs, so radius == 3*stddev
+  double var = stddev * stddev;
+  return exp(-x*x/(2.0*var)) / sqrt(2.0*M_PI*var);
 }
