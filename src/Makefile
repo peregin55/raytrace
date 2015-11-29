@@ -7,7 +7,7 @@ LDFLAGS       = -L/opt/X11/lib -L../dependencies/jsoncpp-0.5.0 -L../dependencies
 
 # linker libraries
 GL_LIBS       = -lglut -lGLU -lGL
-LDLIBS        = $(GL_LIBS) -ljsoncpp -llodepng -lm
+LDLIBS        = $(GL_LIBS) -ljsoncpp -llodepng -lm -lpthread
 # source and build paths
 SOURCES = $(wildcard *.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
