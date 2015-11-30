@@ -25,50 +25,96 @@
 #include <chrono>
 #include <thread>
 
-const double Renderer::DELTA = 0.1;
+const double Renderer::AA_COLOR_THRESHOLD = 0.1;
+const double Renderer::AA_RECURSE_THRESHOLD = 8;
 static double gaussian(int x, unsigned int radius);
 
 unique_ptr<GLubyte[]> Renderer::render(GLsizei height, GLsizei width) const {
   chrono::time_point<chrono::system_clock> start = chrono::high_resolution_clock::now();
-  GLsizei midx = width / 2;
-  GLsizei midy = height / 2;
   unique_ptr<GLubyte[]> image(new GLubyte[height*width*3]);
-  thread t1(&Renderer::renderPart, this, 0, midx, 0, midy, height, width, image.get());
-  thread t2(&Renderer::renderPart, this, midx, width, 0, midy, height, width, image.get());
-  thread t3(&Renderer::renderPart, this, 0, midx, midy, height, height, width, image.get());
-  renderPart(midx, width, midy, height, height, width, image.get());
+  thread t1(&Renderer::renderPart, this, 0, 4, height, width, image.get());
+  thread t2(&Renderer::renderPart, this, 1, 4, height, width, image.get());
+  thread t3(&Renderer::renderPart, this, 2, 4, height, width, image.get());
+  renderPart(3, 4, height, width, image.get());
   t1.join();
   t2.join();
   t3.join();
   chrono::time_point<chrono::system_clock> end = chrono::high_resolution_clock::now();
-  cerr << "time: " << chrono::duration_cast<chrono::milliseconds>(end-start).count() << "\n";
-  return this->filterImage(image.get(), height, width, 2, &gaussian);
+  cerr << "time: " << chrono::duration_cast<chrono::milliseconds>(end-start).count() << endl;
+  //return this->filterImage(image.get(), height, width, 2, &gaussian);
+  return image;
 }
 
-void Renderer::renderPart(GLsizei startX, GLsizei stopX, GLsizei startY, GLsizei stopY, GLsizei height, GLsizei width, GLubyte* image) const {
-  Color color;
-  for (int y = startY; y < stopY; y++) {
-    for (int x = startX; x < stopX; x++) {
-      const Color& color = sceneColor(x, y, height, width);
-      if (withinDelta(getImage(image, x-1, y, height, width), color) ||
-          withinDelta(getImage(image, x, y-1, height, width), color)) {
-        setImage(image, x, y, width, color);
-      }
-      else {
-        setImage(image, x, y, width, supersample(x, y, color, height, width));
-      }
+void Renderer::renderPart(unsigned int start, unsigned int delta, GLsizei height, GLsizei width, GLubyte* image) const {
+  for (int y = 0; y < height; y++) {
+    for (int x = start; x < width; x+=delta) {
+      unordered_map<Point, Color> cache;
+      setImage(image, x, y, width, sceneColor(x-0.5, x+0.5, y-0.5, y+0.5, cache, 0, height, width));
     }
   }
-}  
+}
 
-Color Renderer::sceneColor(double x, double y, GLsizei height, GLsizei width) const {
+Color Renderer::sceneColor(double xmin, double xmax, double ymin, double ymax,
+  unordered_map<Point, Color>& cache, unsigned int recurseCount, GLsizei height, GLsizei width) const {
+  Point cen(xmin+0.5, ymin+0.5, 0.0);
+  Point ll(cen[X] - (rand() % 50)/100.0, cen[Y] - (rand() % 50)/100.0, 0.0);
+  Point lr(cen[X] + (rand() % 50)/100.0, cen[Y] - (rand() % 50)/100.0, 0.0);
+  Point ur(cen[X] + (rand() % 50)/100.0, cen[Y] + (rand() % 50)/100.0, 0.0);
+  Point ul(cen[X] - (rand() % 50)/100.0, cen[Y] + (rand() % 50)/100.0, 0.0);
+
+  const Color& cenColor = sample(cen, cache, height, width);
+  const Color& llColor  = sample(ll, cache, height, width);
+  const Color& lrColor  = sample(lr, cache, height, width);
+  const Color& urColor  = sample(ur, cache, height, width);
+  const Color& ulColor  = sample(ul, cache, height, width);
+
+  bool shouldTerminate = recurseCount >= AA_RECURSE_THRESHOLD;
+  Color color;
+  if (shouldTerminate || cenColor.within(llColor, AA_COLOR_THRESHOLD)) {
+    color = color + (cenColor+llColor)/2.0;
+  } else {
+    color = color + sceneColor(ll[X], cen[X], ll[Y], cen[Y], cache, recurseCount+1, height, width);
+  }
+  if (shouldTerminate || cenColor.within(lrColor, AA_COLOR_THRESHOLD)) {
+    color = color + (cenColor+lrColor)/2.0;
+  } else {
+    color = color + sceneColor(cen[X], lr[X], lr[Y], cen[Y], cache, recurseCount+1, height, width);
+  }
+  if (shouldTerminate || cenColor.within(urColor, AA_COLOR_THRESHOLD)) {
+    color = color + (cenColor+urColor)/2.0;
+  } else {
+    color = color + sceneColor(cen[X], ur[X], cen[Y], ur[Y], cache, recurseCount+1, height, width);
+  }
+  if (shouldTerminate || cenColor.within(ulColor, AA_COLOR_THRESHOLD)) {
+    color = color + (cenColor+ulColor)/2.0;
+  } else {
+    color = color + sceneColor(ul[X], cen[X], cen[Y], ul[Y], cache, recurseCount+1, height, width);
+  }
+  return color/4.0;
+}
+
+
+
+Color Renderer::sample(const Point& p, unordered_map<Point,Color>& cache, GLsizei height, GLsizei width) const {
+  unordered_map<Point, Color>::const_iterator res = cache.find(p);
+  Color color;
+  if (res == cache.end()) {
+    color = sample(p[X], p[Y], height, width);
+    cache.emplace(p, color);
+  } else {
+    color = res->second;
+  }
+   return color;
+}
+
+Color Renderer::sample(double x, double y, GLsizei height, GLsizei width) const {
   Point p = pixel2world(x, y, height, width);
   Vector d = (p - camera.getPosition()).normalize();
   Color color;
   if (scene->calculateColor(Ray(p, d), color)) ;
   else if (backgroundTexture){
-    unsigned int texx = fmax(fmin((x / width), 1.0), 0.0) * backgroundTexture->getWidth();
-    unsigned int texy = fmax(fmin((y / height), 1.0), 0.0) * backgroundTexture->getHeight();
+    unsigned int texx = fmax(fmin(((x+0.5) / width), 1.0), 0.0) * (backgroundTexture->getWidth() - 1);
+    unsigned int texy = fmax(fmin(((y+0.5) / height), 1.0), 0.0) * (backgroundTexture->getHeight() - 1);
     color = backgroundTexture->fileColorAt(texx, backgroundTexture->getHeight() - 1 - texy);
   } else {
     color = backgroundColor;
@@ -113,21 +159,6 @@ Color Renderer::getImage(GLubyte* image, int x, int y, GLsizei height, GLsizei w
   return Color(*r / 255.0, *(r+1) / 255.0, *(r+2) / 255.0);
 }
 
-bool Renderer::withinDelta(const Color& previousColor, const Color& color) const {
-  double rChange = (color.getRed() - previousColor.getRed()) / previousColor.getRed();
-  double gChange = (color.getGreen() - previousColor.getGreen()) / previousColor.getGreen();
-  double bChange = (color.getBlue() - previousColor.getBlue()) / previousColor.getBlue();
-  return rChange < DELTA && rChange > -DELTA && gChange < DELTA && gChange > -DELTA &&
-    bChange < DELTA && bChange > -DELTA;
-}
-
-Color Renderer::supersample(int x, int y, const Color& origColor, GLsizei height, GLsizei width) const {
-  const Color& c1 = sceneColor(x - 0.75, y + 0.75, height, width);
-  const Color& c2 = sceneColor(x + 0.75, y + 0.75, height, width);
-  const Color& c3 = sceneColor(x - 0.75, y - 0.75, height, width);
-  const Color& c4 = sceneColor(x + 0.75, y - 0.75, height, width);
-  return (origColor + c1 + c2 + c3 + c4) / 5.0;
-}
 
 unique_ptr<GLubyte[]> Renderer::filterImage(GLubyte image[], GLsizei height, GLsizei width, GLsizei radius, double f(int, unsigned int)) const {
   unique_ptr<unique_ptr<Color>[]> cache = unique_ptr<unique_ptr<Color>[]>(new unique_ptr<Color>[width]());

@@ -18,12 +18,14 @@
 #ifndef RENDERER_H 
 #define RENDERER_H
 #include <memory>
+#include <unordered_map>
 #include <GL/glut.h>
 #include "Camera.h"
 #include "Scene.h"
 #include "Texture.h"
 
 class Color;
+class Point;
 
 /** Renderer.
  * Renders image to image buffer given a camera and scene.
@@ -41,20 +43,23 @@ class Renderer {
     unique_ptr<GLubyte[]> render(GLsizei height, GLsizei width) const;
 
   private:
-    void renderPart(GLsizei startX, GLsizei stopX, GLsizei startY, GLsizei stopY, GLsizei hieght, GLsizei width, GLubyte* image) const;
-    Color sceneColor(double x, double y, GLsizei height, GLsizei width) const;
+    Color sceneColor(double xmin, double xmax, double ymin, double ymax,
+      unordered_map<Point, Color>& cache, unsigned int recurseCount, GLsizei height, GLsizei width) const;
+    void renderPart(unsigned int start, unsigned int delta, GLsizei height, GLsizei width, GLubyte* image) const;
+    Color sample(const Point& p, unordered_map<Point,Color>& cache, GLsizei height, GLsizei width) const;
+    Color sample(double x, double y, GLsizei height, GLsizei width) const;
     Point pixel2world(double x, double y, GLsizei height, GLsizei width) const;
     void setImage(GLubyte* image, int x, int y, GLsizei width, const Color& color) const;
     Color getImage(GLubyte* image, int x, int y, GLsizei height, GLsizei width) const;
     bool withinDelta(const Color& previousColor, const Color& color) const;
-    Color supersample(int x, int y, const Color& origColor, GLsizei height, GLsizei width) const;
     unique_ptr<GLubyte[]> filterImage(GLubyte image[], GLsizei height, GLsizei width, GLsizei radius, double f(int, unsigned int)) const;
 
     unique_ptr<Scene> scene;
     Camera camera;
     unique_ptr<Texture> backgroundTexture;
     Color backgroundColor;
-    const static double DELTA;
+    const static double AA_COLOR_THRESHOLD;
+    const static double AA_RECURSE_THRESHOLD;
 };
 
 #endif

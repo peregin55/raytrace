@@ -64,6 +64,8 @@ class Scene {
     vector<Light> lights;
     vector<unique_ptr<Surface>> surfaces;
     unsigned int maxTrace;
+    static const double DELTA;
+    static const Color ZERO_COLOR;
 };
 
 #endif

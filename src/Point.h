@@ -31,4 +31,18 @@ class Point : public Cartesian {
     virtual string toString() const;
   friend ostream& operator<<(ostream& cout, const Point& p);
 };
+namespace std {
+  template<>
+  class hash<Point> {
+    public:
+      size_t operator()(const Point& p) const;
+    private:
+      static const unsigned int MAGIC;
+  };
+  template<>
+  class equal_to<Point> {
+    public:
+      bool operator()(const Point &p1, const Point &p2) const;
+  };
+}
 #endif

@@ -38,3 +38,19 @@ ostream& operator<<(ostream& os, const Point& p) {
   os << p.toString();
   return os;
 }
+
+namespace std {
+  const unsigned int hash<Point>::MAGIC = 0x9e3779b9;
+  size_t hash<Point>::operator()(const Point& p) const {
+    // rotating hash inspired by boost
+    // http://www.boost.org/doc/libs/1_35_0/doc/html/boost/hash_combine_id241013.html
+    size_t seed = 0;
+    seed ^= hash<double>()(p[X]) + MAGIC;
+    seed ^= hash<double>()(p[Y]) + MAGIC + (seed << 6) + (seed >> 2);
+    seed ^= hash<double>()(p[Z]) + MAGIC + (seed << 6) + (seed >> 2);
+    return seed;
+  }
+  bool equal_to<Point>::operator()(const Point& p1, const Point& p2) const {
+    return p1 == p2;
+  }
+}

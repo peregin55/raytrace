@@ -30,8 +30,8 @@
 #include "Vector.h"
 using namespace std;
 
-static const double DELTA = 1e-10;
-static const Color ZERO_COLOR(0.0, 0.0, 0.0);
+const double Scene::DELTA = 1e-10;
+const Color Scene::ZERO_COLOR(0.0, 0.0, 0.0);
 
 bool Scene::calculateColor(const Ray& ray, Color& color) const {
   Hit hit;

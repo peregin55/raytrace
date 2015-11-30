@@ -38,6 +38,7 @@ class Color {
     Color operator*(const Color& c) const;
     bool operator==(const Color& other) const;
     bool operator!=(const Color& other) const;
+    bool within(const Color& other, double threshold) const;
   private:
     double red, green, blue;
   friend ostream& operator<<(ostream& os, const Color& color);

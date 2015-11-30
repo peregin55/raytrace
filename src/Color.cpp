@@ -16,6 +16,7 @@
   along with raytrace.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "Color.h"
+#include <cmath>
 
 double Color::getRed() const {
   return red;
@@ -53,6 +54,13 @@ bool Color::operator==(const Color& other) const {
 
 bool Color::operator!=(const Color& other) const {
   return !(*this == other);
+}
+
+
+bool Color::within(const Color& other, double threshold) const {
+  return abs(red - other.getRed()) < threshold &&
+    abs(green - other.getGreen()) < threshold &&
+    abs(blue - other.getBlue()) < threshold;
 }
 
 ostream& operator<<(ostream& os, const Color& color) {
