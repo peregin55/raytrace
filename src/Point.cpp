@@ -50,7 +50,4 @@ namespace std {
     seed ^= hash<double>()(p[Z]) + MAGIC + (seed << 6) + (seed >> 2);
     return seed;
   }
-  bool equal_to<Point>::operator()(const Point& p1, const Point& p2) const {
-    return p1 == p2;
-  }
 }

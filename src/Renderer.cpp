@@ -30,7 +30,7 @@ const double Renderer::AA_RECURSE_THRESHOLD = 8;
 static double gaussian(int x, unsigned int radius);
 
 unique_ptr<GLubyte[]> Renderer::render(GLsizei height, GLsizei width) const {
-  chrono::time_point<chrono::system_clock> start = chrono::high_resolution_clock::now();
+  chrono::high_resolution_clock::time_point start = chrono::high_resolution_clock::now();
   unique_ptr<GLubyte[]> image(new GLubyte[height*width*3]);
   thread t1(&Renderer::renderPart, this, 0, 4, height, width, image.get());
   thread t2(&Renderer::renderPart, this, 1, 4, height, width, image.get());
@@ -39,7 +39,7 @@ unique_ptr<GLubyte[]> Renderer::render(GLsizei height, GLsizei width) const {
   t1.join();
   t2.join();
   t3.join();
-  chrono::time_point<chrono::system_clock> end = chrono::high_resolution_clock::now();
+  chrono::high_resolution_clock::time_point end = chrono::high_resolution_clock::now();
   cerr << "time: " << chrono::duration_cast<chrono::milliseconds>(end-start).count() << endl;
   //return this->filterImage(image.get(), height, width, 2, &gaussian);
   return image;

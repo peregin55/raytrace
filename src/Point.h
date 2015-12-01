@@ -33,16 +33,11 @@ class Point : public Cartesian {
 };
 namespace std {
   template<>
-  class hash<Point> {
+  struct hash<Point> {
     public:
       size_t operator()(const Point& p) const;
     private:
       static const unsigned int MAGIC;
-  };
-  template<>
-  class equal_to<Point> {
-    public:
-      bool operator()(const Point &p1, const Point &p2) const;
   };
 }
 #endif
