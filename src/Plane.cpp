@@ -20,6 +20,9 @@
 #include "Ray.h"
 #include "Texture.h"
 #include <cmath>
+#include <limits>
+
+const double Plane::EPSILON = 1.0e-2;
 
 bool Plane::intersect(const Ray& ray, double t0, double t1, Hit& hit) const {
   Point q = ray.getPoint();
@@ -32,6 +35,43 @@ bool Plane::intersect(const Ray& ray, double t0, double t1, Hit& hit) const {
   }
   return false;
 }
+
+const BoundingBox& Plane::getBoundingBox() const {
+  return boundingBox;
+}
+
+BoundingBox Plane::createBoundingBox(const Point& p0, const Vector& normal) const {
+  // in y-z plane
+  double normX = fabs(normal[X]);
+  double normY = fabs(normal[Y]);
+  double normZ = fabs(normal[Z]);
+  if (normX > 1.0-EPSILON && normX < 1.0+EPSILON &&
+      normY > -EPSILON && normY < EPSILON &&
+      normZ > -EPSILON && normZ < EPSILON) {
+     return BoundingBox(p0[X]-EPSILON, -numeric_limits<double>::max(), -numeric_limits<double>::max(),
+                        p0[X]+EPSILON, numeric_limits<double>::max(), numeric_limits<double>::max());
+  } // x-z plane
+  else if (normX > -EPSILON && normX < EPSILON &&
+           normY > 1.0-EPSILON && normY < 1.0+EPSILON &&
+           normZ > -EPSILON && normZ < EPSILON) {
+    return BoundingBox(-numeric_limits<double>::max(), p0[Y]-EPSILON, -numeric_limits<double>::max(),
+                        numeric_limits<double>::max(), p0[Y]+EPSILON, numeric_limits<double>::max());
+  } // x-y plane
+  else if (normX > -EPSILON && normX < EPSILON &&
+           normY > -EPSILON && normY < EPSILON &&
+           normZ > 1.0-EPSILON && normZ < 1.0+EPSILON) {
+    return BoundingBox(-numeric_limits<double>::max(), -numeric_limits<double>::max(), p0[Z]-EPSILON,
+                        numeric_limits<double>::max(), numeric_limits<double>::max(), p0[Z]+EPSILON);
+  } // not aligned to any axis
+  else {
+    return BoundingBox(-numeric_limits<double>::max(), -numeric_limits<double>::max(), -numeric_limits<double>::max(),
+                        numeric_limits<double>::max(), numeric_limits<double>::max(), numeric_limits<double>::max());
+  }
+}
+    
+    
+
+  
 
 Vector Plane::calculateNormal(const Point& hitpoint) const {
   return normal;

@@ -39,6 +39,10 @@ bool Triangle::intersect(const Ray& ray, double t0, double t1, Hit& hit) const {
   return false;
 }
 
+const BoundingBox& Triangle::getBoundingBox() const {
+  return boundingBox;
+}
+
 bool Triangle::isContained(const Point& q0, const Point& q1, const Point& intersect) const {
   Vector edgeVector = q1 - q0;
   Vector intersectVector = intersect - q0;

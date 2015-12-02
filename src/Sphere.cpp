@@ -49,6 +49,10 @@ bool Sphere::intersect(const Ray& ray, double t0, double t1, Hit& hit) const {
   return false;
 }
 
+const BoundingBox& Sphere::getBoundingBox() const {
+  return boundingBox;
+}
+
 Vector Sphere::calculateNormal(const Point& hitpoint) const {
   return (hitpoint - center).normalize();
 }

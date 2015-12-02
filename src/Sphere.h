@@ -24,6 +24,7 @@
 #include "Point.h"
 #include "Matrix4.h"
 #include "Surface.h"
+#include "BoundingBox.h"
 using namespace std;
 
 class Hit;
@@ -36,13 +37,17 @@ class Vector;
 class Sphere : public Surface {
   public:
     Sphere(shared_ptr<Material> material, shared_ptr<Texture> texture, const Point& c, double r):
-      Surface(material, texture), center(c), radius(r) { }
+      Surface(material, texture), center(c), radius(r) {
+      boundingBox = BoundingBox(center[X]-radius, center[Y]-radius, center[Z]-radius, center[X]+radius, center[Y]+radius, center[Z]+radius);
+    }
     virtual bool intersect(const Ray& ray, double t0, double t1, Hit& hit) const;
+    virtual const BoundingBox& getBoundingBox() const;
     virtual Vector calculateNormal(const Point& hitpoint) const;
     virtual Color textureColor(const Point& hitpoint) const;
   private:
     Point center;
     double radius;
     Matrix4 world2obj;
+    BoundingBox boundingBox;
 };
 #endif

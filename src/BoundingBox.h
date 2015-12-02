@@ -15,36 +15,36 @@
   You should have received a copy of the GNU General Public License
   along with raytrace.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef CUBE_H
-#define CUBE_H
+#ifndef BOUNDING_BOX_H
+#define BOUNDING_BOX_H
 
 #include <vector>
-#include "Surface.h"
-#include "BoundingBox.h"
-class Color;
-class Matrix4;
 class Point;
 class Ray;
-class Vector;
 using namespace std;
 
-/** Cube.
- * Axis-aligned cube or bounding box.
+/** Bounding Box.
+ * Axis-aligned bounding box.
  */
-class Cube : public Surface {
+class BoundingBox {
   public:
-    /** Construct cube given name of material, minimum XYZ dimensions contained in min vector,
+    /** Construct bounding box, minimum XYZ dimensions contained in min vector,
      * and maximum XYZ dimensions in max vector. (min and max should have 3 components).
      */
-    Cube(shared_ptr<Material> material, shared_ptr<Texture> texture, vector<double> minXYZ, vector<double> maxXYZ) :
-      Surface(material, texture), boundingBox(minXYZ, maxXYZ) { }
+    BoundingBox() { }
+    BoundingBox(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) :
+      boxMin{minX, minY, minZ}, boxMax{maxX, maxY, maxZ} { }
+    BoundingBox(const vector<double>& minXYZ, const vector<double>& maxXYZ) :
+      boxMin(minXYZ), boxMax(maxXYZ) { }
     /** Surface intersection. */
-    virtual bool intersect(const Ray& ray, double t0, double t1, Hit& hit) const;
-    virtual const BoundingBox& getBoundingBox() const;
-    virtual Vector calculateNormal(const Point& hitpoint) const;
-    virtual Color textureColor(const Point& hitpoint) const;
+    bool intersect(const Ray& ray, double t0, double t1) const;
+    bool intersect(const Ray& ray, double t0, double t1, double* hitT) const;
+    const vector<double>& getMin() const;
+    const vector<double>& getMax() const;
+    vector<Point> calculateEndpoints() const;
   private:
-    BoundingBox boundingBox;
-    static const double EPSILON;
+    bool calculateBothIntersects(const Ray& ray, double intersects[]) const;
+    vector<double> boxMin;
+    vector<double> boxMax;
 };
 #endif

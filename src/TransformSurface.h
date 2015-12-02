@@ -17,9 +17,12 @@
 */
 #ifndef TRANSFORM_SURFACE_H
 #define TRANSFORM_SURFACE_H
+#include <iostream>
+using namespace std;
 #include <memory>
 #include "Surface.h"
 #include "Matrix4.h"
+#include "BoundingBox.h"
 using namespace std;
 
 class Point;
@@ -37,8 +40,28 @@ class TransformSurface : public Surface {
       obj2world(obj2world),
       obj2worldInverse(obj2world.inverse()),
       obj2worldInverseTranspose(obj2world.inverse().transpose()),
-      surface(std::move(surface)) { }
+      surface(std::move(surface)) {
+      const BoundingBox& objBox = this->surface->getBoundingBox();
+      const vector<Point>& objPoints = objBox.calculateEndpoints();
+      vector<Point>::const_iterator it = objPoints.begin();
+      double minX = (obj2world * (*it))[X];
+      double minY = (obj2world * (*it))[Y];
+      double minZ = (obj2world * (*it))[Z];
+      double maxX = minX;
+      double maxY = minY;
+      double maxZ = minZ;
+      for (it++; it != objPoints.end(); it++) {
+        minX = min(minX, (obj2world * (*it))[X]);
+        minY = min(minY, (obj2world * (*it))[Y]);
+        minZ = min(minZ, (obj2world * (*it))[Z]);
+        maxX = max(maxX, (obj2world * (*it))[X]);
+        maxY = max(maxY, (obj2world * (*it))[Y]);
+        maxZ = max(maxZ, (obj2world * (*it))[Z]);
+      }
+      boundingBox = BoundingBox(minX, minY, minZ, maxX, maxY, maxZ);
+    }
     virtual bool intersect(const Ray& ray, double t0, double t1, Hit& hit) const;
+    virtual const BoundingBox& getBoundingBox() const;
     Vector calculateNormal(const Point& hitpoint) const;
     virtual const Material* getMaterial() const;
     virtual const Texture* getTexture() const;
@@ -48,5 +71,6 @@ class TransformSurface : public Surface {
     Matrix4 obj2worldInverse;
     Matrix4 obj2worldInverseTranspose;
     unique_ptr<Surface> surface;
+    BoundingBox boundingBox;
 };
 #endif

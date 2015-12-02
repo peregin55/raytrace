@@ -28,7 +28,10 @@
 #include "Ray.h"
 #include "Surface.h"
 #include "Vector.h"
+#include "BoundingBox.h"
 using namespace std;
+
+extern bool isDebug;
 
 const double Scene::DELTA = 1e-10;
 const Color Scene::ZERO_COLOR(0.0, 0.0, 0.0);
@@ -58,7 +61,15 @@ bool Scene::intersect(const Ray& ray, double t0, double t1, Hit& hit) const {
   Hit h;
   bool isHit = false;
   for (const unique_ptr<Surface>& s : surfaces) {
-    if(s->intersect(ray, t0, t1, h)) {
+    // use bounding box first
+    // TODO: Remove
+    bool inter = s->intersect(ray, t0, t1, h);
+    bool bounded = s->getBoundingBox().intersect(ray, t0, t1);
+    if (isDebug) {
+      cerr << "bounded: " << bounded << ", inter: " << inter << endl;
+    }
+    if(s->getBoundingBox().intersect(ray, t0, t1) && s->intersect(ray, t0, t1, h)) {
+    //if(s->intersect(ray, t0, t1, h) && s->getBoundingBox().isBounded(ray, t0, t1)) {
       isHit = true;
       t1 = h.getT();
       hit = h;
@@ -101,6 +112,9 @@ Color Scene::calculateLocalColor(const Vector& incident, const Vector& normal, c
   Vector h = (v+l).normalize();
   Hit shadowHit;
   bool isShadow = intersect(Ray(hitpoint, l), DELTA, lightDistance, shadowHit);
+  if (isDebug) {
+    cerr << "isShadow: " << isShadow << endl;
+  }
 
   const Color& i = light.getColor();
   const Color& ka = material.getAmbientColor();

@@ -25,8 +25,9 @@
 #include "Point.h"
 #include "Vector.h"
 #include "Surface.h"
+#include "BoundingBox.h"
 using namespace std;
-
+class BoundingBox;
 class Material;
 class Texture;
 class Ray;
@@ -42,7 +43,8 @@ class Plane : public Surface {
       Surface(material, texture),
       p0(p0),
       normal(normal),
-      world2plane(world2plane) { }
+      world2plane(world2plane),
+      boundingBox(createBoundingBox(p0, normal)){ }
     Plane(shared_ptr<Material> material,
           shared_ptr<Texture> texture,
           const Point& p0,
@@ -60,15 +62,20 @@ class Plane : public Surface {
                               v0[Y], v0Perp[Y], v2[Y], p0[Y],
                               v0[Z], v0Perp[Z], v2[Z], p0[Z],
                               0.0,   0.0,   0.0,   1.0).inverse();
+        boundingBox = createBoundingBox(p0, normal);
     }
 
     virtual bool intersect(const Ray& ray, double t0, double t1, Hit& hit) const;
+    virtual const BoundingBox& getBoundingBox() const;
     virtual Vector calculateNormal(const Point& hitpoint) const;
     virtual Color textureColor(const Point& hitpoint) const;
   private:
     double mapInfinitely(double x) const;
+    BoundingBox createBoundingBox(const Point& p0, const Vector& normal) const;
+    const static double EPSILON;
     Point p0;
     Vector normal;
     Matrix4 world2plane;
+    BoundingBox boundingBox;
 };
 #endif

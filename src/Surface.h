@@ -19,9 +19,11 @@
 #define SURFACE_H
 #include <memory>
 #include <string>
+#include "Color.h"
 #include "Material.h"
 #include "Ray.h"
 using namespace std;
+class BoundingBox;
 class Hit;
 class Point;
 class Texture;
@@ -37,6 +39,7 @@ class Surface {
      *  if none found.
      */
     virtual bool intersect(const Ray& ray, double t0, double t1, Hit& hit) const = 0;
+    virtual const BoundingBox& getBoundingBox() const = 0;
     virtual Vector calculateNormal(const Point& hitpoint) const = 0;
     virtual Color textureColor(const Point& hitpoint) const = 0;
     virtual const Material* getMaterial() const { return material.get(); }

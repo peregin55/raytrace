@@ -32,6 +32,10 @@ bool TransformSurface::intersect(const Ray& ray, double t0, double t1, Hit& hit)
   return false;
 }
 
+const BoundingBox& TransformSurface::getBoundingBox() const {
+  return boundingBox;
+}
+
 Vector TransformSurface::calculateNormal(const Point& hitpoint) const {
   Vector normal = surface->calculateNormal(obj2worldInverse * hitpoint);
   return (obj2worldInverseTranspose * normal).normalize();

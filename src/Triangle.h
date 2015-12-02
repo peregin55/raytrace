@@ -26,7 +26,7 @@
 #include "Vector.h"
 #include "Matrix4.h"
 using namespace std;
-
+class BoundingBox;
 class Hit;
 class Matrix4;
 class Ray;
@@ -36,8 +36,17 @@ class Texture;
 class Triangle : public Surface {
   public:
     Triangle(shared_ptr<Material> material, shared_ptr<Texture> texture, const Point& p0, const Point& p1, const Point& p2) :
-      Surface(material, texture), p0(p0), p1(p1), p2(p2), plane(material, texture, p0, p1, p2), normal(plane.calculateNormal(p0)) { }
+      Surface(material, texture), p0(p0), p1(p1), p2(p2), plane(material, texture, p0, p1, p2), normal(plane.calculateNormal(p0)) {
+      boundingBox = BoundingBox(
+        min(p0[X], min(p1[X], p2[X])),
+        min(p0[Y], min(p1[Y], p2[Y])),
+        min(p0[Z], min(p1[Z], p2[Z])),
+        max(p0[X], max(p1[X], p2[X])),
+        max(p0[Y], max(p1[Y], p2[Y])),
+        max(p0[Z], max(p1[Z], p2[Z])));
+    }
     virtual bool intersect(const Ray& ray, double t0, double t1, Hit& hit) const;
+    virtual const BoundingBox& getBoundingBox() const;
     virtual Vector calculateNormal(const Point& hitpoint) const;
     virtual Color textureColor(const Point& hitpoint) const;
   private:
@@ -45,5 +54,6 @@ class Triangle : public Surface {
     Point p0, p1, p2;
     Plane plane;
     Vector normal;
+    BoundingBox boundingBox;
 };
 #endif
