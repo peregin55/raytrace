@@ -22,52 +22,27 @@
 #include "Vector.h"
 
 
-const vector<double>& BoundingBox::getMin() const {
-  return boxMin;
-}
-
-const vector<double>& BoundingBox::getMax() const {
-  return boxMax;
-}
-
-vector<Point> BoundingBox::calculateEndpoints() const {
-  vector<Point> points =
-  {
-    Point(boxMin[X], boxMin[Y], boxMin[Z]),
-    Point(boxMin[X], boxMin[Y], boxMax[Z]),
-    Point(boxMin[X], boxMax[Y], boxMin[Z]),
-    Point(boxMin[X], boxMax[Y], boxMax[Z]),
-    Point(boxMax[X], boxMin[Y], boxMin[Z]),
-    Point(boxMax[X], boxMin[Y], boxMax[Z]),
-    Point(boxMax[X], boxMax[Y], boxMin[Z]),
-    Point(boxMax[X], boxMax[Y], boxMax[Z])
-  };
-  return points;
-}
 
 bool BoundingBox::intersect(const Ray& ray, double t0, double t1) const {
-  double hitT;
-  return intersect(ray, t0, t1, &hitT);
+  double ts[2];
+  // if the ray-origin is inside the bounding box, then there will always be a hitpoint with
+  // an edge of the box.  However, this hitpoint may not be within the specified (t0, t1) range.
+  // If multiple Surfaces are inside of the box, the t0 and t1 range will be reduced to an interval
+  // that does not include any of the surrounding box edges. So ignore the (t0, t1) if we're inside.
+  if (inside(ray.getPoint())) {
+    return true;
+  } // otherwise look for intersections between t0 and t1.
+  else if (calculateTs(ray, ts)) {
+    double tmin = ts[0];
+    double tmax = ts[1];
+    return (tmin > t0 && tmin < t1) || (tmax > t0 && tmax < t1);
+  } else {
+    return false;
+  }
 }
 
-bool BoundingBox::intersect(const Ray& ray, double t0, double t1, double* hitT) const {
-  double intersects[2];
-  if (calculateBothIntersects(ray, intersects)) {
-    double tmin = intersects[0];
-    double tmax = intersects[1];
-    if (tmin > t0 && tmin < t1) {
-      *hitT = tmin;
-      return true;
-    } else if (tmax > t0 && tmax < t1) {
-      *hitT = tmax;
-      return true;
-    }
-  }
-  return false;
-}
-      
     
-bool BoundingBox::calculateBothIntersects(const Ray& ray, double intersects[]) const {
+bool BoundingBox::calculateTs(const Ray& ray, double ts[]) const {
   const Vector& dir = ray.getDirection();
   const Point& eye = ray.getPoint();
 
@@ -80,6 +55,7 @@ bool BoundingBox::calculateBothIntersects(const Ray& ray, double intersects[]) c
     // use reciprocal dir, since will force -0.0 case into else-block.
     Coordinate coord = (Coordinate) i;
     dirReciprocal = 1.0/dir[coord];
+    // calculate distance between eye and box in units of the ray-direction component
     if (dirReciprocal >= 0.0) {
       tMinCoord[coord] = (boxMin[coord] - eye[coord]) * dirReciprocal;
       tMaxCoord[coord] = (boxMax[coord] - eye[coord]) * dirReciprocal;
@@ -103,7 +79,63 @@ bool BoundingBox::calculateBothIntersects(const Ray& ray, double intersects[]) c
     return false;
   }
   // final min,max t-values where enter and leaving the bounding box
-  intersects[0] = fmax(tMinCoord[Z], tmin);
-  intersects[1] = fmin(tMaxCoord[Z], tmax);
+  ts[0] = fmax(tMinCoord[Z], tmin);
+  ts[1] = fmin(tMaxCoord[Z], tmax);
   return true;
 }
+
+bool BoundingBox::inside(const Point& p) const {
+  for (int i = X; i <= Z; i++) {
+    Coordinate coord = (Coordinate) i;
+    if (p[coord] > boxMax[coord] || p[coord] < boxMin[coord]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+const vector<double>& BoundingBox::getMin() const {
+  return boxMin;
+}
+
+const vector<double>& BoundingBox::getMax() const {
+  return boxMax;
+}
+
+vector<Point> BoundingBox::calculateEndpoints() const {
+  vector<Point> points =
+  {
+    Point(boxMin[X], boxMin[Y], boxMin[Z]),
+    Point(boxMin[X], boxMin[Y], boxMax[Z]),
+    Point(boxMin[X], boxMax[Y], boxMin[Z]),
+    Point(boxMin[X], boxMax[Y], boxMax[Z]),
+    Point(boxMax[X], boxMin[Y], boxMin[Z]),
+    Point(boxMax[X], boxMin[Y], boxMax[Z]),
+    Point(boxMax[X], boxMax[Y], boxMin[Z]),
+    Point(boxMax[X], boxMax[Y], boxMax[Z])
+  };
+  return points;
+}
+
+BoundingBox BoundingBox::operator+(const BoundingBox& other) const {
+  vector<double> min = other.getMin();
+  vector<double> max = other.getMax();
+  for (int i = X; i <= Z; i++) {
+    Coordinate coord = (Coordinate) i;
+    min[coord] = fmin(min[coord], boxMin[coord]);
+  }
+  for (int i = X; i <= Z; i++) {
+    Coordinate coord = (Coordinate) i;
+    max[coord] = fmax(max[coord], boxMax[coord]);
+  }
+  return BoundingBox(min, max);
+}
+
+ostream& operator<<(ostream& os, const BoundingBox& b) {
+  os << "BoundingBox(";
+  os << "x=[" << b.getMin()[X] << ":" << b.getMax()[X] << "], ";
+  os << "y=[" << b.getMin()[Y] << ":" << b.getMax()[Y] << "], ";
+  os << "z=[" << b.getMin()[Z] << ":" << b.getMax()[Z] << "])";
+  return os;
+}
+

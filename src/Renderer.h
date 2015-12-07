@@ -41,6 +41,9 @@ class Renderer {
       backgroundTexture(std::move(backgroundTexture)),
       backgroundColor(backgroundColor) { }
     unique_ptr<GLubyte[]> render(GLsizei height, GLsizei width) const;
+    // remove these methods since have unique_ptr instance field
+    Renderer(const Renderer& renderer) = delete;
+    Renderer& operator=(const Renderer& renderer) = delete;
 
   private:
     Color sceneColor(double xmin, double xmax, double ymin, double ymax,
@@ -60,6 +63,8 @@ class Renderer {
     Color backgroundColor;
     const static double AA_COLOR_THRESHOLD;
     const static double AA_RECURSE_THRESHOLD;
+    const static bool IS_MULTITHREADED;
+    const static bool ANTIALIAS;
 };
 
 #endif

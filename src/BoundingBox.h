@@ -19,6 +19,7 @@
 #define BOUNDING_BOX_H
 
 #include <vector>
+#include <iostream>
 class Point;
 class Ray;
 using namespace std;
@@ -38,10 +39,13 @@ class BoundingBox {
       boxMin(minXYZ), boxMax(maxXYZ) { }
     /** Surface intersection. */
     bool intersect(const Ray& ray, double t0, double t1) const;
-    bool intersect(const Ray& ray, double t0, double t1, double* hitT) const;
+    bool calculateTs(const Ray& ray, double ts[]) const;
+    bool inside(const Point& point) const;
     const vector<double>& getMin() const;
     const vector<double>& getMax() const;
     vector<Point> calculateEndpoints() const;
+    BoundingBox operator+(const BoundingBox& box) const;
+  friend ostream& operator<<(ostream& cout, const BoundingBox& p);
   private:
     bool calculateBothIntersects(const Ray& ray, double intersects[]) const;
     vector<double> boxMin;

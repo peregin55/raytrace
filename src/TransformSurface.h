@@ -66,6 +66,9 @@ class TransformSurface : public Surface {
     virtual const Material* getMaterial() const;
     virtual const Texture* getTexture() const;
     virtual Color textureColor(const Point& hitpoint) const;
+    // remove these methods since have unique_ptr instance field
+    TransformSurface(const TransformSurface& surface) = delete;
+    TransformSurface& operator=(const TransformSurface& surface) = delete;
   private:
     Matrix4 obj2world;
     Matrix4 obj2worldInverse;

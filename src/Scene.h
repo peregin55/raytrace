@@ -21,6 +21,7 @@
 #include <string>
 #include <memory>
 #include <string>
+#include "BoundingBox.h"
 #include "Surface.h"
 #include "Light.h"
 #include "Point.h"
@@ -37,13 +38,22 @@ class Ray;
  */
 class Scene {
   public:
-    Scene(vector<Light> lights,
+    Scene(const vector<Light>& lights,
           vector<unique_ptr<Surface>> surfaces,
           unsigned int maxTrace):
           lights(lights),
           surfaces(std::move(surfaces)),
-          maxTrace(maxTrace) { }
+          maxTrace(maxTrace) {
+      vector<unique_ptr<Surface>>::const_iterator it = this->surfaces.begin();
+      boundingBox = (*it)->getBoundingBox();
+      for (it++; it != this->surfaces.end(); it++) {
+        boundingBox = boundingBox + (*it)->getBoundingBox();
+      }
+    }
     bool calculateColor(const Ray& ray, Color& color) const;
+    // remove these methods since have unique_ptr instance field
+    Scene(const Scene& scene) = delete;
+    Scene& operator=(const Scene& scene) = delete;
 
   private:
     Color traceColor(const Ray& ray, unsigned int traceCount) const;
@@ -63,6 +73,7 @@ class Scene {
 
     vector<Light> lights;
     vector<unique_ptr<Surface>> surfaces;
+    BoundingBox boundingBox;
     unsigned int maxTrace;
     static const double DELTA;
     static const Color ZERO_COLOR;

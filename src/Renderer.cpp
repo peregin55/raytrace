@@ -24,7 +24,8 @@
 #include <string>
 #include <chrono>
 #include <thread>
-bool isDebug = false;
+const bool Renderer::IS_MULTITHREADED = true;
+const bool Renderer::ANTIALIAS= true;
 const double Renderer::AA_COLOR_THRESHOLD = 0.1;
 const double Renderer::AA_RECURSE_THRESHOLD = 8;
 static double gaussian(int x, unsigned int radius);
@@ -32,16 +33,17 @@ static double gaussian(int x, unsigned int radius);
 unique_ptr<GLubyte[]> Renderer::render(GLsizei height, GLsizei width) const {
   chrono::high_resolution_clock::time_point start = chrono::high_resolution_clock::now();
   unique_ptr<GLubyte[]> image(new GLubyte[height*width*3]);
-  //renderPart(0, 1, height, width, image.get());
-  
-  thread t1(&Renderer::renderPart, this, 0, 4, height, width, image.get());
-  thread t2(&Renderer::renderPart, this, 1, 4, height, width, image.get());
-  thread t3(&Renderer::renderPart, this, 2, 4, height, width, image.get());
-  renderPart(3, 4, height, width, image.get());
-  t1.join();
-  t2.join();
-  t3.join();
-  
+  if (IS_MULTITHREADED) {
+    thread t1(&Renderer::renderPart, this, 0, 4, height, width, image.get());
+    thread t2(&Renderer::renderPart, this, 1, 4, height, width, image.get());
+    thread t3(&Renderer::renderPart, this, 2, 4, height, width, image.get());
+    renderPart(3, 4, height, width, image.get());
+    t1.join();
+    t2.join();
+    t3.join();
+  } else {
+    renderPart(0, 1, height, width, image.get());
+  }
   chrono::high_resolution_clock::time_point end = chrono::high_resolution_clock::now();
   cerr << "time: " << chrono::duration_cast<chrono::milliseconds>(end-start).count() << endl;
   //return this->filterImage(image.get(), height, width, 2, &gaussian);
@@ -51,11 +53,6 @@ unique_ptr<GLubyte[]> Renderer::render(GLsizei height, GLsizei width) const {
 void Renderer::renderPart(unsigned int start, unsigned int delta, GLsizei height, GLsizei width, GLubyte* image) const {
   for (int y = 0; y < height; y++) {
     for (int x = start; x < width; x+=delta) {
-      if (x == 150 && y == 150) {
-        isDebug = false;
-      } else {
-        isDebug = false;
-      }
       unordered_map<Point, Color> cache;
       setImage(image, x, y, width, sceneColor(x-0.5, x+0.5, y-0.5, y+0.5, cache, 0, height, width));
     }
@@ -65,6 +62,9 @@ void Renderer::renderPart(unsigned int start, unsigned int delta, GLsizei height
 Color Renderer::sceneColor(double xmin, double xmax, double ymin, double ymax,
   unordered_map<Point, Color>& cache, unsigned int recurseCount, GLsizei height, GLsizei width) const {
   Point cen(xmin+0.5, ymin+0.5, 0.0);
+  if (!ANTIALIAS) {
+    return sample(cen, cache, height, width);
+  }
   Point ll(cen[X] - (rand() % 50)/100.0, cen[Y] - (rand() % 50)/100.0, 0.0);
   Point lr(cen[X] + (rand() % 50)/100.0, cen[Y] - (rand() % 50)/100.0, 0.0);
   Point ur(cen[X] + (rand() % 50)/100.0, cen[Y] + (rand() % 50)/100.0, 0.0);

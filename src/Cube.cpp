@@ -27,13 +27,21 @@
 const double Cube::EPSILON = 1.0e-10;
 
 bool Cube::intersect(const Ray& ray, double t0, double t1, Hit& hit) const {
-  double t = 0.0;
-  if (boundingBox.intersect(ray, t0, t1, &t)) {
-    hit = Hit(this, t);
-    return true;
+  double ts[2];
+  if (boundingBox.calculateTs(ray, ts)) {
+    double tmin = ts[0];
+    double tmax = ts[1];
+    if (tmin > t0 && tmin < t1) {
+      hit = Hit(this, tmin);
+      return true;
+    } else if (tmax > t0 && tmax < t1) {
+      hit = Hit(this, tmax);
+      return true;
+    }
   }
   return false;
 }
+
 
 const BoundingBox& Cube::getBoundingBox() const {
   return boundingBox;

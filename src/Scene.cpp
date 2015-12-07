@@ -15,7 +15,6 @@
   You should have received a copy of the GNU General Public License
   along with raytrace.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <iostream>
 #include <cmath>
 #include <limits>
 #include <stdexcept>
@@ -30,8 +29,6 @@
 #include "Vector.h"
 #include "BoundingBox.h"
 using namespace std;
-
-extern bool isDebug;
 
 const double Scene::DELTA = 1e-10;
 const Color Scene::ZERO_COLOR(0.0, 0.0, 0.0);
@@ -63,13 +60,8 @@ bool Scene::intersect(const Ray& ray, double t0, double t1, Hit& hit) const {
   for (const unique_ptr<Surface>& s : surfaces) {
     // use bounding box first
     // TODO: Remove
-    bool inter = s->intersect(ray, t0, t1, h);
-    bool bounded = s->getBoundingBox().intersect(ray, t0, t1);
-    if (isDebug) {
-      cerr << "bounded: " << bounded << ", inter: " << inter << endl;
-    }
-    if(s->getBoundingBox().intersect(ray, t0, t1) && s->intersect(ray, t0, t1, h)) {
-    //if(s->intersect(ray, t0, t1, h) && s->getBoundingBox().isBounded(ray, t0, t1)) {
+    if(boundingBox.intersect(ray, t0, t1) && s->intersect(ray, t0, t1, h)) {
+    //if(s->intersect(ray, t0, t1, h)) {
       isHit = true;
       t1 = h.getT();
       hit = h;
@@ -112,10 +104,6 @@ Color Scene::calculateLocalColor(const Vector& incident, const Vector& normal, c
   Vector h = (v+l).normalize();
   Hit shadowHit;
   bool isShadow = intersect(Ray(hitpoint, l), DELTA, lightDistance, shadowHit);
-  if (isDebug) {
-    cerr << "isShadow: " << isShadow << endl;
-  }
-
   const Color& i = light.getColor();
   const Color& ka = material.getAmbientColor();
   const Color& kd = material.getDiffuseColor() + textureColor;
