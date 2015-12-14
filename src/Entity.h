@@ -15,32 +15,22 @@
   You should have received a copy of the GNU General Public License
   along with raytrace.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef HIT_H
-#define HIT_H
+#ifndef ENTITY_H
+#define ENTITY_H
 
-#include "Surface.h"
-#include "Point.h"
-#include "Vector.h"
-#include "Ray.h"
+class BoundingBox;
+class Hit;
+class Ray;
 
-
-/** Representation of a ray-surface intersection.
- *  Includes Surface involved in intersection,
- *  distance (t) between camera and hitpoint,
- *  hitpoint on Surface,
- *  and normal vector at Surface hitpoint.
- */
-class Hit {
+/** Abstract Entity. */
+class Entity {
   public:
-    Hit() : surface(NULL), t(0.0) { }
-    Hit(const Surface* s, double t) : surface(s), t(t) { }
-    const Surface* getSurface() const;
-    double getT() const;
-    static const Hit& max(const Hit& h1, const Hit& h2);
-    static const Hit& min(const Hit& h1, const Hit& h2);
-  private:
-    const Surface* surface;
-    double t;
+    /** Intersect ray with this object.
+     *  Returns closest Hit with distance > t0 and distance < t1
+     */
+    virtual bool intersect(const Ray& ray, double t0, double t1, Hit& hit) const = 0;
+    virtual bool intersectAll(const Ray& ray, Hit& in, Hit& out) const = 0;
+    virtual const BoundingBox& getBoundingBox() const = 0;
+    virtual ~Entity() { }
 };
-
 #endif

@@ -37,6 +37,8 @@
 #include "Plane.h"
 #include "Cube.h"
 #include "Vector.h"
+#include "Entity.h"
+#include "CSGTree.h"
 using namespace std;
 
 unique_ptr<Renderer> FileParser::parseRenderer(const Json::Value& root) const {
@@ -67,13 +69,13 @@ unique_ptr<Scene> FileParser::parseScene(const Json::Value& sceneNode) const {
   unordered_map<string, shared_ptr<Material>> materials = parseMaterials(sceneNode["materials"]);
   unsigned int maxTraces = parseUnsignedInt(sceneNode["max_trace"], "max trace");
   vector<Light> lights = parseLights(sceneNode["lights"]);
-  vector<unique_ptr<Surface>> surfaces;
+  vector<unique_ptr<Entity>> entities;
   Matrix4 obj2world = identity();
-  // surfaces in "context" may have local-object transformations, handle separately
+  // entities in "context" may have local-object transformations, handle separately
   if (sceneNode["context"] != Json::nullValue) {
-    parseContext(surfaces, obj2world, sceneNode["context"], availableSurfaces, materials);
+    parseContext(entities, obj2world, sceneNode["context"], availableSurfaces, materials);
   }
-  return unique_ptr<Scene>(new Scene(lights, std::move(surfaces), maxTraces));
+  return unique_ptr<Scene>(new Scene(lights, std::move(entities), maxTraces));
 }
 
 vector<Light> FileParser::parseLights(const Json::Value& lightsNode) const {
@@ -146,7 +148,7 @@ unordered_map<string, shared_ptr<Material>> FileParser::parseMaterials(const Jso
   return materials;
 }
 
-void FileParser::parseContext(vector<unique_ptr<Surface>>& surfaces, Matrix4 obj2world,
+void FileParser::parseContext(vector<unique_ptr<Entity>>& surfaces, Matrix4 obj2world,
   Json::Value contextNode, const unordered_map<string, Json::Value>& availableSurfaces,
   const unordered_map<string, shared_ptr<Material>>& materials) const {
   while (contextNode != Json::nullValue) {

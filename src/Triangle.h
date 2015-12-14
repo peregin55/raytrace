@@ -20,6 +20,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 #include "Plane.h"
 #include "Point.h"
 #include "Surface.h"
@@ -46,6 +47,7 @@ class Triangle : public Surface {
         max(p0[Z], max(p1[Z], p2[Z])));
     }
     virtual bool intersect(const Ray& ray, double t0, double t1, Hit& hit) const;
+    virtual bool intersectAll(const Ray& ray, Hit& in, Hit& out) const;
     virtual const BoundingBox& getBoundingBox() const;
     virtual Vector calculateNormal(const Point& hitpoint) const;
     virtual Color textureColor(const Point& hitpoint) const;

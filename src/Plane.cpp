@@ -36,6 +36,16 @@ bool Plane::intersect(const Ray& ray, double t0, double t1, Hit& hit) const {
   return false;
 }
 
+bool Plane::intersectAll(const Ray& ray, Hit& in, Hit& out) const {
+  Hit hit;
+  if (intersect(ray, -numeric_limits<double>::max(), numeric_limits<double>::max(), hit)) {
+    in = hit;
+    out = Hit(this, hit.getT() + EPSILON);
+    return true;
+  }
+  return false;
+}
+
 const BoundingBox& Plane::getBoundingBox() const {
   return boundingBox;
 }

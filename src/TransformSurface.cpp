@@ -32,6 +32,20 @@ bool TransformSurface::intersect(const Ray& ray, double t0, double t1, Hit& hit)
   return false;
 }
 
+bool TransformSurface::intersectAll(const Ray& ray, Hit& in, Hit& out) const {
+  Point objCamera = obj2worldInverse * ray.getPoint();
+  Vector objDirection = (obj2worldInverse * ray.getDirection()).normalize();
+  Hit objIn;
+  Hit objOut;
+  if (surface->intersectAll(Ray(objCamera, objDirection), objIn, objOut)) {
+    in = Hit(this, objIn.getT());
+    out = Hit(this, objOut.getT());
+    return true;
+  }
+  return false;
+}
+
+
 const BoundingBox& TransformSurface::getBoundingBox() const {
   return boundingBox;
 }

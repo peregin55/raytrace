@@ -18,7 +18,7 @@
 #ifndef TRANSFORM_SURFACE_H
 #define TRANSFORM_SURFACE_H
 #include <iostream>
-using namespace std;
+#include <vector>
 #include <memory>
 #include "Surface.h"
 #include "Matrix4.h"
@@ -61,8 +61,9 @@ class TransformSurface : public Surface {
       boundingBox = BoundingBox(minX, minY, minZ, maxX, maxY, maxZ);
     }
     virtual bool intersect(const Ray& ray, double t0, double t1, Hit& hit) const;
+    virtual bool intersectAll(const Ray& ray, Hit& in, Hit& out) const;
     virtual const BoundingBox& getBoundingBox() const;
-    Vector calculateNormal(const Point& hitpoint) const;
+    virtual Vector calculateNormal(const Point& hitpoint) const;
     virtual const Material* getMaterial() const;
     virtual const Texture* getTexture() const;
     virtual Color textureColor(const Point& hitpoint) const;

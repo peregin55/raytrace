@@ -26,6 +26,7 @@ using namespace std;
 class Camera;
 class Color;
 class Light;
+class Entity;
 class Material;
 class Matrix4;
 class Point;
@@ -49,7 +50,7 @@ class FileParser {
     vector<Light> parseLights(const Json::Value& lightsNode) const;
     unique_ptr<Surface> parseSurface(const Json::Value& surfacesNode, const unordered_map<string, shared_ptr<Material>>& materials) const;
     unordered_map<string, shared_ptr<Material>> parseMaterials(const Json::Value& materialNode) const;
-    void parseContext(vector<unique_ptr<Surface>>& surfaces, Matrix4 obj2world,
+    void parseContext(vector<unique_ptr<Entity>>& surfaces, Matrix4 obj2world,
       Json::Value contextNode, const unordered_map<string, Json::Value>& availableSurfaces,
       const unordered_map<string, shared_ptr<Material>>& materials) const;
     Matrix4 parseTransformation(const Json::Value& node) const;

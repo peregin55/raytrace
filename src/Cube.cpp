@@ -42,6 +42,17 @@ bool Cube::intersect(const Ray& ray, double t0, double t1, Hit& hit) const {
   return false;
 }
 
+bool Cube::intersectAll(const Ray& ray, Hit& in, Hit& out) const {
+  double ts[2];
+  if (boundingBox.calculateTs(ray, ts)) {
+    double tmin = ts[0];
+    double tmax = ts[1];
+    in = Hit(this, tmin);
+    out = Hit(this, tmax);
+    return true;
+  }
+  return false;
+}
 
 const BoundingBox& Cube::getBoundingBox() const {
   return boundingBox;

@@ -21,6 +21,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <vector>
 #include "Matrix4.h"
 #include "Point.h"
 #include "Vector.h"
@@ -66,13 +67,14 @@ class Plane : public Surface {
     }
 
     virtual bool intersect(const Ray& ray, double t0, double t1, Hit& hit) const;
+    virtual bool intersectAll(const Ray& ray, Hit& in, Hit& out) const;
     virtual const BoundingBox& getBoundingBox() const;
     virtual Vector calculateNormal(const Point& hitpoint) const;
     virtual Color textureColor(const Point& hitpoint) const;
+    const static double EPSILON;
   private:
     double mapInfinitely(double x) const;
     BoundingBox createBoundingBox(const Point& p0, const Vector& normal) const;
-    const static double EPSILON;
     Point p0;
     Vector normal;
     Matrix4 world2plane;

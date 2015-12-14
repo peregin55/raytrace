@@ -21,6 +21,7 @@
 #include "Hit.h"
 #include "Ray.h"
 #include "Texture.h"
+#include <limits>
 
 bool Triangle::intersect(const Ray& ray, double t0, double t1, Hit& hit) const {
   Hit planeHit;
@@ -39,6 +40,16 @@ bool Triangle::intersect(const Ray& ray, double t0, double t1, Hit& hit) const {
   return false;
 }
 
+bool Triangle::intersectAll(const Ray& ray, Hit& in, Hit& out) const {
+  Hit hit;
+  if (intersect(ray, -numeric_limits<double>::max(), numeric_limits<double>::max(), hit)) {
+    in = Hit(this, hit.getT());
+    out = Hit(this, hit.getT() + Plane::EPSILON);
+    return true;
+  }
+  return false;
+}
+  
 const BoundingBox& Triangle::getBoundingBox() const {
   return boundingBox;
 }

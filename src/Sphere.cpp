@@ -16,6 +16,7 @@
   along with raytrace.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <cmath>
+#include <vector>
 #include "Sphere.h"
 #include "Hit.h"
 #include "Ray.h"
@@ -48,6 +49,25 @@ bool Sphere::intersect(const Ray& ray, double t0, double t1, Hit& hit) const {
   }
   return false;
 }
+
+bool Sphere::intersectAll(const Ray& ray, Hit& in, Hit& out) const {
+  Point e = ray.getPoint();
+  Vector d = ray.getDirection();
+  Vector centerToEye = e - center;
+  double dDotted = d.dot(d);
+  double determinant = sqrt(pow(d.dot(e - center), 2.0) - (dDotted) *
+                        ((centerToEye).dot(centerToEye) - pow(radius, 2.0)));
+  if (determinant >= 0) {
+    double minusB = (-d).dot(centerToEye);
+    double tPos = (minusB + determinant) / dDotted;
+    double tNeg = (minusB - determinant) / dDotted;
+    in = Hit(this, fmin(tNeg, tPos));
+    out = Hit(this, fmax(tNeg, tPos));
+    return true;
+  }
+  return false;
+}
+
 
 const BoundingBox& Sphere::getBoundingBox() const {
   return boundingBox;
