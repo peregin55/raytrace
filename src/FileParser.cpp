@@ -41,11 +41,16 @@
 #include "CSGTree.h"
 using namespace std;
 
+struct EntityStruct {
+  Json::Value entityNode;
+  Matrix4 obj2world;
+};
+
 unique_ptr<Renderer> FileParser::parseRenderer(const Json::Value& root) const {
-  Camera camera = parseCamera(root["camera"]);
-  unique_ptr<Scene> scene = parseScene(root["scene"]);
-  unique_ptr<Texture> envTexture = unique_ptr<Texture>(parseTexture(root["environment"]["texture"], "environment texture"));
-  Color envColor = parseOptionalColor(root["environment"]["color"], "background color", 0.0);
+  Camera camera = parseCamera(root["scene"]["camera"]);
+  unique_ptr<Scene> scene = parseScene(root);
+  unique_ptr<Texture> envTexture = unique_ptr<Texture>(parseTexture(root["scene"]["environment"]["texture"], "environment texture"));
+  Color envColor = parseOptionalColor(root["scene"]["environment"]["color"], "background color", 0.0);
   return unique_ptr<Renderer>(new Renderer(std::move(scene), camera, std::move(envTexture), envColor));
 }
 
@@ -63,20 +68,51 @@ Camera FileParser::parseCamera(const Json::Value& cameraNode) const {
 }
 
 /** Parse and instantiate Scene from input file. */
-unique_ptr<Scene> FileParser::parseScene(const Json::Value& sceneNode) const {
-  unordered_map<string, Json::Value> availableLights = node2namemap(sceneNode["lights"], "light");
-  unordered_map<string, Json::Value> availableSurfaces = node2namemap(sceneNode["surfaces"], "surface");
-  unordered_map<string, shared_ptr<Material>> materials = parseMaterials(sceneNode["materials"]);
-  unsigned int maxTraces = parseUnsignedInt(sceneNode["max_trace"], "max trace");
-  vector<Light> lights = parseLights(sceneNode["lights"]);
+unique_ptr<Scene> FileParser::parseScene(const Json::Value& root) const {
+  unordered_map<string, shared_ptr<Material>> materials = parseMaterials(root["materials"]);
+  unordered_map<string, EntityStruct> entityStructMap;
+  buildEntityStructMap(root["surfaces"], identity(), entityStructMap);
   vector<unique_ptr<Entity>> entities;
-  Matrix4 obj2world = identity();
-  // entities in "context" may have local-object transformations, handle separately
-  if (sceneNode["context"] != Json::nullValue) {
-    parseContext(entities, obj2world, sceneNode["context"], availableSurfaces, materials);
+  string entityName;
+  unique_ptr<Entity> entity;
+  for (unsigned int i = 0; i < root["scene"]["surfaces"].size(); i++) {
+    entityName = parseString(root["scene"]["surfaces"][i], "scene surface references");
+    entity = buildEntity(entityName, entityStructMap, materials);
+    entities.push_back(std::move(entity));
   }
-  return unique_ptr<Scene>(new Scene(lights, std::move(entities), maxTraces));
+  unsigned int maxTrace = parseUnsignedInt(root["scene"]["max_trace"], "max trace");
+  vector<Light> lights = parseLights(root["scene"]["lights"]);
+  return unique_ptr<Scene>(new Scene(lights, std::move(entities), maxTrace));
 }
+
+
+
+void FileParser::buildEntityStructMap(const Json::Value& node, const Matrix4& matrix, unordered_map<string, EntityStruct> entityStructMap) const {
+  Json::Value const* transformNode = nullptr;
+  for (unsigned int i = 0; i < node.size(); i++) {
+    if (node[i]["transform"] != Json::nullValue) {
+      if (transformNode != nullptr) {
+        throw RenderException("Cannot have multiple 'transform' nodes in single block");
+      }
+      transformNode = &node[i];
+    } else {
+      buildEntityStruct(node[i], matrix, entityStructMap);
+    }
+  }
+  if (transformNode) {
+    buildEntityStructMap((*transformNode)["surface"], parseTransformation(*transformNode)*matrix, entityStructMap);
+  }
+}
+    
+void FileParser::buildEntityStruct(const Json::Value& node, const Matrix4& matrix, unordered_map<string, EntityStruct> entityStructMap) const {
+  const Json::Value::const_iterator& v = node.begin();
+  string name = parseString((*v)["name"], "entity name");
+  EntityStruct es;
+  es.entityNode = node;
+  es.obj2world = matrix;
+  entityStructMap[name] = es;
+}
+
 
 vector<Light> FileParser::parseLights(const Json::Value& lightsNode) const {
   vector<Light> lights;
@@ -88,7 +124,19 @@ vector<Light> FileParser::parseLights(const Json::Value& lightsNode) const {
   return lights;
 }
 
-unique_ptr<Surface> FileParser::parseSurface(const Json::Value& surfaceNode,
+unique_ptr<Entity> FileParser::buildEntity(const string& name, 
+                                           const unordered_map<string, EntityStruct>& entityStructMap,
+                                           const unordered_map<string, shared_ptr<Material>>& materials) const {
+  const EntityStruct& es = entityStructMap.at(name);
+  unique_ptr<Entity> surface = buildLocalEntity(es.entityNode, materials);
+  if (es.obj2world == identity()) {
+    return surface;
+  } else {
+    return unique_ptr<Entity>(new TransformSurface(es.obj2world, surface));
+  }
+}
+
+unique_ptr<Surface> FileParser::buildLocalEntity(const Json::Value& surfaceNode,
   const unordered_map<string, shared_ptr<Material>>& materials) const {
   string name = parseString(surfaceNode["name"], "surface name");
   string type = parseString(surfaceNode["type"], "surface type");
@@ -172,23 +220,26 @@ void FileParser::parseContext(vector<unique_ptr<Entity>>& surfaces, Matrix4 obj2
 }
 
 Matrix4 FileParser::parseTransformation(const Json::Value& transformNode) const {
-  if (transformNode["scale"] != Json::nullValue) {
-    Json::Value node = transformNode["scale"];
-    return scale(node[(Json::Value::UInt)0].asDouble(),
-      node[1].asDouble(), node[2].asDouble());
-  } else if (transformNode["rotateX"] != Json::nullValue) {
-    return rotate(X, deg2rad(parseDouble(transformNode["rotateX"], "rotateX")));
-  } else if (transformNode["rotateY"] != Json::nullValue) {
-    return rotate(Y, deg2rad(parseDouble(transformNode["rotateY"], "rotateY")));
-  } else if (transformNode["rotateZ"] != Json::nullValue) {
-    return rotate(Z, deg2rad(parseDouble(transformNode["rotateZ"], "rotateZ")));
-  } else if (transformNode["translate"] != Json::nullValue) {
-    Json::Value node = transformNode["translate"];
-    return translate(node[(Json::Value::UInt)0].asDouble(),
-      node[1].asDouble(), node[2].asDouble());
-  } else {
-    throw RenderException("unrecognized scene transformation");
+  Matrix4 matrix = identity();
+  for (unsigned int i = 0; i < transformNode.size(); i++) {
+    if (transformNode["scale"] != Json::nullValue) {
+      Json::Value node = transformNode["scale"];
+      matrix = scale(node[(Json::Value::UInt)0].asDouble(),
+        node[1].asDouble(), node[2].asDouble()) * matrix;
+    } else if (transformNode["rotateX"] != Json::nullValue) {
+      matrix = rotate(X, deg2rad(parseDouble(transformNode["rotateX"], "rotateX"))) * matrix;
+    } else if (transformNode["rotateY"] != Json::nullValue) {
+      matrix = rotate(Y, deg2rad(parseDouble(transformNode["rotateY"], "rotateY"))) * matrix;
+    } else if (transformNode["rotateZ"] != Json::nullValue) {
+      matrix = rotate(Z, deg2rad(parseDouble(transformNode["rotateZ"], "rotateZ"))) * matrix;
+    } else if (transformNode["translate"] != Json::nullValue) {
+      Json::Value node = transformNode["translate"];
+      matrix = translate(node[(Json::Value::UInt)0].asDouble(), node[1].asDouble(), node[2].asDouble()) * matrix;
+    } else {
+      throw RenderException("unrecognized scene transformation");
+    }
   }
+  return matrix;
 }
  
 

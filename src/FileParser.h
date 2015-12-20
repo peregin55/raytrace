@@ -23,6 +23,7 @@
 #include <vector>
 using namespace std;
 
+struct EntityStruct;
 class Camera;
 class Color;
 class Light;
@@ -45,10 +46,14 @@ class FileParser {
     FileParser(const string& dir) : dir(dir) { }
     unique_ptr<Renderer> parseRenderer(const Json::Value& root) const;
   private:
-    unique_ptr<Scene> parseScene(const Json::Value& sceneNode) const;
+    unique_ptr<Scene> parseScene(const Json::Value& root) const;
     Camera parseCamera(const Json::Value& cameraNode) const;
     vector<Light> parseLights(const Json::Value& lightsNode) const;
-    unique_ptr<Surface> parseSurface(const Json::Value& surfacesNode, const unordered_map<string, shared_ptr<Material>>& materials) const;
+    void buildEntityStruct(const Json::Value& node, const Matrix4& matrix, unordered_map<string, EntityStruct> entityStructMap) const;
+    Matrix4 buildTransformMatrix(const Json::Value& node) const;
+    void buildEntityStructMap(const Json::Value& node, const Matrix4& matrix, unordered_map<string, EntityStruct> entityStructMap) const;
+    unique_ptr<Entity> buildEntity(const string& name, const unordered_map<string, EntityStruct>& entityStructMap, const unordered_map<string, shared_ptr<Material>>& materials) const;
+    unique_ptr<Surface> buildLocalEntity(const Json::Value& surfacesNode, const unordered_map<string, shared_ptr<Material>>& materials) const;
     unordered_map<string, shared_ptr<Material>> parseMaterials(const Json::Value& materialNode) const;
     void parseContext(vector<unique_ptr<Entity>>& surfaces, Matrix4 obj2world,
       Json::Value contextNode, const unordered_map<string, Json::Value>& availableSurfaces,
