@@ -22,7 +22,11 @@
 
 bool TransformSurface::intersect(const Ray& ray, double t0, double t1, Hit& hit) const {
   Point objCamera = obj2worldInverse * ray.getPoint();
-  Vector objDirection = (obj2worldInverse * ray.getDirection()).normalize();
+  // don't normalize the direction vector, so t-length remains in units of the world-space.
+  // if M is world2obj matrix:
+  // world_hitpoint = camera + t * dir, so local_hitpoint =  M*(world_hitpoint) = M*(camera) + t * M*(dir)
+  // easy to recover local_hitpoint from world_hitpoint, local_hitpoint = M*(world_hitpoint)
+  Vector objDirection = obj2worldInverse * ray.getDirection();
   Hit objHit;
   if(surface->intersect(Ray(objCamera, objDirection), t0, t1, objHit)) {
     // make Hit that references this Surface and not underlying one 
