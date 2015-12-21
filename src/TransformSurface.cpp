@@ -49,13 +49,13 @@ const BoundingBox& TransformSurface::getBoundingBox() const {
   return boundingBox;
 }
 
-Vector TransformSurface::calculateNormal(const Point& hitpoint) const {
-  Vector normal = surface->calculateNormal(obj2worldInverse * hitpoint);
+Vector TransformSurface::calculateNormal(const Point& hitpoint, const Hit& hit) const {
+  Vector normal = surface->calculateNormal(obj2worldInverse * hitpoint, hit);
   return (obj2worldInverseTranspose * normal).normalize();
 }
 
-Color TransformSurface::textureColor(const Point& hitpoint) const {
-  return surface->textureColor(obj2worldInverse * hitpoint);
+Color TransformSurface::textureColor(const Point& hitpoint, const Hit& hit) const {
+  return surface->textureColor(obj2worldInverse * hitpoint, hit);
 }
 
 const Material* TransformSurface::getMaterial() const {

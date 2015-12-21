@@ -70,7 +70,9 @@ class Plane : public Surface {
     virtual bool intersectAll(const Ray& ray, Hit& in, Hit& out) const;
     virtual const BoundingBox& getBoundingBox() const;
     virtual Vector calculateNormal(const Point& hitpoint) const;
+    virtual Vector calculateNormal(const Point& hitpoint, const Hit& hit) const;
     virtual Color textureColor(const Point& hitpoint) const;
+    virtual Color textureColor(const Point& hitpoint, const Hit& hit) const;
     const static double EPSILON;
   private:
     double mapInfinitely(double x) const;

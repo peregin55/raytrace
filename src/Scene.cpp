@@ -60,8 +60,8 @@ bool Scene::intersect(const Ray& ray, double t0, double t1, Hit& hit) const {
   for (const unique_ptr<Surface>& s : surfaces) {
     // use bounding box first
     // TODO: Remove
-    if(boundingBox.intersect(ray, t0, t1) && s->intersect(ray, t0, t1, h)) {
-    //if(s->intersect(ray, t0, t1, h)) {
+    //if(boundingBox.intersect(ray, t0, t1) && s->intersect(ray, t0, t1, h)) {
+    if(s->intersect(ray, t0, t1, h)) {
       isHit = true;
       t1 = h.getT();
       hit = h;
@@ -74,10 +74,10 @@ Color Scene::colorFromHit(const Ray& ray, const Hit& hit, unsigned int traceCoun
   const Surface* surface = hit.getSurface();
   double t = hit.getT();
   Point hitpoint = ray.calculatePoint(t);
-  Vector normal = surface->calculateNormal(hitpoint);
+  Vector normal = surface->calculateNormal(hitpoint, hit);
   const Vector& incident = ray.getDirection().normalize();
   const Material &material = *hit.getSurface()->getMaterial();
-  Color textureColor = hit.getSurface()->textureColor(hitpoint);
+  Color textureColor = hit.getSurface()->textureColor(hitpoint, hit);
   Color color;
   for (Light light : lights) {
     color = color + calculateLocalColor(incident, normal, hitpoint, material, textureColor, light);

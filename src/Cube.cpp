@@ -23,6 +23,7 @@
 #include "Vector.h"
 #include "Color.h"
 #include "Texture.h"
+#include <string>
 
 const double Cube::EPSILON = 1.0e-10;
 
@@ -58,7 +59,7 @@ const BoundingBox& Cube::getBoundingBox() const {
   return boundingBox;
 }
 
-Vector Cube::calculateNormal(const Point& hitpoint) const {
+Vector Cube::calculateNormal(const Point& hitpoint, const Hit& hit) const {
   const vector<double>& cubeMin = boundingBox.getMin();
   const vector<double>& cubeMax = boundingBox.getMax();
   if (fabs(hitpoint[X] - cubeMin[X]) < EPSILON) {
@@ -80,11 +81,11 @@ Vector Cube::calculateNormal(const Point& hitpoint) const {
     return Vector(0.0, 0.0, 1.0);
   }
   else {
-    throw RenderException("Unable to calculate normal for " + hitpoint.toString());
+    throw RenderException("Unable to calculate normal for " + hitpoint.toString() + ": " + to_string(cubeMin[Y]) + " " + to_string(cubeMax[Y]));
   }
 }
 
-Color Cube::textureColor(const Point& hitpoint) const {
+Color Cube::textureColor(const Point& hitpoint, const Hit& hit) const {
   const vector<double>& cubeMin = boundingBox.getMin();
   const vector<double>& cubeMax = boundingBox.getMax();
   if (!texture) {
@@ -106,6 +107,6 @@ Color Cube::textureColor(const Point& hitpoint) const {
     return texture->colorAt(u, v);
   }
   else {
-    throw RenderException("Unable to calculate normal for " + hitpoint.toString());
+    throw RenderException("Unable to calculate texture for " + hitpoint.toString());
   }
 }

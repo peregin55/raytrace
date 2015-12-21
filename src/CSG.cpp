@@ -24,16 +24,20 @@ bool CSG::intersectAll(const Ray& ray, Hit& in, Hit& out) const {
   Hit leftOut;
   Hit rightIn;
   Hit rightOut;
-  bool isLeft = left->intersectAll(ray, leftIn, leftOut);
-  bool isRight = right->intersectAll(ray, rightIn, rightOut);
-  if (isLeft && isRight) {
-    return applySetOp(leftIn, leftOut, rightIn, rightOut, in, out);
-  } else if (isLeft) {
-    return applySetOpLeft(leftIn, leftOut, in, out);
-  } else if (isRight) {
-    return applySetOpRight(rightIn, rightOut, in, out);
+  if (surface) {
+    return surface->intersectAll(ray, in, out);
   } else {
-    return false;
+    bool isLeft = left->intersectAll(ray, leftIn, leftOut);
+    bool isRight = right->intersectAll(ray, rightIn, rightOut);
+    if (isLeft && isRight) {
+      return applySetOp(leftIn, leftOut, rightIn, rightOut, in, out);
+    } else if (isLeft) {
+      return applySetOpLeft(leftIn, leftOut, in, out);
+    } else if (isRight) {
+      return applySetOpRight(rightIn, rightOut, in, out);
+    } else {
+      return false;
+    }
   }
 }
 
@@ -42,8 +46,8 @@ bool CSG::applySetOp(const Hit& leftIn, const Hit& leftOut, const Hit& rightIn, 
     in = Hit::min(leftIn, rightIn);
     out = Hit::max(leftOut, rightOut);
   } else if (op == SUBTRACT) {
-    in = leftIn;
-    out = rightIn;
+    in = rightOut;
+    out = leftOut;
   } else if (op == INTERSECT) {
     in = Hit::max(leftIn, rightIn);
     out = Hit::min(leftOut, rightOut);
@@ -83,11 +87,40 @@ const BoundingBox& CSG::getBoundingBox() const {
 }
 
 
-Vector CSG::calculateNormal(const Point& hitpoint) const {
-  // TODO: fix
-  return surface->calculateNormal(hitpoint);
+Vector CSG::calculateNormal(const Point& hitpoint, const Hit& hit) const {
+
+  const CSG* p = this;
+  int sign = 1;
+   
+  for(auto it = hit.getSurfacePath().rbegin(); it != hit.getSurfacePath().rend(); it++) {
+    if ((p->right).get() == *it) {
+      if (p->op == SUBTRACT) {
+        cerr << "reversing sign" << endl;
+        sign *= -1;
+      }
+      p = (p->right).get();
+    } else if ((p->left).get() == *it) {
+      p = (p->left).get();
+    }
+  }
+  return hit.getSurfacePath().front()->calculateNormal(hitpoint, hit) * sign;
+
+  
+/*   
+  // fix
+  if (!surface) {
+    return left->calculateNormal(hitpoint, hit);
+  } else {
+    return surface->calculateNormal(hitpoint, hit);
+  }
+ */ 
 }
 
-Color CSG::textureColor(const Point& hitpoint) const {
-  return surface->textureColor(hitpoint);
+Color CSG::textureColor(const Point& hitpoint, const Hit& hit) const {
+  // fix
+  if (!surface) {
+    return left->textureColor(hitpoint, hit);
+  } else {
+    return surface->textureColor(hitpoint, hit);
+  }
 }

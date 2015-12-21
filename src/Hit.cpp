@@ -1,7 +1,11 @@
 #include "Hit.h"
 
 const Surface* Hit::getSurface() const {
-  return surface;
+  return surfacePath.front();
+}
+
+vector<const Surface*> Hit::getSurfacePath() const {
+  return surfacePath;
 }
 
 double Hit::getT() const {

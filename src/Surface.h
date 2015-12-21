@@ -40,8 +40,8 @@ class Surface {
     virtual bool intersect(const Ray& ray, double t0, double t1, Hit& hit) const = 0;
     virtual bool intersectAll(const Ray& ray, Hit& in, Hit& out) const = 0;
     virtual const BoundingBox& getBoundingBox() const = 0;
-    virtual Vector calculateNormal(const Point& hitpoint) const = 0;
-    virtual Color textureColor(const Point& hitpoint) const = 0;
+    virtual Vector calculateNormal(const Point& hitpoint, const Hit& hit) const = 0;
+    virtual Color textureColor(const Point& hitpoint, const Hit& hit) const = 0;
     virtual const Material* getMaterial() const { return material.get(); }
     virtual const Texture* getTexture() const { return texture.get(); }
     virtual ~Surface() { }

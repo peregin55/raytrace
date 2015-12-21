@@ -17,10 +17,8 @@
   "surfaces": [
     {"csg": {
       "name": "bowl",
-      "op": {"subtract": ["red_sphere", "blu_sphere"]}
+      "op": {"subtract": ["red_sphere", "red_cube"]}
     }},
-    {"transform": [{"scale": [2.0, 1.0, 1.0]}],
-     "surfaces": [
         {"sphere": {
           "name": "red_sphere",
           "material": "red",
@@ -29,12 +27,20 @@
         }},
         {"sphere": {
           "name": "blu_sphere",
-          "material": "blue",
+          "material": "red",
           "center": [1.0, 0.0, 0.0],
           "radius": 2.0
+        }},
+        {"cube": {
+          "name": "red_cube",
+          "material": "red",
+          "xmin": 0.0,
+          "xmax": 3.0,
+          "ymin": -1.0,
+          "ymax": 1.0,
+          "zmin": -2.0,
+          "zmax": 2.0
         }}
-      ]
-    }
   ],
   "scene": {
     "lights": [
@@ -44,7 +50,7 @@
       }
     ],  
     "camera": {
-      "position": [0.0, 0.0, 5.0],
+      "position": [2.0, 3.0, 5.0],
       "reference": [0.0, 0.0, 0.0],
       "up_direction": [0.0, 1.0, 0.0],
       "frame": {

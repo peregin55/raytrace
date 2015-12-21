@@ -61,10 +61,10 @@ bool Triangle::isContained(const Point& q0, const Point& q1, const Point& inters
   return intersectNormal.dot(normal) >= 0.0;
 }
 
-Vector Triangle::calculateNormal(const Point& hitpoint) const {
+Vector Triangle::calculateNormal(const Point& hitpoint, const Hit& hit) const {
   return normal;
 }
 
-Color Triangle::textureColor(const Point& hitpoint) const {
+Color Triangle::textureColor(const Point& hitpoint, const Hit& hit) const {
   return plane.textureColor(hitpoint);
 }

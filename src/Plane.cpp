@@ -82,10 +82,16 @@ BoundingBox Plane::createBoundingBox(const Point& p0, const Vector& normal) cons
     
 
   
-
+Vector Plane::calculateNormal(const Point& hitpoint, const Hit& hit) const {
+  return normal;
+}
 
 Vector Plane::calculateNormal(const Point& hitpoint) const {
   return normal;
+}
+
+Color Plane::textureColor(const Point& hitpoint, const Hit& hit) const {
+  return textureColor(hitpoint);
 }
 
 Color Plane::textureColor(const Point& hitpoint) const {

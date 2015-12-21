@@ -73,11 +73,11 @@ const BoundingBox& Sphere::getBoundingBox() const {
   return boundingBox;
 }
 
-Vector Sphere::calculateNormal(const Point& hitpoint) const {
+Vector Sphere::calculateNormal(const Point& hitpoint, const Hit& hit) const {
   return (hitpoint - center).normalize();
 }
 
-Color Sphere::textureColor(const Point& hitpoint) const {
+Color Sphere::textureColor(const Point& hitpoint, const Hit& hit) const {
   if (texture) {
     Vector local = hitpoint - center;
     double theta = atan(local[X]/local[Z]);

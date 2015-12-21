@@ -49,8 +49,8 @@ class Triangle : public Surface {
     virtual bool intersect(const Ray& ray, double t0, double t1, Hit& hit) const;
     virtual bool intersectAll(const Ray& ray, Hit& in, Hit& out) const;
     virtual const BoundingBox& getBoundingBox() const;
-    virtual Vector calculateNormal(const Point& hitpoint) const;
-    virtual Color textureColor(const Point& hitpoint) const;
+    virtual Vector calculateNormal(const Point& hitpoint, const Hit& hit) const;
+    virtual Color textureColor(const Point& hitpoint, const Hit& hit) const;
   private:
     bool isContained(const Point& q0, const Point& q1, const Point& intersect) const;
     Point p0, p1, p2;

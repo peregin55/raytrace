@@ -52,7 +52,8 @@ class FileParser {
     Matrix4 buildTransformMatrix(const Json::Value& node) const;
     void buildSurfaceStructMap(const Json::Value& node, const Matrix4& matrix, unordered_map<string, SurfaceStruct>& structMap) const;
     unique_ptr<Surface> buildSurface(const string& name, const unordered_map<string, SurfaceStruct>& structMap, const unordered_map<string, shared_ptr<Material>>& materials) const;
-    unique_ptr<Surface> buildLocalSurface(const Json::Value& surfacesNode, const unordered_map<string, shared_ptr<Material>>& materials) const;
+    unique_ptr<Surface> buildLocalSurface(const Json::Value& surfacesNode, const unordered_map<string, shared_ptr<Material>>& materials, const unordered_map<string, SurfaceStruct>& structMap) const;
+    shared_ptr<Material> fetchMaterial(const Json::Value& materialNode, const unordered_map<string, shared_ptr<Material>>& materials) const;
     unordered_map<string, shared_ptr<Material>> parseMaterials(const Json::Value& materialNode) const;
     //void parseContext(vector<unique_ptr<Entity>>& surfaces, Matrix4 obj2world,
       //Json::Value contextNode, const unordered_map<string, Json::Value>& availableSurfaces,

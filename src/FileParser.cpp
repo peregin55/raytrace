@@ -128,36 +128,42 @@ unique_ptr<Surface> FileParser::buildSurface(const string& name,
                                              const unordered_map<string, shared_ptr<Material>>& materials) const {
   try {
     const SurfaceStruct& ss = structMap.at(name);
-    unique_ptr<Surface> surface = buildLocalSurface(ss.node, materials);
+    unique_ptr<Surface> surface = buildLocalSurface(ss.node, materials, structMap);
     if (ss.obj2world == identity()) {
       return surface;
     } else {
       return unique_ptr<Surface>(new TransformSurface(ss.obj2world, std::move(surface)));
     }
   } catch (const out_of_range& e) {
-    throw RenderException("Unable to find surface: " + name);
+    throw RenderException("Unable to find surface: \"" + name + "\"");
+  }
+}
+
+shared_ptr<Material> FileParser::fetchMaterial(const Json::Value& materialNode, const unordered_map<string, shared_ptr<Material>>& materials) const {
+  string name = parseString(materialNode, "material name");
+  try {
+    return materials.at(name);
+  } catch (const out_of_range& e) {
+    throw RenderException("Unable to find material: \"" + name + "\"");
   }
 }
 
 unique_ptr<Surface> FileParser::buildLocalSurface(const Json::Value& surfaceNode,
-  const unordered_map<string, shared_ptr<Material>>& materials) const {
+  const unordered_map<string, shared_ptr<Material>>& materials,
+  const unordered_map<string, SurfaceStruct>& structMap) const {
   Json::Value::const_iterator first = surfaceNode.begin();
   string name = parseString((*first)["name"], "surface name");
-  shared_ptr<Material> material;
-  try {
-    material = materials.at(parseString((*first)["material"], "material for surface: " + name));
-  } catch (const out_of_range& e) {
-    throw RenderException("Unable to find material for surface: " + name);
-  }
   shared_ptr<Texture> texture = shared_ptr<Texture>(parseTexture((*first)["texture"], "surface texture"));
   if (surfaceNode["sphere"] != Json::nullValue) {
     Json::Value dataNode = surfaceNode["sphere"];
+    shared_ptr<Material> material = fetchMaterial(dataNode["material"], materials);
     Point center = parsePoint(dataNode["center"], "sphere center");
     double radius = parseDouble(dataNode["radius"], "sphere radius");
     return unique_ptr<Surface>(new Sphere(material, texture, center, radius));
   }
   else if (surfaceNode["plane"] != Json::nullValue) {
     Json::Value dataNode = surfaceNode["plane"];
+    shared_ptr<Material> material = fetchMaterial(dataNode["material"], materials);
     Point p0 = parsePoint(dataNode["vertex0"], "vertex0");
     Point p1 = parsePoint(dataNode["vertex1"], "vertex1");
     Point p2  = parsePoint(dataNode["vertex2"], "vertex2");
@@ -165,6 +171,7 @@ unique_ptr<Surface> FileParser::buildLocalSurface(const Json::Value& surfaceNode
   }
   else if (surfaceNode["triangle"] != Json::nullValue) {
     Json::Value dataNode = surfaceNode["triangle"];
+    shared_ptr<Material> material = fetchMaterial(dataNode["material"], materials);
     Point p0 = parsePoint(dataNode["vertex0"], "vertex0");
     Point p1 = parsePoint(dataNode["vertex1"], "vertex1");
     Point p2 = parsePoint(dataNode["vertex2"], "vertex2");
@@ -172,6 +179,7 @@ unique_ptr<Surface> FileParser::buildLocalSurface(const Json::Value& surfaceNode
   }
   else if (surfaceNode["cube"] != Json::nullValue) {
     Json::Value dataNode = surfaceNode["cube"];
+    shared_ptr<Material> material = fetchMaterial(dataNode["material"], materials);
     double xmin = parseDouble(dataNode["xmin"], "x min");
     double xmax = parseDouble(dataNode["xmax"], "x max");
     double ymin = parseDouble(dataNode["ymin"], "y min");
@@ -180,6 +188,19 @@ unique_ptr<Surface> FileParser::buildLocalSurface(const Json::Value& surfaceNode
     double zmax = parseDouble(dataNode["zmax"], "z max");
     return unique_ptr<Surface>(new Cube(material, texture, {xmin, ymin, zmin}, {xmax, ymax, zmax}));
   }
+  else if (surfaceNode["csg"] != Json::nullValue) {
+    Json::Value op = surfaceNode["csg"]["op"];
+    if (op["subtract"] != Json::nullValue) {
+      unique_ptr<Surface> left = buildSurface(parseString(op["subtract"][(Json::Value::UInt)0], "csg subtract left surface name"), structMap, materials);
+      unique_ptr<Surface> right = buildSurface(parseString(op["subtract"][1], "csg subtract right surface name"), structMap, materials);
+      unique_ptr<CSG> leftCSG = unique_ptr<CSG>(new CSG(NONE, std::move(left), unique_ptr<CSG>(nullptr), unique_ptr<CSG>(nullptr)));
+      unique_ptr<CSG> rightCSG = unique_ptr<CSG>(new CSG(NONE, std::move(right), unique_ptr<CSG>(nullptr), unique_ptr<CSG>(nullptr)));
+      return unique_ptr<Surface>(new CSG(SUBTRACT, unique_ptr<Surface>(nullptr), std::move(leftCSG), std::move(rightCSG)));
+    }
+    else {
+      throw RenderException("Unknown csg operation for: " + name);
+    }
+  } 
   else {
     throw RenderException("Unknown object: " + name);
   }

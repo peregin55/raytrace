@@ -18,10 +18,13 @@
 #ifndef HIT_H
 #define HIT_H
 
+#include <vector>
 #include "Surface.h"
 #include "Point.h"
 #include "Vector.h"
 #include "Ray.h"
+#include "RenderException.h"
+using namespace std;
 
 
 /** Representation of a ray-surface intersection.
@@ -32,14 +35,20 @@
  */
 class Hit {
   public:
-    Hit() : surface(NULL), t(0.0) { }
-    Hit(const Surface* s, double t) : surface(s), t(t) { }
+    Hit() : surfacePath(vector<const Surface*>()), t(0.0) { }
+    Hit(const Surface* s, double t) : surfacePath{s}, t(t) { }
+    Hit(const vector<const Surface*> s, double t) : surfacePath(s), t(t) {
+      if (s.empty()) {
+        throw RenderException("Invalid empty Surfaces vector in Hit ");
+      }
+    }
+    vector<const Surface*> getSurfacePath() const;
     const Surface* getSurface() const;
     double getT() const;
     static const Hit& max(const Hit& h1, const Hit& h2);
     static const Hit& min(const Hit& h1, const Hit& h2);
   private:
-    const Surface* surface;
+    vector<const Surface*> surfacePath;
     double t;
 };
 
