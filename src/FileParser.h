@@ -23,11 +23,10 @@
 #include <vector>
 using namespace std;
 
-struct EntityStruct;
+struct SurfaceStruct;
 class Camera;
 class Color;
 class Light;
-class Entity;
 class Material;
 class Matrix4;
 class Point;
@@ -49,15 +48,15 @@ class FileParser {
     unique_ptr<Scene> parseScene(const Json::Value& root) const;
     Camera parseCamera(const Json::Value& cameraNode) const;
     vector<Light> parseLights(const Json::Value& lightsNode) const;
-    void buildEntityStruct(const Json::Value& node, const Matrix4& matrix, unordered_map<string, EntityStruct> entityStructMap) const;
+    void buildSurfaceStruct(const Json::Value& node, const Matrix4& matrix, unordered_map<string, SurfaceStruct>& structMap) const;
     Matrix4 buildTransformMatrix(const Json::Value& node) const;
-    void buildEntityStructMap(const Json::Value& node, const Matrix4& matrix, unordered_map<string, EntityStruct> entityStructMap) const;
-    unique_ptr<Entity> buildEntity(const string& name, const unordered_map<string, EntityStruct>& entityStructMap, const unordered_map<string, shared_ptr<Material>>& materials) const;
-    unique_ptr<Surface> buildLocalEntity(const Json::Value& surfacesNode, const unordered_map<string, shared_ptr<Material>>& materials) const;
+    void buildSurfaceStructMap(const Json::Value& node, const Matrix4& matrix, unordered_map<string, SurfaceStruct>& structMap) const;
+    unique_ptr<Surface> buildSurface(const string& name, const unordered_map<string, SurfaceStruct>& structMap, const unordered_map<string, shared_ptr<Material>>& materials) const;
+    unique_ptr<Surface> buildLocalSurface(const Json::Value& surfacesNode, const unordered_map<string, shared_ptr<Material>>& materials) const;
     unordered_map<string, shared_ptr<Material>> parseMaterials(const Json::Value& materialNode) const;
-    void parseContext(vector<unique_ptr<Entity>>& surfaces, Matrix4 obj2world,
-      Json::Value contextNode, const unordered_map<string, Json::Value>& availableSurfaces,
-      const unordered_map<string, shared_ptr<Material>>& materials) const;
+    //void parseContext(vector<unique_ptr<Entity>>& surfaces, Matrix4 obj2world,
+      //Json::Value contextNode, const unordered_map<string, Json::Value>& availableSurfaces,
+      //const unordered_map<string, shared_ptr<Material>>& materials) const;
     Matrix4 parseTransformation(const Json::Value& node) const;
     Json::Value findReference(const string& name, const unordered_map<string, Json::Value>& map) const;
     double deg2rad(double degrees) const;

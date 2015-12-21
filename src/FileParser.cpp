@@ -37,12 +37,11 @@
 #include "Plane.h"
 #include "Cube.h"
 #include "Vector.h"
-#include "Entity.h"
-#include "CSGTree.h"
+#include "CSG.h"
 using namespace std;
 
-struct EntityStruct {
-  Json::Value entityNode;
+struct SurfaceStruct {
+  Json::Value node;
   Matrix4 obj2world;
 };
 
@@ -70,24 +69,24 @@ Camera FileParser::parseCamera(const Json::Value& cameraNode) const {
 /** Parse and instantiate Scene from input file. */
 unique_ptr<Scene> FileParser::parseScene(const Json::Value& root) const {
   unordered_map<string, shared_ptr<Material>> materials = parseMaterials(root["materials"]);
-  unordered_map<string, EntityStruct> entityStructMap;
-  buildEntityStructMap(root["surfaces"], identity(), entityStructMap);
-  vector<unique_ptr<Entity>> entities;
-  string entityName;
-  unique_ptr<Entity> entity;
+  unordered_map<string, SurfaceStruct> structMap;
+  buildSurfaceStructMap(root["surfaces"], identity(), structMap);
+  vector<unique_ptr<Surface>> surfaces;
+  string surfaceName;
+  unique_ptr<Surface> surface;
   for (unsigned int i = 0; i < root["scene"]["surfaces"].size(); i++) {
-    entityName = parseString(root["scene"]["surfaces"][i], "scene surface references");
-    entity = buildEntity(entityName, entityStructMap, materials);
-    entities.push_back(std::move(entity));
+    surfaceName = parseString(root["scene"]["surfaces"][i], "scene surface references");
+    surface = buildSurface(surfaceName, structMap, materials);
+    surfaces.push_back(std::move(surface));
   }
   unsigned int maxTrace = parseUnsignedInt(root["scene"]["max_trace"], "max trace");
   vector<Light> lights = parseLights(root["scene"]["lights"]);
-  return unique_ptr<Scene>(new Scene(lights, std::move(entities), maxTrace));
+  return unique_ptr<Scene>(new Scene(lights, std::move(surfaces), maxTrace));
 }
 
 
 
-void FileParser::buildEntityStructMap(const Json::Value& node, const Matrix4& matrix, unordered_map<string, EntityStruct> entityStructMap) const {
+void FileParser::buildSurfaceStructMap(const Json::Value& node, const Matrix4& matrix, unordered_map<string, SurfaceStruct>& structMap) const {
   Json::Value const* transformNode = nullptr;
   for (unsigned int i = 0; i < node.size(); i++) {
     if (node[i]["transform"] != Json::nullValue) {
@@ -96,21 +95,21 @@ void FileParser::buildEntityStructMap(const Json::Value& node, const Matrix4& ma
       }
       transformNode = &node[i];
     } else {
-      buildEntityStruct(node[i], matrix, entityStructMap);
+      buildSurfaceStruct(node[i], matrix, structMap);
     }
   }
   if (transformNode) {
-    buildEntityStructMap((*transformNode)["surface"], parseTransformation(*transformNode)*matrix, entityStructMap);
+    buildSurfaceStructMap((*transformNode)["surfaces"], parseTransformation((*transformNode)["transform"])*matrix, structMap);
   }
 }
     
-void FileParser::buildEntityStruct(const Json::Value& node, const Matrix4& matrix, unordered_map<string, EntityStruct> entityStructMap) const {
+void FileParser::buildSurfaceStruct(const Json::Value& node, const Matrix4& matrix, unordered_map<string, SurfaceStruct>& structMap) const {
   const Json::Value::const_iterator& v = node.begin();
   string name = parseString((*v)["name"], "entity name");
-  EntityStruct es;
-  es.entityNode = node;
-  es.obj2world = matrix;
-  entityStructMap[name] = es;
+  SurfaceStruct s;
+  s.node = node;
+  s.obj2world = matrix;
+  structMap[name] = s;
 }
 
 
@@ -124,57 +123,65 @@ vector<Light> FileParser::parseLights(const Json::Value& lightsNode) const {
   return lights;
 }
 
-unique_ptr<Entity> FileParser::buildEntity(const string& name, 
-                                           const unordered_map<string, EntityStruct>& entityStructMap,
-                                           const unordered_map<string, shared_ptr<Material>>& materials) const {
-  const EntityStruct& es = entityStructMap.at(name);
-  unique_ptr<Entity> surface = buildLocalEntity(es.entityNode, materials);
-  if (es.obj2world == identity()) {
-    return surface;
-  } else {
-    return unique_ptr<Entity>(new TransformSurface(es.obj2world, surface));
+unique_ptr<Surface> FileParser::buildSurface(const string& name, 
+                                             const unordered_map<string, SurfaceStruct>& structMap,
+                                             const unordered_map<string, shared_ptr<Material>>& materials) const {
+  try {
+    const SurfaceStruct& ss = structMap.at(name);
+    unique_ptr<Surface> surface = buildLocalSurface(ss.node, materials);
+    if (ss.obj2world == identity()) {
+      return surface;
+    } else {
+      return unique_ptr<Surface>(new TransformSurface(ss.obj2world, std::move(surface)));
+    }
+  } catch (const out_of_range& e) {
+    throw RenderException("Unable to find surface: " + name);
   }
 }
 
-unique_ptr<Surface> FileParser::buildLocalEntity(const Json::Value& surfaceNode,
+unique_ptr<Surface> FileParser::buildLocalSurface(const Json::Value& surfaceNode,
   const unordered_map<string, shared_ptr<Material>>& materials) const {
-  string name = parseString(surfaceNode["name"], "surface name");
-  string type = parseString(surfaceNode["type"], "surface type");
+  Json::Value::const_iterator first = surfaceNode.begin();
+  string name = parseString((*first)["name"], "surface name");
   shared_ptr<Material> material;
   try {
-    material = materials.at(parseString(surfaceNode["material"], type + " surface material"));
+    material = materials.at(parseString((*first)["material"], "material for surface: " + name));
   } catch (const out_of_range& e) {
-    throw RenderException("Unable to find surface material: " + name);
+    throw RenderException("Unable to find material for surface: " + name);
   }
-  shared_ptr<Texture> texture = shared_ptr<Texture>(parseTexture(surfaceNode["texture"], "surface texture"));
-  if (type == "sphere") {
-    Point center = parsePoint(surfaceNode["center"], "sphere center");
-    double radius = parseDouble(surfaceNode["radius"], "sphere radius");
+  shared_ptr<Texture> texture = shared_ptr<Texture>(parseTexture((*first)["texture"], "surface texture"));
+  if (surfaceNode["sphere"] != Json::nullValue) {
+    Json::Value dataNode = surfaceNode["sphere"];
+    Point center = parsePoint(dataNode["center"], "sphere center");
+    double radius = parseDouble(dataNode["radius"], "sphere radius");
     return unique_ptr<Surface>(new Sphere(material, texture, center, radius));
   }
-  else if (type == "plane") {
-    Point p0 = parsePoint(surfaceNode["vertex0"], "vertex0");
-    Point p1 = parsePoint(surfaceNode["vertex1"], "vertex1");
-    Point p2  = parsePoint(surfaceNode["vertex2"], "vertex2");
+  else if (surfaceNode["plane"] != Json::nullValue) {
+    Json::Value dataNode = surfaceNode["plane"];
+    Point p0 = parsePoint(dataNode["vertex0"], "vertex0");
+    Point p1 = parsePoint(dataNode["vertex1"], "vertex1");
+    Point p2  = parsePoint(dataNode["vertex2"], "vertex2");
     return unique_ptr<Surface>(new Plane(material, texture, p0, p1, p2));
   }
-  else if (type == "triangle") {
-    Point p0 = parsePoint(surfaceNode["vertex0"], "vertex0");
-    Point p1 = parsePoint(surfaceNode["vertex1"], "vertex1");
-    Point p2 = parsePoint(surfaceNode["vertex2"], "vertex2");
+  else if (surfaceNode["triangle"] != Json::nullValue) {
+    Json::Value dataNode = surfaceNode["triangle"];
+    Point p0 = parsePoint(dataNode["vertex0"], "vertex0");
+    Point p1 = parsePoint(dataNode["vertex1"], "vertex1");
+    Point p2 = parsePoint(dataNode["vertex2"], "vertex2");
     return unique_ptr<Surface>(new Triangle(material, texture, p0, p1, p2));
   }
-  else if (type == "cube") {
-    double xmin = parseDouble(surfaceNode["xmin"], "x min");
-    double xmax = parseDouble(surfaceNode["xmax"], "x max");
-    double ymin = parseDouble(surfaceNode["ymin"], "y min");
-    double ymax = parseDouble(surfaceNode["ymax"], "y max");
-    double zmin = parseDouble(surfaceNode["zmin"], "z min");
-    double zmax = parseDouble(surfaceNode["zmax"], "z max");
+  else if (surfaceNode["cube"] != Json::nullValue) {
+    Json::Value dataNode = surfaceNode["cube"];
+    double xmin = parseDouble(dataNode["xmin"], "x min");
+    double xmax = parseDouble(dataNode["xmax"], "x max");
+    double ymin = parseDouble(dataNode["ymin"], "y min");
+    double ymax = parseDouble(dataNode["ymax"], "y max");
+    double zmin = parseDouble(dataNode["zmin"], "z min");
+    double zmax = parseDouble(dataNode["zmax"], "z max");
     return unique_ptr<Surface>(new Cube(material, texture, {xmin, ymin, zmin}, {xmax, ymax, zmax}));
   }
   else {
-    throw RenderException("Unknown object: \"" + name + "\" of type: \"" + type + "\"");
+    throw RenderException("Unknown object: " + name);
   }
 }
 
@@ -196,6 +203,7 @@ unordered_map<string, shared_ptr<Material>> FileParser::parseMaterials(const Jso
   return materials;
 }
 
+/*
 void FileParser::parseContext(vector<unique_ptr<Entity>>& surfaces, Matrix4 obj2world,
   Json::Value contextNode, const unordered_map<string, Json::Value>& availableSurfaces,
   const unordered_map<string, shared_ptr<Material>>& materials) const {
@@ -218,22 +226,26 @@ void FileParser::parseContext(vector<unique_ptr<Entity>>& surfaces, Matrix4 obj2
     contextNode = contextNode["context"];
   }
 }
+*/
 
 Matrix4 FileParser::parseTransformation(const Json::Value& transformNode) const {
   Matrix4 matrix = identity();
+  if (transformNode.type() != Json::arrayValue) {
+    throw RenderException("transform node must be array");
+  }
   for (unsigned int i = 0; i < transformNode.size(); i++) {
-    if (transformNode["scale"] != Json::nullValue) {
-      Json::Value node = transformNode["scale"];
+    if (transformNode[i]["scale"] != Json::nullValue) {
+      Json::Value node = transformNode[i]["scale"];
       matrix = scale(node[(Json::Value::UInt)0].asDouble(),
         node[1].asDouble(), node[2].asDouble()) * matrix;
-    } else if (transformNode["rotateX"] != Json::nullValue) {
-      matrix = rotate(X, deg2rad(parseDouble(transformNode["rotateX"], "rotateX"))) * matrix;
-    } else if (transformNode["rotateY"] != Json::nullValue) {
-      matrix = rotate(Y, deg2rad(parseDouble(transformNode["rotateY"], "rotateY"))) * matrix;
-    } else if (transformNode["rotateZ"] != Json::nullValue) {
-      matrix = rotate(Z, deg2rad(parseDouble(transformNode["rotateZ"], "rotateZ"))) * matrix;
-    } else if (transformNode["translate"] != Json::nullValue) {
-      Json::Value node = transformNode["translate"];
+    } else if (transformNode[i]["rotateX"] != Json::nullValue) {
+      matrix = rotate(X, deg2rad(parseDouble(transformNode[i]["rotateX"], "rotateX"))) * matrix;
+    } else if (transformNode[i]["rotateY"] != Json::nullValue) {
+      matrix = rotate(Y, deg2rad(parseDouble(transformNode[i]["rotateY"], "rotateY"))) * matrix;
+    } else if (transformNode[i]["rotateZ"] != Json::nullValue) {
+      matrix = rotate(Z, deg2rad(parseDouble(transformNode[i]["rotateZ"], "rotateZ"))) * matrix;
+    } else if (transformNode[i]["translate"] != Json::nullValue) {
+      Json::Value node = transformNode[i]["translate"];
       matrix = translate(node[(Json::Value::UInt)0].asDouble(), node[1].asDouble(), node[2].asDouble()) * matrix;
     } else {
       throw RenderException("unrecognized scene transformation");

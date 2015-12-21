@@ -1,71 +1,67 @@
 {
-  "scene": { 
-    "lights": [
-      {
-        "name": "main_light",
-        "position": [11.0, 11.0, 11.0],
-        "color": [0.8, 0.8, 0.8]
-      },
-      {
-        "name": "secondary_light",
-        "position": [-11, -3.0, 11.0],
+  "materials": [
+    {
+      "name": "dark",
+      "ambient": {
         "color": [0.05, 0.05, 0.05]
+      },
+      "diffuse": {
+        "color": [0.05, 0.05, 0.05]
+      },
+      "specular": {
+        "color": [1.0, 1.0, 1.0],
+        "exponent": 64.0
       }
-    ],  
-    "surfaces": [
-      {
+    }
+  ],
+  "surfaces": [
+    {"transform": [{"rotateY": 35}],
+     "surfaces": [
+      {"sphere": {
         "name": "planet",
-        "type": "sphere", 
         "material": "dark",
         "texture": "textures/earth.png",
         "center": [0.0, 0.0, 0.0],
         "radius": 2.8
+      }}
+    ]},
+    {"plane": {
+      "name": "plane",
+      "material": "dark",
+      "texture": "textures/vortex.png",
+      "vertex0": [-15.0, -15.0, 15.0],
+      "vertex1": [15.0, -15.0, 15.0],
+      "vertex2": [-15.0, -15.0, -15.0]
+    }}
+  ],
+  "scene": { 
+    "lights": [
+      {
+        "position": [11.0, 11.0, 11.0],
+        "color": [0.8, 0.8, 0.8]
       },
       {
-        "name": "plane",
-        "type": "plane",
-        "material": "dark",
-        "texture": "textures/vortex.png",
-        "vertex0": [-15.0, -15.0, 15.0],
-        "vertex1": [15.0, -15.0, 15.0],
-        "vertex2": [-15.0, -15.0, -15.0]
+        "position": [-11, -3.0, 11.0],
+        "color": [0.05, 0.05, 0.05]
       }
-    ],
-    "materials": [
-      {
-        "name": "dark",
-        "ambient": {
-          "color": [0.05, 0.05, 0.05]
-        },
-        "diffuse": {
-          "color": [0.05, 0.05, 0.05]
-        },
-        "specular": {
-          "color": [1.0, 1.0, 1.0],
-          "exponent": 64.0
-        }
+    ],  
+    "camera": {
+      "position": [0.0, 0.0, 5.0],
+      "reference": [0.0, 0.0, 0.0],
+      "up_direction": [0.0, 1.0, 0.0],
+      "frame": {
+        "bottom": -2.0,
+        "top": 2.0,
+        "left": -2.0,
+        "right": 2.0,
+        "near": -2.0
       }
-    ],
+    },
     "max_trace": 3,
-    "context": {
-      "transform": [{"rotateY": 35}],
-      "surfaces" : ["planet"]
-    }
-  },
-  "environment": {
-    "color": [0.0, 0.0, 0.0],
-    "texture": "textures/space.png"
-  },
-  "camera": {
-    "position": [0.0, 0.0, 5.0],
-    "reference": [0.0, 0.0, 0.0],
-    "up_direction": [0.0, 1.0, 0.0],
-    "frame": {
-      "bottom": -2.0,
-      "top": 2.0,
-      "left": -2.0,
-      "right": 2.0,
-      "near": -2.0
+    "surfaces" : ["planet"],
+    "environment": {
+      "color": [0.0, 0.0, 0.0],
+      "texture": "textures/space.png"
     }
   }
 }

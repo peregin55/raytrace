@@ -1,10 +1,10 @@
-#include "CSGTree.h"
+#include "CSG.h"
 #include "Ray.h"
 #include "Hit.h"
 #include "RenderException.h"
 #include <vector>
 
-bool CSGNode::intersect(const Ray& ray, double t0, double t1, Hit& hit) const {
+bool CSG::intersect(const Ray& ray, double t0, double t1, Hit& hit) const {
   Hit in;
   Hit out;
   if (intersectAll(ray, in, out)) {
@@ -19,7 +19,7 @@ bool CSGNode::intersect(const Ray& ray, double t0, double t1, Hit& hit) const {
   return false; 
 }
 
-bool CSGNode::intersectAll(const Ray& ray, Hit& in, Hit& out) const {
+bool CSG::intersectAll(const Ray& ray, Hit& in, Hit& out) const {
   Hit leftIn;
   Hit leftOut;
   Hit rightIn;
@@ -37,7 +37,7 @@ bool CSGNode::intersectAll(const Ray& ray, Hit& in, Hit& out) const {
   }
 }
 
-bool CSGNode::applySetOp(const Hit& leftIn, const Hit& leftOut, const Hit& rightIn, const Hit& rightOut, Hit& in, Hit& out) const {
+bool CSG::applySetOp(const Hit& leftIn, const Hit& leftOut, const Hit& rightIn, const Hit& rightOut, Hit& in, Hit& out) const {
   if (op == UNION) {
     in = Hit::min(leftIn, rightIn);
     out = Hit::max(leftOut, rightOut);
@@ -53,7 +53,7 @@ bool CSGNode::applySetOp(const Hit& leftIn, const Hit& leftOut, const Hit& right
   return true;
 }
   
-bool CSGNode::applySetOpLeft(const Hit& leftIn, const Hit& leftOut, Hit& in, Hit& out) const {
+bool CSG::applySetOpLeft(const Hit& leftIn, const Hit& leftOut, Hit& in, Hit& out) const {
   if (op == UNION || op == SUBTRACT) {
     in = leftIn;
     out = leftOut;
@@ -65,7 +65,7 @@ bool CSGNode::applySetOpLeft(const Hit& leftIn, const Hit& leftOut, Hit& in, Hit
   }
 }
 
-bool CSGNode::applySetOpRight(const Hit& rightIn, const Hit& rightOut, Hit& in, Hit& out) const {
+bool CSG::applySetOpRight(const Hit& rightIn, const Hit& rightOut, Hit& in, Hit& out) const {
   if (op == UNION) {
     in = rightIn;
     out = rightOut;
@@ -78,27 +78,16 @@ bool CSGNode::applySetOpRight(const Hit& rightIn, const Hit& rightOut, Hit& in, 
 }
 
 
-const BoundingBox& CSGNode::getBoundingBox() const {
+const BoundingBox& CSG::getBoundingBox() const {
   return boundingBox;
 }
 
-bool CSGLeaf::intersect(const Ray& ray, double t0, double t1, Hit& hit) const {
-  return surface->intersect(ray, t0, t1, hit);
-}
 
-bool CSGLeaf::intersectAll(const Ray& ray, Hit& in, Hit& out) const {
-  return surface->intersectAll(ray, in, out);
-}
-
-const BoundingBox& CSGLeaf::getBoundingBox() const {
-  return surface->getBoundingBox();
-}
-
-Vector CSGLeaf::calculateNormal(const Point& hitpoint) const {
+Vector CSG::calculateNormal(const Point& hitpoint) const {
   // TODO: fix
   return surface->calculateNormal(hitpoint);
 }
 
-Color CSGLeaf::textureColor(const Point& hitpoint) const {
+Color CSG::textureColor(const Point& hitpoint) const {
   return surface->textureColor(hitpoint);
 }

@@ -57,7 +57,7 @@ bool Scene::intersect(const Ray& ray, Hit& hit) const {
 bool Scene::intersect(const Ray& ray, double t0, double t1, Hit& hit) const {
   Hit h;
   bool isHit = false;
-  for (const unique_ptr<Entity>& s : entities) {
+  for (const unique_ptr<Surface>& s : surfaces) {
     // use bounding box first
     // TODO: Remove
     if(boundingBox.intersect(ray, t0, t1) && s->intersect(ray, t0, t1, h)) {

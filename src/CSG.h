@@ -15,8 +15,8 @@
   You should have received a copy of the GNU General Public License
   along with raytrace.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef CSGTREE_H
-#define CSGTREE_H
+#ifndef CSG_H
+#define CSG_H
 
 #include <memory>
 #include "BoundingBox.h"
@@ -25,43 +25,29 @@ using namespace std;
 class BoundingBox;
 class Hit;
 class Ray;
+class Color;
 
-class CSGTree : public Entity {
-  protected:
-    CSGTree(unique_ptr<CSGTree> parent) : parent(std::move(parent)) { }
-    unique_ptr<CSGTree> parent;
-};
+enum CSGOperation {UNION, SUBTRACT, INTERSECT, NONE};
 
-enum CSGOperation {UNION, SUBTRACT, INTERSECT};
-class CSGNode : public CSGTree {
+class CSG : public Surface {
   public:
-    CSGNode(CSGOperation op, unique_ptr<CSGTree> parent, unique_ptr<CSGTree> left, unique_ptr<CSGTree> right) :
-      CSGTree(std::move(parent)), op(op), left(std::move(left)), right(std::move(right)) {
+    CSG(CSGOperation op, unique_ptr<Surface> surface, unique_ptr<CSG> left, unique_ptr<CSG> right) :
+      Surface(nullptr, nullptr), op(op), surface(std::move(surface)), left(std::move(left)), right(std::move(right)) {
         boundingBox = BoundingBox(-1.0, -1.0, -1.0, 1.0, 1.0, 1.0);
     }
-    virtual bool intersect(const Ray& ray, double t0, double t1, Hit& hit) const;
-    virtual bool intersectAll(const Ray& ray, Hit& in, Hit& out) const;
-    virtual const BoundingBox& getBoundingBox() const;
-  private:
-    bool applySetOp(const Hit& leftIn, const Hit& leftOut, const Hit& rightIn, const Hit& rightOut, Hit& in, Hit& out) const;
-    bool applySetOpLeft(const Hit& leftIn, const Hit& leftOut, Hit& in, Hit& out) const;
-    bool applySetOpRight(const Hit& rightIn, const Hit& rightOut, Hit& in, Hit& out) const;
-    CSGOperation op;
-    unique_ptr<CSGTree> left;
-    unique_ptr<CSGTree> right;
-    BoundingBox boundingBox;
-};
-
-class CSGLeaf : public CSGTree, public Surface {
-  public:
-    CSGLeaf(unique_ptr<Surface> surface, unique_ptr<CSGTree> parent) :
-      CSGTree(std::move(parent)), Surface(nullptr, nullptr), surface(std::move(surface)) { }
     virtual bool intersect(const Ray& ray, double t0, double t1, Hit& hit) const;
     virtual bool intersectAll(const Ray& ray, Hit& in, Hit& out) const;
     virtual const BoundingBox& getBoundingBox() const;
     virtual Vector calculateNormal(const Point& hitpoint) const;
     virtual Color textureColor(const Point& hitpoint) const;
   private:
+    bool applySetOp(const Hit& leftIn, const Hit& leftOut, const Hit& rightIn, const Hit& rightOut, Hit& in, Hit& out) const;
+    bool applySetOpLeft(const Hit& leftIn, const Hit& leftOut, Hit& in, Hit& out) const;
+    bool applySetOpRight(const Hit& rightIn, const Hit& rightOut, Hit& in, Hit& out) const;
+    CSGOperation op;
     unique_ptr<Surface> surface;
+    unique_ptr<CSG> left;
+    unique_ptr<CSG> right;
+    BoundingBox boundingBox;
 };
 #endif

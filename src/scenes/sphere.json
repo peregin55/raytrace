@@ -1,16 +1,31 @@
 {
-  "camera": {
-    "position": [0.0, 0.0, 5.0],
-    "reference": [0.0, 0.0, 0.0],
-    "up_direction": [0.0, 1.0, 0.0],
-    "frame": {
-      "bottom": -2.0,
-      "top": 2.0,
-      "left": -2.0,
-      "right": 2.0,
-      "near": -2.0
+  "materials": [
+    {
+      "name": "red",
+      "ambient": {
+        "color": [0.2, 0.0, 0.0]
+      },
+      "diffuse": {
+        "color": [1.0, 0.2, 0.2]
+      },
+      "specular": {
+        "color": [1.0, 1.0, 1.0],
+        "exponent": 64.0
+      }
     }
-  },
+  ],
+  "surfaces": [
+    {"transform": [{"scale": [2.0, 1.0, 1.0]}],
+      "surfaces": [
+        {"sphere": {
+          "name": "red_sphere",
+          "material": "red",
+          "center": [0.0, 0.0, 0.0],
+          "radius": 2.0
+        }}
+      ]
+    }
+  ],
   "scene": {
     "lights": [
       {
@@ -19,37 +34,22 @@
         "color": [0.8, 0.8, 0.8]
       }
     ],  
-    "surfaces": [
-      {
-        "name": "red_sphere",
-        "type": "sphere", 
-        "material": "red",
-        "center": [0.0, 0.0, 0.0],
-        "radius": 2.0
+    "camera": {
+      "position": [0.0, 0.0, 5.0],
+      "reference": [0.0, 0.0, 0.0],
+      "up_direction": [0.0, 1.0, 0.0],
+      "frame": {
+        "bottom": -2.0,
+        "top": 2.0,
+        "left": -2.0,
+        "right": 2.0,
+        "near": -2.0
       }
-    ],
-    "materials": [
-      {
-        "name": "red",
-        "ambient": {
-          "color": [0.2, 0.0, 0.0]
-        },
-        "diffuse": {
-          "color": [1.0, 0.2, 0.2]
-        },
-        "specular": {
-          "color": [1.0, 1.0, 1.0],
-          "exponent": 64.0
-        }
-      }
-    ],
+    },
     "max_trace": 3,
-    "context": {
-      "transform": [ {"scale": [2.0, 1.0, 1.0] } ],
-      "surfaces" : ["red_sphere"]
-    } 
-  },
-  "environment": {
-    "color": [0.0, 0.0, 0.4]
+    "surfaces" : ["red_sphere"],
+    "environment": {
+      "color": [0.0, 0.0, 0.4]
+    }
   }
 }

@@ -45,7 +45,6 @@ bool TransformSurface::intersectAll(const Ray& ray, Hit& in, Hit& out) const {
   return false;
 }
 
-
 const BoundingBox& TransformSurface::getBoundingBox() const {
   return boundingBox;
 }
@@ -55,14 +54,14 @@ Vector TransformSurface::calculateNormal(const Point& hitpoint) const {
   return (obj2worldInverseTranspose * normal).normalize();
 }
 
+Color TransformSurface::textureColor(const Point& hitpoint) const {
+  return surface->textureColor(obj2worldInverse * hitpoint);
+}
+
 const Material* TransformSurface::getMaterial() const {
   return surface->getMaterial();
 }
 
 const Texture* TransformSurface::getTexture() const {
   return surface->getTexture();
-}
-
-Color TransformSurface::textureColor(const Point& hitpoint) const {
-  return surface->textureColor(obj2worldInverse * hitpoint);
 }

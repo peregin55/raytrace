@@ -83,6 +83,7 @@ BoundingBox Plane::createBoundingBox(const Point& p0, const Vector& normal) cons
 
   
 
+
 Vector Plane::calculateNormal(const Point& hitpoint) const {
   return normal;
 }

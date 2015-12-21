@@ -22,6 +22,7 @@
 #include "Surface.h"
 #include "BoundingBox.h"
 class Color;
+class Hit;
 class Matrix4;
 class Point;
 class Ray;

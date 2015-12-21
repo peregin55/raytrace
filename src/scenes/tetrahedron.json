@@ -1,16 +1,49 @@
 {
-  "camera": {
-    "position": [0.0, 1.0, 4.0],
-    "reference": [0.0, 0.0, 0.0],
-    "up_direction": [0.0, 1.0, 0.0],
-    "frame": {
-      "bottom": -1.0,
-      "top": 1.0,
-      "left": -1.0,
-      "right": 1.0,
-      "near": -2.0
+  "materials": [
+    {
+      "name": "yellow",
+      "ambient": {
+        "color": [0.5, 0.5, 0.0]
+      },
+      "diffuse": {
+        "color": [0.5, 0.5, 0.3]
+      },
+      "specular": {
+        "color": [0.8, 0.8, 0.8],
+        "exponent": 24.0
+      }
     }
-  },
+  ],
+  "surfaces": [
+    {"triangle": {
+      "name": "t1",
+      "material": "yellow",
+      "vertex0": [-1.0, 0.0, 0.0],
+      "vertex1": [0.0, 0.0, 1.0],
+      "vertex2": [1.0, 0.0, 0.0]
+    }},
+    {"triangle": {
+      "name": "t2",
+      "material": "yellow",
+      "vertex0": [-1.0, 0.0, 0.0],
+      "vertex1": [0.0, 0.0, 1.0],
+      "vertex2": [0.0, 1.0, 0.5]
+    }},
+    {"triangle": {
+      "name": "t3",
+      "material": "yellow",
+      "vertex0": [0.0, 1.0, 0.5],
+      "vertex1": [0.0, 0.0, 1.0],
+      "vertex2": [1.0, 0.0, 0.0]
+    }},
+    {"triangle": {
+      "name": "t4",
+      "material": "yellow",
+      "vertex0": [-1.0, 0.0, 0.0],
+      "vertex1": [1.0, 0.0, 0.0],
+      "vertex2": [0.0, 1.0, 0.5]
+    }}
+  ],
   "scene": {
     "lights": [
       {
@@ -19,58 +52,19 @@
         "color": [0.8, 0.8, 0.8]
       }
     ],
-    "surfaces": [
-      {
-        "name": "t1",
-        "type": "triangle",
-        "material": "yellow",
-        "vertex0": [-1.0, 0.0, 0.0],
-        "vertex1": [0.0, 0.0, 1.0],
-        "vertex2": [1.0, 0.0, 0.0]
-      },
-      {
-        "name": "t2",
-        "type": "triangle",
-        "material": "yellow",
-        "vertex0": [-1.0, 0.0, 0.0],
-        "vertex1": [0.0, 0.0, 1.0],
-        "vertex2": [0.0, 1.0, 0.5]
-      },
-      {
-        "name": "t3",
-        "type": "triangle",
-        "material": "yellow",
-        "vertex0": [0.0, 1.0, 0.5],
-        "vertex1": [0.0, 0.0, 1.0],
-        "vertex2": [1.0, 0.0, 0.0]
-      },
-      {
-        "name": "t4",
-        "type": "triangle",
-        "material": "yellow",
-        "vertex0": [-1.0, 0.0, 0.0],
-        "vertex1": [1.0, 0.0, 0.0],
-        "vertex2": [0.0, 1.0, 0.5]
+    "camera": {
+      "position": [0.0, 1.0, 4.0],
+      "reference": [0.0, 0.0, 0.0],
+      "up_direction": [0.0, 1.0, 0.0],
+      "frame": {
+        "bottom": -1.0,
+        "top": 1.0,
+        "left": -1.0,
+        "right": 1.0,
+        "near": -2.0
       }
-    ],
-    "materials": [
-      {
-        "name": "yellow",
-        "ambient": {
-          "color": [0.5, 0.5, 0.0]
-        },
-        "diffuse": {
-          "color": [0.5, 0.5, 0.3]
-        },
-        "specular": {
-          "color": [0.8, 0.8, 0.8],
-          "exponent": 24.0
-        }
-      }
-    ],
+    },
     "max_trace": 3,
-    "context": {
-      "surfaces": ["t1", "t2", "t3", "t4"]
-    }
+    "surfaces": ["t1", "t2", "t3", "t4"]
   }
 }

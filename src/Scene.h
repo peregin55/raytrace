@@ -39,14 +39,14 @@ class Ray;
 class Scene {
   public:
     Scene(const vector<Light>& lights,
-          vector<unique_ptr<Entity>> entities,
+          vector<unique_ptr<Surface>> surfaces,
           unsigned int maxTrace):
           lights(lights),
-          entities(std::move(entities)),
+          surfaces(std::move(surfaces)),
           maxTrace(maxTrace) {
-      vector<unique_ptr<Entity>>::const_iterator it = this->entities.begin();
+      vector<unique_ptr<Surface>>::const_iterator it = this->surfaces.begin();
       boundingBox = (*it)->getBoundingBox();
-      for (it++; it != this->entities.end(); it++) {
+      for (it++; it != this->surfaces.end(); it++) {
         boundingBox = boundingBox + (*it)->getBoundingBox();
       }
     }
@@ -72,7 +72,7 @@ class Scene {
         double n2, const Point& hitpoint, Ray& transmittedRay) const;
 
     vector<Light> lights;
-    vector<unique_ptr<Entity>> entities;
+    vector<unique_ptr<Surface>> surfaces;
     BoundingBox boundingBox;
     unsigned int maxTrace;
     static const double DELTA;
