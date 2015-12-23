@@ -29,8 +29,8 @@ bool TransformSurface::intersect(const Ray& ray, double t0, double t1, Hit& hit)
   Vector objDirection = obj2worldInverse * ray.getDirection();
   Hit objHit;
   if(surface->intersect(Ray(objCamera, objDirection), t0, t1, objHit)) {
-    // make Hit that references this Surface and not underlying one 
-    hit = Hit(this, objHit.getT());  
+    // make Hit that references this Surface and not just underlying one 
+    hit = objHit.pushSurface(this);
     return true;
   }
   return false;
@@ -38,12 +38,12 @@ bool TransformSurface::intersect(const Ray& ray, double t0, double t1, Hit& hit)
 
 bool TransformSurface::intersectAll(const Ray& ray, Hit& in, Hit& out) const {
   Point objCamera = obj2worldInverse * ray.getPoint();
-  Vector objDirection = (obj2worldInverse * ray.getDirection()).normalize();
+  Vector objDirection = obj2worldInverse * ray.getDirection();
   Hit objIn;
   Hit objOut;
   if (surface->intersectAll(Ray(objCamera, objDirection), objIn, objOut)) {
-    in = Hit(this, objIn.getT());
-    out = Hit(this, objOut.getT());
+    in = objIn.pushSurface(this);
+    out = objOut.pushSurface(this);
     return true;
   }
   return false;
@@ -54,18 +54,18 @@ const BoundingBox& TransformSurface::getBoundingBox() const {
 }
 
 Vector TransformSurface::calculateNormal(const Point& hitpoint, const Hit& hit) const {
-  Vector normal = surface->calculateNormal(obj2worldInverse * hitpoint, hit);
+  Vector normal = surface->calculateNormal(obj2worldInverse * hitpoint, hit.popSurface());
   return (obj2worldInverseTranspose * normal).normalize();
 }
 
 Color TransformSurface::textureColor(const Point& hitpoint, const Hit& hit) const {
-  return surface->textureColor(obj2worldInverse * hitpoint, hit);
+  return surface->textureColor(obj2worldInverse * hitpoint, hit.popSurface());
 }
 
-const Material* TransformSurface::getMaterial() const {
-  return surface->getMaterial();
+const Material* TransformSurface::getMaterial(const Point& hitpoint, const Hit& hit) const {
+  return surface->getMaterial(hitpoint, hit.popSurface());
 }
 
-const Texture* TransformSurface::getTexture() const {
-  return surface->getTexture();
+const Texture* TransformSurface::getTexture(const Point& hitpoint, const Hit& hit) const {
+  return surface->getTexture(hitpoint, hit.popSurface());
 }

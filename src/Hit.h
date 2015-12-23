@@ -35,16 +35,18 @@ using namespace std;
  */
 class Hit {
   public:
-    Hit() : surfacePath(vector<const Surface*>()), t(0.0) { }
+    Hit() : surfacePath(), t(0.0) { }
     Hit(const Surface* s, double t) : surfacePath{s}, t(t) { }
-    Hit(const vector<const Surface*> s, double t) : surfacePath(s), t(t) {
-      if (s.empty()) {
-        throw RenderException("Invalid empty Surfaces vector in Hit ");
-      }
-    }
-    vector<const Surface*> getSurfacePath() const;
+    Hit(const vector<const Surface*> s, double t) : surfacePath(s), t(t) { }
+    Hit pushSurface(const Surface* surface) const;
+    Hit popSurface() const;
+    const vector<const Surface*> getSurfaceStack() const;
     const Surface* getSurface() const;
     double getT() const;
+    bool operator<=(const Hit& other) const;
+    bool operator>=(const Hit& other) const;
+    bool operator<(const Hit& other) const;
+    bool operator>(const Hit& other) const;
     static const Hit& max(const Hit& h1, const Hit& h2);
     static const Hit& min(const Hit& h1, const Hit& h2);
   private:

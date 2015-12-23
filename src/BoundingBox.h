@@ -20,6 +20,7 @@
 
 #include <vector>
 #include <iostream>
+#include <limits>
 class Point;
 class Ray;
 using namespace std;
@@ -32,11 +33,15 @@ class BoundingBox {
     /** Construct bounding box, minimum XYZ dimensions contained in min vector,
      * and maximum XYZ dimensions in max vector. (min and max should have 3 components).
      */
-    BoundingBox() { }
+    BoundingBox() : boxMin({-numeric_limits<double>::max(), -numeric_limits<double>::max(), -numeric_limits<double>::max()}),
+      boxMax({numeric_limits<double>::max(),numeric_limits<double>::max(),numeric_limits<double>::max()}) { }
     BoundingBox(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) :
       boxMin{minX, minY, minZ}, boxMax{maxX, maxY, maxZ} { }
     BoundingBox(const vector<double>& minXYZ, const vector<double>& maxXYZ) :
       boxMin(minXYZ), boxMax(maxXYZ) { }
+    BoundingBox(const BoundingBox& other) :
+      boxMin(other.getMin()), boxMax(other.getMax()) { }
+
     /** Surface intersection. */
     bool intersect(const Ray& ray, double t0, double t1) const;
     bool calculateTs(const Ray& ray, double ts[]) const;

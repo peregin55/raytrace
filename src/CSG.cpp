@@ -24,21 +24,25 @@ bool CSG::intersectAll(const Ray& ray, Hit& in, Hit& out) const {
   Hit leftOut;
   Hit rightIn;
   Hit rightOut;
+  bool isIntersect = false;
   if (surface) {
-    return surface->intersectAll(ray, in, out);
+    isIntersect = surface->intersectAll(ray, in, out);
   } else {
     bool isLeft = left->intersectAll(ray, leftIn, leftOut);
     bool isRight = right->intersectAll(ray, rightIn, rightOut);
     if (isLeft && isRight) {
-      return applySetOp(leftIn, leftOut, rightIn, rightOut, in, out);
+      isIntersect = applySetOp(leftIn, leftOut, rightIn, rightOut, in, out);
     } else if (isLeft) {
-      return applySetOpLeft(leftIn, leftOut, in, out);
+      isIntersect = applySetOpLeft(leftIn, leftOut, in, out);
     } else if (isRight) {
-      return applySetOpRight(rightIn, rightOut, in, out);
-    } else {
-      return false;
+      isIntersect = applySetOpRight(rightIn, rightOut, in, out);
     }
   }
+  if (isIntersect) {
+    in = in.pushSurface(this);
+    out = out.pushSurface(this);
+  }
+  return isIntersect;
 }
 
 bool CSG::applySetOp(const Hit& leftIn, const Hit& leftOut, const Hit& rightIn, const Hit& rightOut, Hit& in, Hit& out) const {
@@ -46,11 +50,36 @@ bool CSG::applySetOp(const Hit& leftIn, const Hit& leftOut, const Hit& rightIn, 
     in = Hit::min(leftIn, rightIn);
     out = Hit::max(leftOut, rightOut);
   } else if (op == SUBTRACT) {
-    in = rightOut;
-    out = leftOut;
+    if ((leftIn < rightIn && leftOut < rightIn) || (leftIn > rightOut && leftOut > rightOut)) {
+      // no intersection, so just return left
+      in = leftIn;
+      out = leftOut;
+    } else if (leftIn < rightIn && leftOut > rightIn && leftOut < rightOut) {
+      // overlap, left in front
+      in = leftIn;
+      out = rightIn;
+    } else if (leftIn < rightIn && leftOut > rightOut) {
+      // left completely contains right
+      in = leftIn;
+      out = leftOut;
+    } else if (leftIn >= rightIn && leftOut <= rightOut) {
+      // right completely contains left
+      return false;
+    } else if (leftIn > rightIn && leftIn < rightOut && leftOut > rightOut) {
+      // overlap, right in front
+      in = rightOut;
+      out = leftOut;
+    }
+    else {
+      throw RenderException("Invalid CSG SUBTRACT");
+    }
   } else if (op == INTERSECT) {
-    in = Hit::max(leftIn, rightIn);
-    out = Hit::min(leftOut, rightOut);
+    if ((leftIn < rightIn && leftOut < rightIn) || (leftIn > rightOut && leftOut > rightOut)) {
+      return false;  // 2 objects don't actually intersect
+    } else {
+      in = Hit::max(leftIn, rightIn);
+      out = Hit::min(leftOut, rightOut);
+    }
   } else {
     throw RenderException("Unknown CSGOperation " + op);
   }
@@ -81,46 +110,81 @@ bool CSG::applySetOpRight(const Hit& rightIn, const Hit& rightOut, Hit& in, Hit&
   }
 }
 
-
 const BoundingBox& CSG::getBoundingBox() const {
   return boundingBox;
 }
 
-
 Vector CSG::calculateNormal(const Point& hitpoint, const Hit& hit) const {
-
   const CSG* p = this;
   int sign = 1;
-   
-  for(auto it = hit.getSurfacePath().rbegin(); it != hit.getSurfacePath().rend(); it++) {
-    if ((p->right).get() == *it) {
+  vector<const Surface*> surfaceStack = hit.getSurfaceStack();
+  if (p != surfaceStack.back()) {
+    throw RenderException("Invalid hit-surfaces passed to CSG");
+  }
+  surfaceStack.pop_back();
+  while(!p->surface.get()) {
+    if ((p->right).get() == surfaceStack.back()) {
       if (p->op == SUBTRACT) {
-        cerr << "reversing sign" << endl;
         sign *= -1;
       }
       p = (p->right).get();
-    } else if ((p->left).get() == *it) {
+    } else if ((p->left).get() == surfaceStack.back()) {
       p = (p->left).get();
+    } else {
+      printTree(this);
+      cerr << endl;
+      for (auto it = hit.getSurfaceStack().rbegin(); it != hit.getSurfaceStack().rend(); it++) {
+        cerr << (*it) << " ";
+      }
+      cerr << endl;
+      throw RenderException("unrecognized CSG surface");
     }
+    surfaceStack.pop_back();
   }
-  return hit.getSurfacePath().front()->calculateNormal(hitpoint, hit) * sign;
-
-  
-/*   
-  // fix
-  if (!surface) {
-    return left->calculateNormal(hitpoint, hit);
-  } else {
-    return surface->calculateNormal(hitpoint, hit);
-  }
- */ 
+  return p->surface->calculateNormal(hitpoint, Hit(surfaceStack, hit.getT())) * sign;
+}
+ 
+Color CSG::textureColor(const Point& hitpoint, const Hit& hit) const {
+  const Hit& h = navigateLeaf(hit);
+  return h.getSurface()->textureColor(hitpoint, h);
 }
 
-Color CSG::textureColor(const Point& hitpoint, const Hit& hit) const {
-  // fix
-  if (!surface) {
-    return left->textureColor(hitpoint, hit);
-  } else {
-    return surface->textureColor(hitpoint, hit);
+const Material* CSG::getMaterial(const Point& hitpoint, const Hit& hit) const {
+  const Hit& h = navigateLeaf(hit);
+  return h.getSurface()->getMaterial(hitpoint, h);
+}
+const Texture* CSG::getTexture(const Point& hitpoint, const Hit& hit) const {
+  const Hit& h = navigateLeaf(hit);
+  return h.getSurface()->getTexture(hitpoint, h);
+}
+
+Hit CSG::navigateLeaf(const Hit& hit) const {
+  const CSG* p = this;
+  vector<const Surface*> surfaceStack = hit.getSurfaceStack();
+  if (p != surfaceStack.back()) {
+    throw RenderException("Invalid hit-surfaces passed to CSG");
   }
+  surfaceStack.pop_back();
+  while (!p->surface) {
+    if ((p->right).get() == surfaceStack.back()) {
+      p = (p->right).get();
+    } else if ((p->left).get() == surfaceStack.back()) {
+      p = (p->left).get();
+    } else {
+      throw RenderException("unrecognized CSG surface");
+    }
+    surfaceStack.pop_back();
+  }
+  return Hit(surfaceStack, hit.getT());
+}
+ 
+void CSG::printTree(const CSG* p) const {
+  if (p->left) printTree(p->left.get());
+  cerr << p;
+  if (p->surface) {
+    cerr << "(" << p->surface.get() << ") ";
+  } else {
+    cerr << " ";
+  }
+  if (p->right) printTree(p->right.get());
 }

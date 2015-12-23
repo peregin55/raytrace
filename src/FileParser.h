@@ -55,9 +55,8 @@ class FileParser {
     unique_ptr<Surface> buildLocalSurface(const Json::Value& surfacesNode, const unordered_map<string, shared_ptr<Material>>& materials, const unordered_map<string, SurfaceStruct>& structMap) const;
     shared_ptr<Material> fetchMaterial(const Json::Value& materialNode, const unordered_map<string, shared_ptr<Material>>& materials) const;
     unordered_map<string, shared_ptr<Material>> parseMaterials(const Json::Value& materialNode) const;
-    //void parseContext(vector<unique_ptr<Entity>>& surfaces, Matrix4 obj2world,
-      //Json::Value contextNode, const unordered_map<string, Json::Value>& availableSurfaces,
-      //const unordered_map<string, shared_ptr<Material>>& materials) const;
+    unique_ptr<Surface> buildCSGChild(const Json::Value& node, const string& name, const unordered_map<string, shared_ptr<Material>>& materials, const unordered_map<string, SurfaceStruct>& structMap) const;
+    unique_ptr<Surface> buildCSG(const Json::Value& node, const string& name, const unordered_map<string, shared_ptr<Material>>& materials, const unordered_map<string, SurfaceStruct>& structMap) const;
     Matrix4 parseTransformation(const Json::Value& node) const;
     Json::Value findReference(const string& name, const unordered_map<string, Json::Value>& map) const;
     double deg2rad(double degrees) const;

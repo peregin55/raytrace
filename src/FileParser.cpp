@@ -87,19 +87,12 @@ unique_ptr<Scene> FileParser::parseScene(const Json::Value& root) const {
 
 
 void FileParser::buildSurfaceStructMap(const Json::Value& node, const Matrix4& matrix, unordered_map<string, SurfaceStruct>& structMap) const {
-  Json::Value const* transformNode = nullptr;
   for (unsigned int i = 0; i < node.size(); i++) {
     if (node[i]["transform"] != Json::nullValue) {
-      if (transformNode != nullptr) {
-        throw RenderException("Cannot have multiple 'transform' nodes in single block");
-      }
-      transformNode = &node[i];
+      buildSurfaceStructMap(node[i]["surfaces"], parseTransformation(node[i]["transform"])*matrix, structMap);
     } else {
       buildSurfaceStruct(node[i], matrix, structMap);
     }
-  }
-  if (transformNode) {
-    buildSurfaceStructMap((*transformNode)["surfaces"], parseTransformation((*transformNode)["transform"])*matrix, structMap);
   }
 }
     
@@ -190,21 +183,55 @@ unique_ptr<Surface> FileParser::buildLocalSurface(const Json::Value& surfaceNode
   }
   else if (surfaceNode["csg"] != Json::nullValue) {
     Json::Value op = surfaceNode["csg"]["op"];
-    if (op["subtract"] != Json::nullValue) {
-      unique_ptr<Surface> left = buildSurface(parseString(op["subtract"][(Json::Value::UInt)0], "csg subtract left surface name"), structMap, materials);
-      unique_ptr<Surface> right = buildSurface(parseString(op["subtract"][1], "csg subtract right surface name"), structMap, materials);
-      unique_ptr<CSG> leftCSG = unique_ptr<CSG>(new CSG(NONE, std::move(left), unique_ptr<CSG>(nullptr), unique_ptr<CSG>(nullptr)));
-      unique_ptr<CSG> rightCSG = unique_ptr<CSG>(new CSG(NONE, std::move(right), unique_ptr<CSG>(nullptr), unique_ptr<CSG>(nullptr)));
-      return unique_ptr<Surface>(new CSG(SUBTRACT, unique_ptr<Surface>(nullptr), std::move(leftCSG), std::move(rightCSG)));
-    }
-    else {
-      throw RenderException("Unknown csg operation for: " + name);
-    }
+    return buildCSG(op, name, materials, structMap);
   } 
   else {
     throw RenderException("Unknown object: " + name);
   }
 }
+
+unique_ptr<Surface> FileParser::buildCSGChild(const Json::Value& node,
+                                              const string& name,
+                                              const unordered_map<string, shared_ptr<Material>>& materials,
+                                              const unordered_map<string, SurfaceStruct>& structMap) const {
+  if (node.type() == Json::stringValue) {
+    return buildSurface(parseString(node, "csg surface element " + name), structMap, materials);
+  } else {
+    return buildCSG(node, name, materials, structMap);
+  }
+}
+
+unique_ptr<Surface> FileParser::buildCSG(const Json::Value& node,
+                                         const string& name,
+                                         const unordered_map<string, shared_ptr<Material>>& materials,
+                                         const unordered_map<string, SurfaceStruct>& structMap) const {
+  if (node["subtract"] != Json::nullValue) {
+    unique_ptr<Surface> left = buildCSGChild(node["subtract"][(Json::Value::UInt)0], name, materials, structMap);
+    unique_ptr<Surface> right = buildCSGChild(node["subtract"][1], name, materials, structMap);
+    unique_ptr<CSG> leftCSG(new CSG(NONE, std::move(left), nullptr, nullptr));
+    unique_ptr<CSG> rightCSG(new CSG(NONE, std::move(right), nullptr, nullptr));
+    return unique_ptr<Surface>(new CSG(SUBTRACT, nullptr, std::move(leftCSG), std::move(rightCSG)));
+  }
+  else if (node["intersect"] != Json::nullValue) {
+    unique_ptr<Surface> left = buildCSGChild(node["intersect"][(Json::Value::UInt)0], name, materials, structMap);
+    unique_ptr<Surface> right = buildCSGChild(node["intersect"][1], name, materials, structMap);
+    unique_ptr<CSG> leftCSG(new CSG(NONE, std::move(left), nullptr, nullptr));
+    unique_ptr<CSG> rightCSG(new CSG(NONE, std::move(right), nullptr, nullptr));
+    return unique_ptr<Surface>(new CSG(INTERSECT, nullptr, std::move(leftCSG), std::move(rightCSG)));
+  }
+  else if (node["union"] != Json::nullValue) {
+    unique_ptr<Surface> left = buildCSGChild(node["union"][(Json::Value::UInt)0], name, materials, structMap);
+    unique_ptr<Surface> right = buildCSGChild(node["union"][1], name, materials, structMap);
+    unique_ptr<CSG> leftCSG(new CSG(NONE, std::move(left), nullptr, nullptr));
+    unique_ptr<CSG> rightCSG(new CSG(NONE, std::move(right), nullptr, nullptr));
+    return unique_ptr<Surface>(new CSG(UNION, nullptr, std::move(leftCSG), std::move(rightCSG)));
+  } 
+  else {
+    throw RenderException("Unknown csg operation for: " + name);
+  }
+}
+
+  
 
 unordered_map<string, shared_ptr<Material>> FileParser::parseMaterials(const Json::Value& materialsNode) const {
   unordered_map<string, shared_ptr<Material>> materials;

@@ -21,6 +21,7 @@
 #include <memory>
 #include "BoundingBox.h"
 #include "Surface.h"
+#include "RenderException.h"
 using namespace std;
 class BoundingBox;
 class Hit;
@@ -33,17 +34,31 @@ class CSG : public Surface {
   public:
     CSG(CSGOperation op, unique_ptr<Surface> surface, unique_ptr<CSG> left, unique_ptr<CSG> right) :
       Surface(nullptr, nullptr), op(op), surface(std::move(surface)), left(std::move(left)), right(std::move(right)) {
-        boundingBox = BoundingBox(-1.0, -1.0, -1.0, 1.0, 1.0, 1.0);
+        if (surface) {
+          boundingBox = surface->getBoundingBox();
+        } else if (left && right) {
+          boundingBox = left->getBoundingBox() + right->getBoundingBox();
+        } else if (left) {
+          boundingBox = left->getBoundingBox();
+        } else if (right) {
+          boundingBox = right->getBoundingBox();
+        } else {
+          boundingBox = BoundingBox();
+        }
     }
     virtual bool intersect(const Ray& ray, double t0, double t1, Hit& hit) const;
     virtual bool intersectAll(const Ray& ray, Hit& in, Hit& out) const;
     virtual const BoundingBox& getBoundingBox() const;
     virtual Vector calculateNormal(const Point& hitpoint, const Hit& hit) const;
     virtual Color textureColor(const Point& hitpoint, const Hit& hit) const;
+    virtual const Material* getMaterial(const Point& hitpoint, const Hit& hit) const;
+    virtual const Texture* getTexture(const Point& hitpoint, const Hit& hit) const;
   private:
+    void printTree(const CSG* p) const;
     bool applySetOp(const Hit& leftIn, const Hit& leftOut, const Hit& rightIn, const Hit& rightOut, Hit& in, Hit& out) const;
     bool applySetOpLeft(const Hit& leftIn, const Hit& leftOut, Hit& in, Hit& out) const;
     bool applySetOpRight(const Hit& rightIn, const Hit& rightOut, Hit& in, Hit& out) const;
+    Hit navigateLeaf(const Hit& hit) const;
     CSGOperation op;
     unique_ptr<Surface> surface;
     unique_ptr<CSG> left;
