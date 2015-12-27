@@ -18,6 +18,7 @@
 #include "Plane.h"
 #include "Hit.h"
 #include "Ray.h"
+#include "Shading.h"
 #include "Texture.h"
 #include <cmath>
 #include <limits>
@@ -80,26 +81,20 @@ BoundingBox Plane::createBoundingBox(const Point& p0, const Vector& normal) cons
 }
     
     
-
+Shading Plane::shading(const Point& hitpoint, const Hit& hit) const {
+  return Shading(normal, textureColor(hitpoint), material.get());
+}
   
-Vector Plane::calculateNormal(const Point& hitpoint, const Hit& hit) const {
-  return normal;
-}
-
-Vector Plane::calculateNormal(const Point& hitpoint) const {
-  return normal;
-}
-
-Color Plane::textureColor(const Point& hitpoint, const Hit& hit) const {
-  return textureColor(hitpoint);
-}
-
 Color Plane::textureColor(const Point& hitpoint) const {
   if (texture) {
     Point local = world2plane * hitpoint;
     return texture->colorAt(mapInfinitely(local[X]), mapInfinitely(local[Y]));
   }
   return Color();
+}
+
+Vector Plane::getNormal() const {
+  return normal;
 }
 
 double Plane::mapInfinitely(double x) const {

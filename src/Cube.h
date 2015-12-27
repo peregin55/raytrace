@@ -26,6 +26,7 @@ class Hit;
 class Matrix4;
 class Point;
 class Ray;
+class Shading;
 class Vector;
 using namespace std;
 
@@ -43,9 +44,10 @@ class Cube : public Surface {
     virtual bool intersect(const Ray& ray, double t0, double t1, Hit& hit) const;
     virtual bool intersectAll(const Ray& ray, Hit& in, Hit& out) const;
     virtual const BoundingBox& getBoundingBox() const;
-    virtual Vector calculateNormal(const Point& hitpoint, const Hit& hit) const;
-    virtual Color textureColor(const Point& hitpoint, const Hit& hit) const;
+    virtual Shading shading(const Point& hitpoint, const Hit& hit) const;
   private:
+    Vector calculateNormal(const Point& hitpoint) const;
+    Color textureColor(const Point& hitpoint) const;
     BoundingBox boundingBox;
     static const double EPSILON;
 };

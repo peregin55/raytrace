@@ -2,18 +2,21 @@
 #include "Ray.h"
 #include "Hit.h"
 #include "RenderException.h"
+#include "Shading.h"
 #include <vector>
 
 bool CSG::intersect(const Ray& ray, double t0, double t1, Hit& hit) const {
   Hit in;
   Hit out;
-  if (intersectAll(ray, in, out)) {
-    if (in.getT() >= t0 && in.getT() <= t1) {
-      hit = in;
-      return true;
-    } else if (out.getT() >= t0 && out.getT() <= t1) {
-      hit = out;
-      return true;
+  if (boundingBox.intersect(ray, t0, t1)) {
+    if (intersectAll(ray, in, out)) {
+      if (in.getT() >= t0 && in.getT() <= t1) {
+        hit = in;
+        return true;
+      } else if (out.getT() >= t0 && out.getT() <= t1) {
+        hit = out;
+        return true;
+      }
     }
   }
   return false; 
@@ -114,7 +117,7 @@ const BoundingBox& CSG::getBoundingBox() const {
   return boundingBox;
 }
 
-Vector CSG::calculateNormal(const Point& hitpoint, const Hit& hit) const {
+Shading CSG::shading(const Point& hitpoint, const Hit& hit) const {
   const CSG* p = this;
   int sign = 1;
   vector<const Surface*> surfaceStack = hit.getSurfaceStack();
@@ -141,43 +144,10 @@ Vector CSG::calculateNormal(const Point& hitpoint, const Hit& hit) const {
     }
     surfaceStack.pop_back();
   }
-  return p->surface->calculateNormal(hitpoint, Hit(surfaceStack, hit.getT())) * sign;
-}
- 
-Color CSG::textureColor(const Point& hitpoint, const Hit& hit) const {
-  const Hit& h = navigateLeaf(hit);
-  return h.getSurface()->textureColor(hitpoint, h);
+  const Shading& shading = p->surface->shading(hitpoint, Hit(surfaceStack, hit.getT()));
+  return Shading(shading.getNormal() * sign, shading.getTextureColor(), shading.getMaterial());
 }
 
-const Material* CSG::getMaterial(const Point& hitpoint, const Hit& hit) const {
-  const Hit& h = navigateLeaf(hit);
-  return h.getSurface()->getMaterial(hitpoint, h);
-}
-const Texture* CSG::getTexture(const Point& hitpoint, const Hit& hit) const {
-  const Hit& h = navigateLeaf(hit);
-  return h.getSurface()->getTexture(hitpoint, h);
-}
-
-Hit CSG::navigateLeaf(const Hit& hit) const {
-  const CSG* p = this;
-  vector<const Surface*> surfaceStack = hit.getSurfaceStack();
-  if (p != surfaceStack.back()) {
-    throw RenderException("Invalid hit-surfaces passed to CSG");
-  }
-  surfaceStack.pop_back();
-  while (!p->surface) {
-    if ((p->right).get() == surfaceStack.back()) {
-      p = (p->right).get();
-    } else if ((p->left).get() == surfaceStack.back()) {
-      p = (p->left).get();
-    } else {
-      throw RenderException("unrecognized CSG surface");
-    }
-    surfaceStack.pop_back();
-  }
-  return Hit(surfaceStack, hit.getT());
-}
- 
 void CSG::printTree(const CSG* p) const {
   if (p->left) printTree(p->left.get());
   cerr << p;

@@ -31,13 +31,14 @@ class BoundingBox;
 class Hit;
 class Matrix4;
 class Ray;
+class Shading;
 class Texture;
 
 /** Triangle surface. */
 class Triangle : public Surface {
   public:
     Triangle(shared_ptr<Material> material, shared_ptr<Texture> texture, const Point& p0, const Point& p1, const Point& p2) :
-      Surface(material, texture), p0(p0), p1(p1), p2(p2), plane(material, texture, p0, p1, p2), normal(plane.calculateNormal(p0)) {
+      Surface(material, texture), p0(p0), p1(p1), p2(p2), plane(material, texture, p0, p1, p2), normal(plane.getNormal()) {
       boundingBox = BoundingBox(
         min(p0[X], min(p1[X], p2[X])),
         min(p0[Y], min(p1[Y], p2[Y])),
@@ -49,8 +50,7 @@ class Triangle : public Surface {
     virtual bool intersect(const Ray& ray, double t0, double t1, Hit& hit) const;
     virtual bool intersectAll(const Ray& ray, Hit& in, Hit& out) const;
     virtual const BoundingBox& getBoundingBox() const;
-    virtual Vector calculateNormal(const Point& hitpoint, const Hit& hit) const;
-    virtual Color textureColor(const Point& hitpoint, const Hit& hit) const;
+    virtual Shading shading(const Point& hitpoint, const Hit& hit) const;
   private:
     bool isContained(const Point& q0, const Point& q1, const Point& intersect) const;
     Point p0, p1, p2;

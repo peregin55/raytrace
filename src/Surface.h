@@ -22,10 +22,12 @@
 #include "Color.h"
 #include "Material.h"
 #include "Ray.h"
+#include "Shading.h"
 using namespace std;
 class BoundingBox;
 class Hit;
 class Point;
+class Shading;
 class Texture;
 class Vector;
 
@@ -40,10 +42,7 @@ class Surface {
     virtual bool intersect(const Ray& ray, double t0, double t1, Hit& hit) const = 0;
     virtual bool intersectAll(const Ray& ray, Hit& in, Hit& out) const = 0;
     virtual const BoundingBox& getBoundingBox() const = 0;
-    virtual Vector calculateNormal(const Point& hitpoint, const Hit& hit) const = 0;
-    virtual Color textureColor(const Point& hitpoint, const Hit& hit) const = 0;
-    virtual const Material* getMaterial(const Point& hitpoint, const Hit& hit) const { return material.get(); }
-    virtual const Texture* getTexture(const Point& hitpoint, const Hit& hit) const { return texture.get(); }
+    virtual Shading shading(const Point& hitpoint, const Hit& hit) const = 0;
     virtual ~Surface() { }
   protected:
     shared_ptr<Material> material;

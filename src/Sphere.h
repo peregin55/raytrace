@@ -32,6 +32,7 @@ class Hit;
 class Texture;
 class Matrix4;
 class Ray;
+class Shading;
 class Vector;
 
 /** Sphere surface defined by center location and radius. */
@@ -44,9 +45,10 @@ class Sphere : public Surface {
     virtual bool intersect(const Ray& ray, double t0, double t1, Hit& hit) const;
     virtual bool intersectAll(const Ray& ray, Hit& in, Hit& out) const;
     virtual const BoundingBox& getBoundingBox() const;
-    virtual Vector calculateNormal(const Point& hitpoint, const Hit& hit) const;
-    virtual Color textureColor(const Point& hitpoint, const Hit& hit) const;
+    virtual Shading shading(const Point& hitpoint, const Hit& hit) const;
   private:
+    Vector calculateNormal(const Point& hitpoint) const;
+    Color textureColor(const Point& hitpoint) const;
     Point center;
     double radius;
     Matrix4 world2obj;

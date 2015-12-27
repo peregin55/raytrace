@@ -74,10 +74,11 @@ Color Scene::colorFromHit(const Ray& ray, const Hit& hit, unsigned int traceCoun
   const Surface* surface = hit.getSurface();
   double t = hit.getT();
   Point hitpoint = ray.calculatePoint(t);
-  Vector normal = surface->calculateNormal(hitpoint, hit);
+  Shading shading = surface->shading(hitpoint, hit);
+  const Vector& normal = shading.getNormal();
   const Vector& incident = ray.getDirection().normalize();
-  const Material &material = *hit.getSurface()->getMaterial(hitpoint, hit);
-  Color textureColor = hit.getSurface()->textureColor(hitpoint, hit);
+  const Material &material = *shading.getMaterial();
+  const Color& textureColor = shading.getTextureColor();
   Color color;
   for (Light light : lights) {
     color = color + calculateLocalColor(incident, normal, hitpoint, material, textureColor, light);

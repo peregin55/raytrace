@@ -20,6 +20,7 @@
 #include "Sphere.h"
 #include "Hit.h"
 #include "Ray.h"
+#include "Shading.h"
 #include "Texture.h"
 #include "Vector.h"
 
@@ -73,11 +74,15 @@ const BoundingBox& Sphere::getBoundingBox() const {
   return boundingBox;
 }
 
-Vector Sphere::calculateNormal(const Point& hitpoint, const Hit& hit) const {
+Shading Sphere::shading(const Point& hitpoint, const Hit& hit) const {
+  return Shading(calculateNormal(hitpoint), textureColor(hitpoint), material.get());
+}
+
+Vector Sphere::calculateNormal(const Point& hitpoint) const {
   return (hitpoint - center).normalize();
 }
 
-Color Sphere::textureColor(const Point& hitpoint, const Hit& hit) const {
+Color Sphere::textureColor(const Point& hitpoint) const {
   if (texture) {
     Vector local = hitpoint - center;
     double theta = atan(local[X]/local[Z]);

@@ -20,6 +20,7 @@
 #include "Plane.h"
 #include "Hit.h"
 #include "Ray.h"
+#include "Shading.h"
 #include "Texture.h"
 #include <limits>
 
@@ -61,10 +62,6 @@ bool Triangle::isContained(const Point& q0, const Point& q1, const Point& inters
   return intersectNormal.dot(normal) >= 0.0;
 }
 
-Vector Triangle::calculateNormal(const Point& hitpoint, const Hit& hit) const {
-  return normal;
-}
-
-Color Triangle::textureColor(const Point& hitpoint, const Hit& hit) const {
-  return plane.textureColor(hitpoint);
+Shading Triangle::shading(const Point& hitpoint, const Hit& hit) const {
+  return Shading(normal, plane.textureColor(hitpoint), material.get());
 }

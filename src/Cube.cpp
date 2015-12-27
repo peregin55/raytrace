@@ -23,6 +23,7 @@
 #include "Vector.h"
 #include "Color.h"
 #include "Texture.h"
+#include "Shading.h"
 #include <string>
 
 const double Cube::EPSILON = 1.0e-10;
@@ -59,7 +60,11 @@ const BoundingBox& Cube::getBoundingBox() const {
   return boundingBox;
 }
 
-Vector Cube::calculateNormal(const Point& hitpoint, const Hit& hit) const {
+Shading Cube::shading(const Point& hitpoint, const Hit& hit) const {
+  return Shading(calculateNormal(hitpoint), textureColor(hitpoint), material.get());
+}
+
+Vector Cube::calculateNormal(const Point& hitpoint) const {
   const vector<double>& cubeMin = boundingBox.getMin();
   const vector<double>& cubeMax = boundingBox.getMax();
   if (fabs(hitpoint[X] - cubeMin[X]) < EPSILON) {
@@ -85,7 +90,7 @@ Vector Cube::calculateNormal(const Point& hitpoint, const Hit& hit) const {
   }
 }
 
-Color Cube::textureColor(const Point& hitpoint, const Hit& hit) const {
+Color Cube::textureColor(const Point& hitpoint) const {
   const vector<double>& cubeMin = boundingBox.getMin();
   const vector<double>& cubeMax = boundingBox.getMax();
   if (!texture) {

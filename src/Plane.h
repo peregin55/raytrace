@@ -32,6 +32,7 @@ class BoundingBox;
 class Material;
 class Texture;
 class Ray;
+class Shading;
 
 /** Infinite plane surface. */
 class Plane : public Surface {
@@ -69,10 +70,9 @@ class Plane : public Surface {
     virtual bool intersect(const Ray& ray, double t0, double t1, Hit& hit) const;
     virtual bool intersectAll(const Ray& ray, Hit& in, Hit& out) const;
     virtual const BoundingBox& getBoundingBox() const;
-    virtual Vector calculateNormal(const Point& hitpoint) const;
-    virtual Vector calculateNormal(const Point& hitpoint, const Hit& hit) const;
+    virtual Shading shading(const Point& hitpoint, const Hit& hit) const;
     virtual Color textureColor(const Point& hitpoint) const;
-    virtual Color textureColor(const Point& hitpoint, const Hit& hit) const;
+    virtual Vector getNormal() const;
     const static double EPSILON;
   private:
     double mapInfinitely(double x) const;

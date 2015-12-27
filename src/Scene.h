@@ -22,6 +22,7 @@
 #include <memory>
 #include <string>
 #include "BoundingBox.h"
+#include "Shading.h"
 #include "Surface.h"
 #include "Light.h"
 #include "Point.h"
