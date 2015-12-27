@@ -81,7 +81,7 @@ bool CSG::applySetOp(const Hit& leftIn, const Hit& leftOut, const Hit& rightIn, 
       out = Hit::min(leftOut, rightOut);
     }
   } else {
-    throw RenderException("Unknown CSGOperation " + op);
+    throw RenderException("Unknown CSGOperation");
   }
   return true;
 }
@@ -94,7 +94,7 @@ bool CSG::applySetOpLeft(const Hit& leftIn, const Hit& leftOut, Hit& in, Hit& ou
   } else if (op == INTERSECT) {
     return false;
   } else {
-    throw new RenderException("Unknown CSGOperation " + op);
+    throw RenderException("Unknown CSGOperation");
   }
 }
 
@@ -106,7 +106,7 @@ bool CSG::applySetOpRight(const Hit& rightIn, const Hit& rightOut, Hit& in, Hit&
   } else if (op == SUBTRACT || op == INTERSECT) {
     return false;
   } else {
-    throw new RenderException("Unknown CSGOperation " + op);
+    throw RenderException("Unknown CSGOperation");
   }
 }
 
