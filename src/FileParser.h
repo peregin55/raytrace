@@ -58,9 +58,7 @@ class FileParser {
     unique_ptr<Surface> buildCSGChild(const Json::Value& node, const string& name, const unordered_map<string, shared_ptr<Material>>& materials, const unordered_map<string, SurfaceStruct>& structMap) const;
     unique_ptr<Surface> buildCSG(const Json::Value& node, const string& name, const unordered_map<string, shared_ptr<Material>>& materials, const unordered_map<string, SurfaceStruct>& structMap) const;
     Matrix4 parseTransformation(const Json::Value& node) const;
-    Json::Value findReference(const string& name, const unordered_map<string, Json::Value>& map) const;
     double deg2rad(double degrees) const;
-    unordered_map<string, Json::Value> node2namemap(const Json::Value& node, const string& errStr) const;
     Point parsePoint(const Json::Value& node, const string& nodeName) const;
     Vector parseVector(const Json::Value& node, const string& nodeName) const;
     Color parseColor(const Json::Value& node, const string& nodeName) const;

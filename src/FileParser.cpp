@@ -132,14 +132,7 @@ unique_ptr<Surface> FileParser::buildSurface(const string& name,
   }
 }
 
-shared_ptr<Material> FileParser::fetchMaterial(const Json::Value& materialNode, const unordered_map<string, shared_ptr<Material>>& materials) const {
-  string name = parseString(materialNode, "material name");
-  try {
-    return materials.at(name);
-  } catch (const out_of_range& e) {
-    throw RenderException("Unable to find material: \"" + name + "\"");
-  }
-}
+
 
 unique_ptr<Surface> FileParser::buildLocalSurface(const Json::Value& surfaceNode,
   const unordered_map<string, shared_ptr<Material>>& materials,
@@ -231,7 +224,14 @@ unique_ptr<Surface> FileParser::buildCSG(const Json::Value& node,
   }
 }
 
-  
+shared_ptr<Material> FileParser::fetchMaterial(const Json::Value& materialNode, const unordered_map<string, shared_ptr<Material>>& materials) const {
+  string name = parseString(materialNode, "material name");
+  try {
+    return materials.at(name);
+  } catch (const out_of_range& e) {
+    throw RenderException("Unable to find material: \"" + name + "\"");
+  }
+}  
 
 unordered_map<string, shared_ptr<Material>> FileParser::parseMaterials(const Json::Value& materialsNode) const {
   unordered_map<string, shared_ptr<Material>> materials;
@@ -251,30 +251,6 @@ unordered_map<string, shared_ptr<Material>> FileParser::parseMaterials(const Jso
   return materials;
 }
 
-/*
-void FileParser::parseContext(vector<unique_ptr<Entity>>& surfaces, Matrix4 obj2world,
-  Json::Value contextNode, const unordered_map<string, Json::Value>& availableSurfaces,
-  const unordered_map<string, shared_ptr<Material>>& materials) const {
-  while (contextNode != Json::nullValue) {
-    Json::Value transformNode = contextNode["transform"];
-    if (transformNode != Json::nullValue) {
-      for (unsigned int i = 0; i < transformNode.size(); i++) {
-        obj2world = parseTransformation(transformNode[i]) * obj2world;
-      }
-    }
-    Json::Value surfaceNamesNode = contextNode["surfaces"];
-    if (surfaceNamesNode != Json::nullValue) {
-      for (unsigned int i = 0; i < surfaceNamesNode.size(); i++) {
-        string surfaceName = parseString(surfaceNamesNode[i], "scene surface reference");
-        unique_ptr<Surface> surface = parseSurface(findReference(surfaceName, availableSurfaces), materials);
-        unique_ptr<Surface> transformSurface(new TransformSurface(obj2world, std::move(surface)));
-        surfaces.push_back(std::move(transformSurface));
-      }
-    }
-    contextNode = contextNode["context"];
-  }
-}
-*/
 
 Matrix4 FileParser::parseTransformation(const Json::Value& transformNode) const {
   Matrix4 matrix = identity();
@@ -302,23 +278,6 @@ Matrix4 FileParser::parseTransformation(const Json::Value& transformNode) const 
   return matrix;
 }
  
-
-Json::Value FileParser::findReference(const string& name, const unordered_map<string, Json::Value>& map) const {
-  unordered_map<string, Json::Value>::const_iterator it = map.find(name);
-  if (it == map.end()) {
-    throw RenderException("unable to find reference \"" + name + "\"");
-  }
-  return it->second;
-}
-
-unordered_map<string, Json::Value> FileParser::node2namemap(const Json::Value& root, const string& errStr) const {
-  unordered_map<string, Json::Value> map;
-  for (unsigned int i = 0; i < root.size(); i++) {
-    string name = parseString(root[i]["name"], errStr);
-    map[name] = root[i];
-  }
-  return map;
-}
 
 double FileParser::deg2rad(double degrees) const {
   return degrees * M_PI / 180.0;
