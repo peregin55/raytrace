@@ -45,7 +45,7 @@ class Sphere : public Surface {
     virtual bool intersect(const Ray& ray, double t0, double t1, Hit& hit) const;
     virtual bool intersectAll(const Ray& ray, Hit& in, Hit& out) const;
     virtual const BoundingBox& getBoundingBox() const;
-    virtual Shading shading(const Point& hitpoint, const Hit& hit) const;
+    virtual Shading shading(const Point& hitpoint, vector<const Surface*> surfaceStack) const;
   private:
     Vector calculateNormal(const Point& hitpoint) const;
     Color textureColor(const Point& hitpoint) const;

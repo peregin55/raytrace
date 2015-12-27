@@ -54,10 +54,10 @@ const BoundingBox& TransformSurface::getBoundingBox() const {
   return boundingBox;
 }
 
-Shading TransformSurface::shading(const Point& hitpoint, const Hit& hit) const {
+Shading TransformSurface::shading(const Point& hitpoint, vector<const Surface*> surfaceStack) const {
   Point objHitpoint = obj2worldInverse * hitpoint;
-  Hit objHit = hit.popSurface();
-  Shading objShading = surface->shading(objHitpoint, objHit);
+  surfaceStack.pop_back();
+  Shading objShading = surface->shading(objHitpoint, surfaceStack);
   Vector normal = (obj2worldInverseTranspose * objShading.getNormal()).normalize();
   return Shading(normal, objShading.getTextureColor(), objShading.getMaterial());
 }

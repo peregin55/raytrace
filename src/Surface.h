@@ -19,6 +19,7 @@
 #define SURFACE_H
 #include <memory>
 #include <string>
+#include <vector>
 #include "Color.h"
 #include "Material.h"
 #include "Ray.h"
@@ -42,7 +43,7 @@ class Surface {
     virtual bool intersect(const Ray& ray, double t0, double t1, Hit& hit) const = 0;
     virtual bool intersectAll(const Ray& ray, Hit& in, Hit& out) const = 0;
     virtual const BoundingBox& getBoundingBox() const = 0;
-    virtual Shading shading(const Point& hitpoint, const Hit& hit) const = 0;
+    virtual Shading shading(const Point& hitpoint, vector<const Surface*> surfaceStack) const = 0;
     virtual ~Surface() { }
   protected:
     shared_ptr<Material> material;

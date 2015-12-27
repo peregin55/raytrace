@@ -72,9 +72,10 @@ bool Scene::intersect(const Ray& ray, double t0, double t1, Hit& hit) const {
 
 Color Scene::colorFromHit(const Ray& ray, const Hit& hit, unsigned int traceCount) const {
   const Surface* surface = hit.getSurface();
+  vector<const Surface*> surfaceStack = hit.getSurfaceStack();
   double t = hit.getT();
   Point hitpoint = ray.calculatePoint(t);
-  Shading shading = surface->shading(hitpoint, hit);
+  Shading shading = surface->shading(hitpoint, surfaceStack);
   const Vector& normal = shading.getNormal();
   const Vector& incident = ray.getDirection().normalize();
   const Material &material = *shading.getMaterial();

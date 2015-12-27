@@ -60,7 +60,7 @@ const BoundingBox& Cube::getBoundingBox() const {
   return boundingBox;
 }
 
-Shading Cube::shading(const Point& hitpoint, const Hit& hit) const {
+Shading Cube::shading(const Point& hitpoint, vector<const Surface*> surfaceStack) const {
   return Shading(calculateNormal(hitpoint), textureColor(hitpoint), material.get());
 }
 

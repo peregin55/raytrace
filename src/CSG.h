@@ -19,6 +19,7 @@
 #define CSG_H
 
 #include <memory>
+#include <vector>
 #include "BoundingBox.h"
 #include "Surface.h"
 #include "RenderException.h"
@@ -50,7 +51,7 @@ class CSG : public Surface {
     virtual bool intersect(const Ray& ray, double t0, double t1, Hit& hit) const;
     virtual bool intersectAll(const Ray& ray, Hit& in, Hit& out) const;
     virtual const BoundingBox& getBoundingBox() const;
-    virtual Shading shading(const Point& hitpoint, const Hit& hit) const;
+    virtual Shading shading(const Point& hitpoint, vector<const Surface*> surfaceStack) const;
   private:
     void printTree(const CSG* p) const;
     bool applySetOp(const Hit& leftIn, const Hit& leftOut, const Hit& rightIn, const Hit& rightOut, Hit& in, Hit& out) const;

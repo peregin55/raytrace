@@ -81,7 +81,7 @@ BoundingBox Plane::createBoundingBox(const Point& p0, const Vector& normal) cons
 }
     
     
-Shading Plane::shading(const Point& hitpoint, const Hit& hit) const {
+Shading Plane::shading(const Point& hitpoint, vector<const Surface*> surfaceStack) const {
   return Shading(normal, textureColor(hitpoint), material.get());
 }
   

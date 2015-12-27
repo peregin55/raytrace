@@ -62,6 +62,6 @@ bool Triangle::isContained(const Point& q0, const Point& q1, const Point& inters
   return intersectNormal.dot(normal) >= 0.0;
 }
 
-Shading Triangle::shading(const Point& hitpoint, const Hit& hit) const {
+Shading Triangle::shading(const Point& hitpoint, vector<const Surface*> surfaceStack) const {
   return Shading(normal, plane.textureColor(hitpoint), material.get());
 }

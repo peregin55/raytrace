@@ -64,7 +64,7 @@ class TransformSurface : public Surface {
     virtual bool intersect(const Ray& ray, double t0, double t1, Hit& hit) const;
     virtual bool intersectAll(const Ray& ray, Hit& in, Hit& out) const;
     virtual const BoundingBox& getBoundingBox() const;
-    virtual Shading shading(const Point& hitpoint, const Hit& hit) const;
+    virtual Shading shading(const Point& hitpoint, vector<const Surface*> surfaceStack) const;
     // remove these methods since have unique_ptr instance field
     TransformSurface(const TransformSurface& surface) = delete;
     TransformSurface& operator=(const TransformSurface& surface) = delete;

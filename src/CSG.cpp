@@ -117,10 +117,9 @@ const BoundingBox& CSG::getBoundingBox() const {
   return boundingBox;
 }
 
-Shading CSG::shading(const Point& hitpoint, const Hit& hit) const {
+Shading CSG::shading(const Point& hitpoint, vector<const Surface*> surfaceStack) const {
   const CSG* p = this;
   int sign = 1;
-  vector<const Surface*> surfaceStack = hit.getSurfaceStack();
   if (p != surfaceStack.back()) {
     throw RenderException("Invalid hit-surfaces passed to CSG");
   }
@@ -136,7 +135,7 @@ Shading CSG::shading(const Point& hitpoint, const Hit& hit) const {
     } else {
       printTree(this);
       cerr << endl;
-      for (auto it = hit.getSurfaceStack().rbegin(); it != hit.getSurfaceStack().rend(); it++) {
+      for (auto it = surfaceStack.rbegin(); it != surfaceStack.rend(); it++) {
         cerr << (*it) << " ";
       }
       cerr << endl;
@@ -144,7 +143,7 @@ Shading CSG::shading(const Point& hitpoint, const Hit& hit) const {
     }
     surfaceStack.pop_back();
   }
-  const Shading& shading = p->surface->shading(hitpoint, Hit(surfaceStack, hit.getT()));
+  const Shading& shading = p->surface->shading(hitpoint, surfaceStack);
   return Shading(shading.getNormal() * sign, shading.getTextureColor(), shading.getMaterial());
 }
 
