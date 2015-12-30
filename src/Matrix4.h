@@ -46,8 +46,7 @@ class Matrix4 {
     Matrix4 inverse() const;
     bool operator==(const Matrix4& other) const;
     bool operator!=(const Matrix4& other) const;
-    bool eq(const Matrix4& other, const double err) const;
-    bool neq(const Matrix4& other, const double err) const;
+    bool equals(const Matrix4& other, const double err) const;
   private:
     static const double EPSILON;
     double elem[4][4];

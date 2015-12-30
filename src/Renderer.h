@@ -21,6 +21,7 @@
 #include <unordered_map>
 #include <GL/glut.h>
 #include "Camera.h"
+#include "RandCache.h"
 #include "Scene.h"
 #include "Texture.h"
 
@@ -39,7 +40,8 @@ class Renderer {
       scene(std::move(scene)),
       camera(camera),
       backgroundTexture(std::move(backgroundTexture)),
-      backgroundColor(backgroundColor) { }
+      backgroundColor(backgroundColor),
+      randCache(){ }
     unique_ptr<GLubyte[]> render(GLsizei height, GLsizei width) const;
     // remove these methods since have unique_ptr instance field
     Renderer(const Renderer& renderer) = delete;
@@ -61,6 +63,7 @@ class Renderer {
     Camera camera;
     unique_ptr<Texture> backgroundTexture;
     Color backgroundColor;
+    RandCache randCache;
     const static double AA_COLOR_THRESHOLD;
     const static double AA_RECURSE_THRESHOLD;
     const static bool IS_MULTITHREADED;

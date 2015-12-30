@@ -26,13 +26,23 @@ TEST_CASE("Point") {
     CHECK(3 == p[Z]);
   }
 
-  SECTION("equality") {
+  SECTION("equality_==") {
     Point p1(1,2,3);
     Point p2(1,2,3);
     Point p3(1,2,1);
-    CHECK(p1 ==p2);
-    CHECK(p2== p1);
+    CHECK(p1 == p2);
+    CHECK(p2 == p1);
     CHECK(p1 != p3);
     CHECK(p3 != p1);
+  }
+
+  SECTION("equality_equals") {
+    Point p1(1,2,3);
+    Point p2(1,2,3);
+    Point p3(1,2,1);
+    CHECK(p1.equals(p2, 0.0));
+    CHECK(p2.equals(p1, 0.0));
+    CHECK(!p1.equals(p3, 0.0));
+    CHECK(!p3.equals(p1, 0.0));
   }
 }

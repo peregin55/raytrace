@@ -65,10 +65,10 @@ Color Renderer::sceneColor(double xmin, double xmax, double ymin, double ymax,
   if (!ANTIALIAS) {
     return sample(cen, cache, height, width);
   }
-  Point ll(cen[X] - (rand() % 50)/100.0, cen[Y] - (rand() % 50)/100.0, 0.0);
-  Point lr(cen[X] + (rand() % 50)/100.0, cen[Y] - (rand() % 50)/100.0, 0.0);
-  Point ur(cen[X] + (rand() % 50)/100.0, cen[Y] + (rand() % 50)/100.0, 0.0);
-  Point ul(cen[X] - (rand() % 50)/100.0, cen[Y] + (rand() % 50)/100.0, 0.0);
+  Point ll(cen[X] - (randCache.next() % 50)/100.0, cen[Y] - (randCache.next() % 50)/100.0, 0.0);
+  Point lr(cen[X] + (randCache.next() % 50)/100.0, cen[Y] - (randCache.next() % 50)/100.0, 0.0);
+  Point ur(cen[X] + (randCache.next() % 50)/100.0, cen[Y] + (randCache.next() % 50)/100.0, 0.0);
+  Point ul(cen[X] - (randCache.next() % 50)/100.0, cen[Y] + (randCache.next() % 50)/100.0, 0.0);
 
   const Color& cenColor = sample(cen, cache, height, width);
   const Color& llColor  = sample(ll, cache, height, width);

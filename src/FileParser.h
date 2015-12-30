@@ -47,7 +47,7 @@ class FileParser {
   private:
     unique_ptr<Scene> parseScene(const Json::Value& root) const;
     Camera parseCamera(const Json::Value& cameraNode) const;
-    vector<Light> parseLights(const Json::Value& lightsNode) const;
+    vector<unique_ptr<Light>> parseLights(const Json::Value& lightsNode) const;
     void buildSurfaceStruct(const Json::Value& node, const Matrix4& matrix, unordered_map<string, SurfaceStruct>& structMap) const;
     Matrix4 buildTransformMatrix(const Json::Value& node) const;
     void buildSurfaceStructMap(const Json::Value& node, const Matrix4& matrix, unordered_map<string, SurfaceStruct>& structMap) const;

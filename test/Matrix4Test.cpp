@@ -71,7 +71,7 @@ TEST_CASE("Matrix4") {
 
   SECTION("vector_mult") {
     Vector v(1,2,3);
-    CHECK(v == identity()*v);
+    CHECK(v.equals(identity()*v, 0.0));
   }
 
   SECTION("transpose") {
@@ -94,13 +94,13 @@ TEST_CASE("Matrix4") {
               0,3,-6,8);
     Matrix4 i1 = m * m.inverse();
     Matrix4 i2 = m.inverse() * m;
-    CHECK(i1.eq(identity(), 1e-8));
-    CHECK(i2.eq(identity(), 1e-8));
+    CHECK(i1.equals(identity(), 1e-8));
+    CHECK(i2.equals(identity(), 1e-8));
     Matrix4 expected(0.7448979591836735, -0.2857142857142857, 0.2755102040816326, -0.05102040816326531,
                      0.24081632653061225, -0.11428571428571428, -0.004081632653061225, 0.00816326530612245,
                      0.02244897959183674, 0.05714285714285715, -0.045578231292517, -0.07551020408163266,
                      -0.07346938775510205, 0.08571428571428572, -0.0326530612244898, 0.0653061224489796);
-    CHECK(m.inverse().eq(expected, 1e-8));
+    CHECK(m.inverse().equals(expected, 1e-8));
   }
 
   SECTION("singular_inverse") {
@@ -112,7 +112,7 @@ TEST_CASE("Matrix4") {
   }
 
 
-  SECTION("equalality") {
+  SECTION("equality") {
     Matrix4 m1(1,2,3,4,
                5,6,7,8,
                9,8,7,6,
@@ -122,10 +122,10 @@ TEST_CASE("Matrix4") {
                9,8,7,6,
                5,4,3,2);
     CHECK(m1 == m2);
-    CHECK(m1.eq(m2, 1e-8));
+    CHECK(m1.equals(m2, 1e-8));
 
     CHECK(m1 != m1.transpose());
-    CHECK(m1.neq(m1.transpose(), 1e-8));
+    CHECK(!m1.equals(m1.transpose(), 1e-8));
   }
 
   SECTION("identity") {
@@ -142,7 +142,7 @@ TEST_CASE("Matrix4") {
                      0, 1,  0, 0,
                      0, 0,  0, 1);
     Matrix4 actual = rotate(X, M_PI/2.0);
-    CHECK(actual.eq(expected, 1e-8));
+    CHECK(actual.equals(expected, 1e-8));
   }
 
   SECTION("rotateY") {
@@ -151,7 +151,7 @@ TEST_CASE("Matrix4") {
                     -1, 0, 0, 0,
                      0, 0, 0, 1);
     Matrix4 actual = rotate(Y, M_PI/2.0);
-    CHECK(actual.eq(expected, 1e-8));
+    CHECK(actual.equals(expected, 1e-8));
   }
 
   SECTION("rotateZ") {
@@ -160,7 +160,7 @@ TEST_CASE("Matrix4") {
                      0,0,1,0,
                      0,0,0,1);
     Matrix4 actual = rotate(Z, -M_PI/2.0);
-    CHECK(actual.eq(expected, 1e-8));
+    CHECK(actual.equals(expected, 1e-8));
   }
 
   SECTION("translate") {

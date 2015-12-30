@@ -38,10 +38,10 @@ class Ray;
  */
 class Scene {
   public:
-    Scene(const vector<Light>& lights,
+    Scene(vector<unique_ptr<Light>> lights,
           vector<unique_ptr<Surface>> surfaces,
           unsigned int maxTrace):
-          lights(lights),
+          lights(std::move(lights)),
           surfaces(std::move(surfaces)),
           maxTrace(maxTrace) {
       vector<unique_ptr<Surface>>::const_iterator it = this->surfaces.begin();
@@ -71,7 +71,7 @@ class Scene {
     bool calculateTransmittedRay(const Vector& incident, const Vector& normal, double n1,
         double n2, const Point& hitpoint, Ray& transmittedRay) const;
 
-    vector<Light> lights;
+    vector<unique_ptr<Light>> lights;
     vector<unique_ptr<Surface>> surfaces;
     BoundingBox boundingBox;
     unsigned int maxTrace;

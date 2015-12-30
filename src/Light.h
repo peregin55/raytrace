@@ -20,23 +20,30 @@
 
 #include "Point.h"
 #include "Color.h"
+#include "RandCache.h"
+using namespace std;
+class Vector;
 
 /** Light.
  * Representation of a simple point light source.
  */
 class Light {
   public:
-    Light(const Point &position, const Color &color) : position(position), color(color) { }
-    const Point& getPosition() const { return position; }
-    const Color& getColor() const { return color; }
+    Light(const Point &position, const Color &color, double scale) :
+      position(position), color(color), scale(scale), randCache() { }
+    const Point& getPosition() const;
+    const Color& getColor() const;
+    double getScale() const;
+    vector<Point> calculatePositions(const Vector& normal) const;
+    int getNextIndex() const;
   private:
     Point position;
     Color color;
-
-  friend ostream& operator<<(ostream& os, const Light& light) {
-    os << "Light(" << light.getPosition() << ", " << light.getColor() << ")";
-    return os;
-  }
+    double scale;
+    RandCache randCache;
+    static const double DELTA;
+    static const unsigned int NUM_SHADOW_RAYS;
+  friend ostream& operator<<(ostream& os, const Light& light);
 };
 
 

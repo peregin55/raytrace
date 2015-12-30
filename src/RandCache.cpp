@@ -15,30 +15,20 @@
   You should have received a copy of the GNU General Public License
   along with raytrace.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef POINT_H
-#define POINT_H
+#include "RandCache.h"
+#include <random>
+using namespace std;
 
-#include <string>
-#include "Cartesian.h"
-
-/** Point in xyz space. */
-class Point : public Cartesian {
-  public:
-    Point() : Cartesian() { }
-    Point(double x, double y, double z) : Cartesian(x, y, z) { }
-    bool equals(const Point& other, double err) const;
-    bool operator==(const Point& other) const;
-    bool operator!=(const Point& other) const;
-    virtual string toString() const;
-  friend ostream& operator<<(ostream& cout, const Point& p);
-};
-namespace std {
-  template<>
-  struct hash<Point> {
-    public:
-      size_t operator()(const Point& p) const;
-    private:
-      static const unsigned int MAGIC;
-  };
+vector<int> RandCache::generateCache(unsigned int size) {
+  vector<int> v;
+  for (unsigned int i = 0; i < size; i++) {
+    v.push_back(rand());
+  }
+  return v;
 }
-#endif
+    
+  
+int RandCache::next() const {
+  unsigned int curr = ++index;
+  return cache.at(curr % cache.size());
+}

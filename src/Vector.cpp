@@ -53,6 +53,12 @@ Vector Vector::operator-() const {
   return Vector(-coord[X], -coord[Y], -coord[Z]);
 }
 
+bool Vector::equals(const Vector& other, double err) const {
+  return (coord[X] <= other[X]+err && coord[X] >= other[X]-err) &&
+         (coord[Y] <= other[Y]+err && coord[Y] >= other[Y]-err) &&
+         (coord[Z] <= other[Z]+err && coord[Z] >= other[Z]-err);
+}
+
 bool Vector::operator==(const Vector& other) const {
   return coord[X] == other[X] &&
          coord[Y] == other[Y] &&

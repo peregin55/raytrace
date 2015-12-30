@@ -219,7 +219,7 @@ bool Matrix4::operator!=(const Matrix4& other) const {
   return !(*this == other);
 }
 
-bool Matrix4::eq(const Matrix4& other, const double err) const {
+bool Matrix4::equals(const Matrix4& other, const double err) const {
   for (int i = 0; i < 4; i++) {
     for (int j = 0; j < 4; j++) {
       if (!(elem[i][j] < other.elem[i][j] + err &&
@@ -229,10 +229,6 @@ bool Matrix4::eq(const Matrix4& other, const double err) const {
     }
   }
   return true;
-}
-
-bool Matrix4::neq(const Matrix4& other, const double err) const {
-  return !eq(other, err);
 }
 
 Matrix4 identity(void) {

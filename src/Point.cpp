@@ -18,6 +18,12 @@
 #include "Point.h"
 #include <sstream>
 
+bool Point::equals(const Point& other, double err) const {
+  return (coord[X] <= other[X]+err && coord[X] >= other[X]-err) &&
+         (coord[Y] <= other[Y]+err && coord[Y] >= other[Y]-err) &&
+         (coord[Z] <= other[Z]+err && coord[Z] >= other[Z]-err);
+}
+
 bool Point::operator==(const Point& other) const {
   return coord[X] == other[X] &&
          coord[Y] == other[Y] &&

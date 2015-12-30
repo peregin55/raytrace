@@ -79,8 +79,8 @@ Color Scene::colorFromHit(const Ray& ray, const Hit& hit, unsigned int traceCoun
   const Material &material = *hit.getSurface()->getMaterial(hitpoint, hit);
   Color textureColor = hit.getSurface()->textureColor(hitpoint, hit);
   Color color;
-  for (Light light : lights) {
-    color = color + calculateLocalColor(incident, normal, hitpoint, material, textureColor, light);
+  for (const unique_ptr<Light>& light : lights) {
+    color = color + calculateLocalColor(incident, normal, hitpoint, material, textureColor, *light);
   }
   if (traceCount < maxTrace) {
     if (material.getReflectiveFraction() != ZERO_COLOR) {
@@ -97,31 +97,35 @@ Color Scene::colorFromHit(const Ray& ray, const Hit& hit, unsigned int traceCoun
 
 Color Scene::calculateLocalColor(const Vector& incident, const Vector& normal, const Point& hitpoint,
     const Material& material, const Color& textureColor, const Light& light) const {
-  Vector lightVector = light.getPosition() - hitpoint;
-  double lightDistance = lightVector.length();
   Vector v = -incident;
-  Vector l = (lightVector).normalize();
+  Vector l = (light.getPosition() - hitpoint).normalize();
   Vector h = (v+l).normalize();
   Hit shadowHit;
-  bool isShadow = intersect(Ray(hitpoint, l), DELTA, lightDistance, shadowHit);
+  vector<Point> lightPositions = light.calculatePositions(-l);
+  double lightPercentage = 0.0;
+  for (Point p : lightPositions) {
+    Vector lp = p - hitpoint;
+    if (!intersect(Ray(hitpoint, lp.normalize()), DELTA, lp.length(), shadowHit)) {
+      lightPercentage++;
+    }
+  }
+  lightPercentage /= lightPositions.size();
   const Color& i = light.getColor();
   const Color& ka = material.getAmbientColor();
   const Color& kd = material.getDiffuseColor() + textureColor;
   const Color& ks = material.getSpecularColor();
   double p = material.getSpecularExponent();
   
-  double r = ka.getRed()*i.getRed();
-  double g = ka.getGreen()*i.getGreen();
-  double b = ka.getBlue()*i.getBlue();
-  if (!isShadow) {
-    r += kd.getRed()*i.getRed()*fmax(0, normal.dot(l)) +
-         (p <= 0.0 ? 0.0 : ks.getRed()*i.getRed()*pow(fmax(0, normal.dot(h)), p));
-    g += kd.getGreen()*i.getGreen()*fmax(0, normal.dot(l)) +
-         (p <= 0.0 ? 0.0 : ks.getGreen()*i.getGreen()*pow(fmax(0, normal.dot(h)), p));
-    b += kd.getBlue()*i.getBlue()*fmax(0, normal.dot(l)) +
-         (p <= 0.0 ? 0.0 : ks.getBlue()*i.getBlue()*pow(fmax(0, normal.dot(h)), p));
-  }
-  return Color(r,g,b);
+  double ra = ka.getRed()*i.getRed();
+  double ga = ka.getGreen()*i.getGreen();
+  double ba = ka.getBlue()*i.getBlue();
+  double r = kd.getRed()*i.getRed()*fmax(0, normal.dot(l)) +
+                (p <= 0.0 ? 0.0 : ks.getRed()*i.getRed()*pow(fmax(0, normal.dot(h)), p));
+  double g = kd.getGreen()*i.getGreen()*fmax(0, normal.dot(l)) +
+                (p <= 0.0 ? 0.0 : ks.getGreen()*i.getGreen()*pow(fmax(0, normal.dot(h)), p));
+  double b = kd.getBlue()*i.getBlue()*fmax(0, normal.dot(l)) +
+                (p <= 0.0 ? 0.0 : ks.getBlue()*i.getBlue()*pow(fmax(0, normal.dot(h)), p));
+  return Color(ra + r*lightPercentage, ga + g*lightPercentage, ba + b *lightPercentage);
 }
 
 /**

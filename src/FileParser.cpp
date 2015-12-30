@@ -80,8 +80,8 @@ unique_ptr<Scene> FileParser::parseScene(const Json::Value& root) const {
     surfaces.push_back(std::move(surface));
   }
   unsigned int maxTrace = parseUnsignedInt(root["scene"]["max_trace"], "max trace");
-  vector<Light> lights = parseLights(root["scene"]["lights"]);
-  return unique_ptr<Scene>(new Scene(lights, std::move(surfaces), maxTrace));
+  vector<unique_ptr<Light>> lights = parseLights(root["scene"]["lights"]);
+  return unique_ptr<Scene>(new Scene(std::move(lights), std::move(surfaces), maxTrace));
 }
 
 
@@ -106,12 +106,16 @@ void FileParser::buildSurfaceStruct(const Json::Value& node, const Matrix4& matr
 }
 
 
-vector<Light> FileParser::parseLights(const Json::Value& lightsNode) const {
-  vector<Light> lights;
+vector<unique_ptr<Light>> FileParser::parseLights(const Json::Value& lightsNode) const {
+  vector<unique_ptr<Light>> lights;
   for (unsigned int i = 0; i < lightsNode.size(); i++) {
     Point p = parsePoint(lightsNode[i]["position"], "light position");
     Color c = parseColor(lightsNode[i]["color"], "light color");
-    lights.emplace_back(p,c);
+    double s = 0.0;
+    if (lightsNode[i]["scale"] != Json::nullValue) {
+      s = parseDouble(lightsNode[i]["scale"], "light scale");
+    }
+    lights.push_back(unique_ptr<Light>(new Light(p,c,s)));
   }
   return lights;
 }
