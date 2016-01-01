@@ -76,5 +76,7 @@ TEST_CASE("Vector") {
     CHECK(Vector(4,2,0).equals(Point(5,4,3) - Point(1,2,3), 0.0));
     CHECK(Point(1,2,3) == Point(1,2,3) + Vector(0,0,0));
     CHECK(Point(0,0,0) == Point(1,2,3) + Vector(-1,-2,-3));
+    CHECK(Point(1,2,3) == Point(1,2,3) - Vector(0,0,0));
+    CHECK(Point(0,0,0) == Point(1,2,3) - Vector(1,2,3));
   }
 }

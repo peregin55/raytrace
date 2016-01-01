@@ -45,5 +45,6 @@ class Vector : public Cartesian {
 };
 Vector operator*(double scalar, const Vector& other);
 Vector operator-(const Point& p1, const Point& p2);
+Point operator-(const Point& p, const Vector& v);
 Point operator+(const Point& p, const Vector& v);
 #endif

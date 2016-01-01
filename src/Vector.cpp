@@ -111,6 +111,13 @@ Vector operator-(const Point& p1, const Point& p2) {
                 p1[Z] - p2[Z]);
 }
 
+Point operator-(const Point& p, const Vector& v) {
+  return Point(p[X] - v[X],
+               p[Y] - v[Y],
+               p[Z] - v[Z]);
+}
+
+
 Point operator+(const Point& p, const Vector& v) {
   return Point(p[X] + v[X],
                p[Y] + v[Y],

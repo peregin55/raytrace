@@ -43,13 +43,7 @@ vector<Point> Light::calculatePositions(const Vector& normal) const {
   }
   Vector u;
   Vector v;
-  if (normal.equals(Vector(1,0,0), DELTA)) {
-    u = Vector(0,1,0);
-    v = Vector(0,0,1);
-  } else if (normal.equals(Vector(0,1,0), DELTA)) {
-    u = Vector(1,0,0);
-    v = Vector(0,0,1);
-  } else if (normal.equals(Vector(0,0,1), DELTA)) {
+  if (normal.equals(Vector(0,0,1), DELTA) || normal.equals(Vector(0,0,-1), DELTA)) {
     u = Vector(1,0,0);
     v = Vector(0,1,0);
   } else {
@@ -58,11 +52,12 @@ vector<Point> Light::calculatePositions(const Vector& normal) const {
   }
   int numPositions = scale*NUM_SHADOW_RAYS;
   double multiplier = scale/100.0;
+  Point origin =  position - (scale/2.0)*u - (scale/2.0)*v;
   vector<Point> randomPositions;
   for (int i=0; i < numPositions; i++) {
     double uscalar = (randCache.next() % 100)*multiplier;
     double vscalar = (randCache.next() % 100)*multiplier;
-    randomPositions.push_back(position + (uscalar*u) + (vscalar*v));
+    randomPositions.push_back(origin + (uscalar*u) + (vscalar*v));
   }
   return randomPositions;
 }
