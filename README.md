@@ -1,6 +1,7 @@
 raytrace
 =========
-![trio.png](https://github.com/peregin55/raytrace/raw/master/images/trio.png) ![refract.png](https://github.com/peregin55/raytrace/raw/master/images/refract.png) ![planet.png](https://github.com/peregin55/raytrace/raw/master/images/planet.png)
+![trio.png](https://github.com/peregin55/raytrace/raw/master/images/trio.png) ![refract.png](https://github.com/peregin55/raytrace/raw/master/images/refract.png) ![planet.png](https://github.com/peregin55/raytrace/raw/master/images/planet.png) ![pacman.png](https://github.com/peregin55/raytrace/raw/master/images/pacman.png)
+
 
 ## build 
 After downloading the source, navigate to the root of the project and use the following command to build and test the ray tracer:
